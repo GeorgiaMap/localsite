@@ -13,21 +13,40 @@
 	https://github.com/GeorgiaData/io/compare/master...modelearth:master
 	https://github.com/GeorgiaData/localsite/compare/master...modelearth:master
 -->
-### Create a website using markdown with free GitHub hosting  
+
+### We'll help you create a custom page in our "apps" repo
+
+Fork the [apps repo](https://github.com/modelearth/apps), the [localsite repo](https://github.com/modelearth/localsite), and the [io repo](https://github.com/modelearth/io).  
+Place in the same webroot. (More local webroot setup info below.)  
+
+<a href="../../io/team/">Contact our team for pointers</a> and <a href="../../community/challenge/meetups/">join us on Slack</a>
+
+More <a href="../../community/start/">Starter Samples</a> - maps, charts, widgets<br><br>
+
+# Local Webroot Setup
+
+### You can use these steps to create a website with free GitHub hosting  
 
 The Localsite Framework is designed to allow multiple Github repos (using JQuery, React,&nbsp;Vue, etc.) to communicate using hash values.  
 
 [Edit in Github](https://github.com/modelearth/localsite/blob/master/start/README.md) - 
 [Edit in StackEdit](https://stackedit.io/app#providerId=githubWorkspace&owner=localsite&repo=localsite&branch=) - Click folder icon in upper right within StackEdit. ([Direct links are not yet available in StackEdit](https://community.stackedit.io/t/open-file-from-github-using-a-link/495))
 
-## 1. Start a localhost server on your computer
 
-WITH PYTHON: Go to the folder where you'd like your webroot to reside and run the following to view pages on localhost:  
+
+## 1. View in webroot on your computer
+
+You'll launch [http://localhost:8887/localsite/](http://localhost:8887localsite/) to view multiple repos in the same webroot.
+
+WITH A PYTHON COMMAND:
+
+Go to the folder where you'd like your webroot to reside and run the following to view pages on localhost:  
 Run this command to start localhost whenever you restart your computer.
 
 	python -m http.server 8887
 
- Or run anywhere and include a path to your webroot. Change /Sites to your custom path:
+ Or run anywhere and include a path to your webroot. Change /Sites to your custom path.  
+ You may be prompted to install XCode if this is your first use of Python 3.  
 
  	python3 -m http.server 8887 -d /Sites
 
@@ -35,12 +54,14 @@ If the above do not work, you can also try:
 
 	python -m SimpleHTTPServer 8887
 
-More Options:  
+If you receive the message: "This site can't provide a secure connection", [upgrade](https://www.freecodecamp.org/news/python-version-on-mac-update/) from Python 2.7 to 3+.
+
+MORE OPTIONS:  
 
 ON A PC: [Install IIS](https://www.techwalla.com/articles/how-to-circumvent-mcafee-dlp) to view using http://localhost/  &nbsp; With this approach you'd avoid typing the port number.
 
 
- WITH CHORME: Alternatively, you can install [Web Server for Chrome](https://chrome.google.com/webstore/detail/web-server-for-chrome/ofhbbkphhbklhfoeikjpcbhemlocgigb?hl=en) to view and develop pages offline using https://localhost:8777 on your computer. Web Server for Chrome also allows you to [load a custom domain](https://medium.com/@jmatix/using-chrome-as-a-local-web-server-af04baffd581). Web Server for Chrome does not work as a Brave browser extension on Mac (as of December 2019), but you can add as a Chrome extension, then utilize from within Brave.
+ WITH CHORME: Alternatively, you can install [Web Server for Chrome](https://chrome.google.com/webstore/detail/web-server-for-chrome/ofhbbkphhbklhfoeikjpcbhemlocgigb?hl=en) to view and develop pages offline using http://localhost:8887 on your computer. Web Server for Chrome also allows you to [load a custom domain](https://medium.com/@jmatix/using-chrome-as-a-local-web-server-af04baffd581). Web Server for Chrome does not work as a Brave browser extension on Mac (as of December 2019), but you can add as a Chrome extension, then utilize from within Brave.
 
  On a Mac, you can add a shorthand "localsite" command in your .bash_profile file. Change /Site to your webroot:
 
@@ -59,7 +80,9 @@ Save the file in the webroot folder you created in step 1.
 A static page should now be visible at [http://localhost:8887/localsite/](http://localhost:8887/localsite/)  
 An industry impact widget is embedded on the page.  
 
-Also clone the <a href='https://github.com/modelearth/io/'>io repo</a> into the same webroot to help build input-output widgets. [Learn more](../../../io/charts/)    
+Also clone the <a href='https://github.com/modelearth/apps/'>apps repo</a> if you are making a custom entry page.  
+
+Also clone the <a href='https://github.com/modelearth/io/'>io repo</a> into the same webroot to include the input-output widgets. [Learn more](../../../io/charts/)    
 
 
 For the address search to work, you'll need to get a new Google Maps API key. You can get yours and enable it by following these instructions: [https://developers.google.com/maps/documentation/javascript/get-api-key](https://developers.google.com/maps/documentation/javascript/get-api-key)  
@@ -104,7 +127,7 @@ Use a Google Sheet or CSV file to [prototype a list or chart](../dataset) and up
 
 
 ### Mac Users
-To avoid commiting your local .DS\_Store files to GitHub, you may need to run the following to ignore .DS\_Store files during commits forever. The .DS\_Store files will continue to set icon sizes in your local file manager.   
+To avoid commiting your local .DS\_Store files to GitHub, you can run the following to ignore .DS\_Store files during commits forever. The .DS\_Store files will continue to set icon sizes in your local file manager.   
  
 <!-- Avoid .DS_Store file creation over network connections (article from 2011, confirm this still occurs)
 	https://support.apple.com/en-us/HT1629 -->
@@ -140,7 +163,7 @@ To activate GitHub Pages on your fork’s settings page, set the Github Pages So
 
 ## 5. Update your forked repos
 
-### Occasionally merge in updates from the main (source) repo by doing a "pull request"
+### Occasionally merge in updates from the main repos (localsite and io) by doing a "pull request"
 
 - On your forked repo: Click Compare 
 - Flip the order. (Pick a third repo temporarily because if the two match a warning occurs.)<!-- switching the base (if you have not switched already) -->

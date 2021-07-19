@@ -19,6 +19,10 @@
 }
 .showApps {
   padding-left:12px;
+  padding-right:0px;
+}
+.headerShort .showApps {
+  padding-right:20px;
 }
 .showApps > .material-icons {
   color: #ccc;
@@ -30,6 +34,10 @@
 }
 #filterFieldsHolder {
   border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+#filterLocations {
+  background-color: #fcfcfc;
   border-bottom: 1px solid #eee;
 }
 .fieldSelector {
@@ -86,6 +94,7 @@
     border-bottom-right-radius: 0px;
     background-color: #fcfcfc;
     margin-bottom:-12px;
+    height: 45px;
 }
 .detailbutton {
     font-family: 'Lato', sans-serif;

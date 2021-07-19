@@ -53,14 +53,6 @@ body {
 	background-color: #fff;
 	z-index: -1;
 }
-.filterPanel_fixed_maptop {
-	margin-top:60px;
-}
-@media (max-width: 600px) {
-	.filterPanel_backgroundXXX {
-		height:140px;
-	}
-}
 .filterPanel_fixed {
 	position: fixed;
 	top:0px;
@@ -322,6 +314,9 @@ iframe {
 .filterUL li {
 	padding: 8px;
 	margin-left: -6px;
+	width: 85px;
+	margin-right: 10px;
+	float: left;
 }
 .filterUL li:hover {
 	background-color: #f6f6f6;

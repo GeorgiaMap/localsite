@@ -153,25 +153,34 @@ h1 {
   font-family: "Amaze", "Helvetica Neue", Helvetica, "Lato", sans-serif;
 }
 h2 {
+  margin-top: 0px;
   font-weight: 500;
   font-size: 1.4em;
   padding-top: 12px;
   padding-bottom: 5px;
   border-bottom: 1px solid #ddd;
-  
-  font-family: "Amaze"
-  /* margin-bottom: 14px; */ /* too tight */
   color: rgb(77, 82, 89);
   color: #333;
   overflow: auto;
 }
-/*
-h2 a:visited {
-  color: #0366d6;
+h2::before { /* Avoids hashtag headbutting browser window */
+  display: block; 
+  content: " "; 
+  margin-top: -120px; 
+  height: 120px; 
+  visibility: hidden; 
+  pointer-events: none;
 }
-*/
+section::before { /* Avoids hashtag headbutting browser window */
+  display: block; 
+  content: " "; 
+  margin-top: -120px; 
+  height: 120px; 
+  visibility: hidden; 
+  pointer-events: none;
+}
 h3 {
-  font-weight: 200; /* 100 is too light on pos energy */
+  font-weight: 600; 
   font-size: 1.3em;
   line-height: 1.3em;
   margin-top: 20px;
@@ -323,8 +332,9 @@ summary::-webkit-details-marker {
 }
 
 .pageColumns {
-  width:100%;
-  overflow: hidden; /* Allows bottom padding to apply after float:left columns */
+
+  overflowX: hidden; /* Allows bottom padding to apply after float:left columns */
+  overflowX: scroll; /* Allows large number of naics columns to be viewed */
 }
 .pageColumn {
   width:33.33%;
@@ -408,6 +418,7 @@ mark {
 code {
   background-color: #eee;
   padding: 2px  5px;
+  overflow: scroll;
 }
 content .js, pre code { /* Prevents .js from impacting js class within Drupal body tag */
   background-color: #eee;
@@ -603,22 +614,24 @@ content .js, pre code { /* Prevents .js from impacting js class within Drupal bo
 }
 
 #log_display {
-  position:absolute;
+  position:fixed;
+  z-index: 999999;
   top:70%;
   left:50px;
   max-height:200px;
   padding: 8px 8px 8px 8px;
   color:#fff;
+  background: rgba(0,0,0,.8);
   border:1px solid #ccc;
-  border-radius: 18px 0px 5px 5px;
+  border-radius: 10px 10px 10px 10px;
 }
 #log_display textarea {
   color:#fff;
   background: rgba(0,0,0,0);
-  min-width: 350px;
-  min-height: 150;
+  min-width: 400px;
+  min-height: 150px;
   overflow:scroll;
-  border:0px;
+  border:1px solid #ccc;
 }
 .bgimg {
     position: relative;
@@ -791,9 +804,12 @@ content .js, pre code { /* Prevents .js from impacting js class within Drupal bo
 }
 .headerbar {
   background:#fff;
-  /* border-bottom: 1px solid #eee; */
+  pointer-events: auto;
 }
 .headerbarheight {
+  height:100px;
+}
+.headeroffset { /* Does not include bar */
   height:100px;
 }
 .filters-margin {
@@ -831,20 +847,17 @@ content .js, pre code { /* Prevents .js from impacting js class within Drupal bo
   height:100%;
   position:fixed;
   right:0px;
-
-  margin-leftX:-10px;
   overflow: auto;
   background: #fff;
-
   width:250px;
   margin-right:-250px;
   -webkit-transition-duration: 0.3s;
 	-moz-transition-duration: 0.3s;
 	-o-transition-duration: 0.3s;
 	transition-duration: 0.3s;
-
 	box-sizing: border-box;
 	z-index: 99999;
+  pointer-events: auto;
 }
 @media (max-width: 600px) {
 	#menuHolder {
@@ -928,3 +941,16 @@ content .js, pre code { /* Prevents .js from impacting js class within Drupal bo
   }
 }
 /* END HEADER */
+
+#hero-rect {
+  position: absolute;
+  top: 60px;
+  left: 60px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 40px;
+  margin: 0 auto; /* We'll center instead */
+  max-width: 600px;
+  padding: 50px;
+  padding-bottom: 20px;
+  clear: both;
+}
