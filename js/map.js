@@ -298,7 +298,7 @@ function loadFromSheet(whichmap,whichmap2,dp,basemaps1,basemaps2,attempts,callba
           callback: function(data, tabletop) { 
 
             //onTabletopLoad(dp1) 
-            dataMixedCase = tabletop.sheets(dp.sheetName).elements; // dp.data is called points in MapsForUs.js
+            dataMixedCase = tabletop.sheets(dp.sheetName).elements; // dp.data is called "points" in MapsForUs.js
             //dp.data_lowercase_key;
 
             // Currently assumes dp.data is blank - later we may need to append.
@@ -1185,7 +1185,7 @@ function loadMap1(calledBy, show, dp) { // Called by index.html, map-embed.js an
         dp1.valueColumnLabel = "Firm Type";
         dp1.markerType = "google";
         dp1.search = {"In Location Name": "name", "In Address": "address", "In County Name": "county", "In Website URL": "website"};      
-  } else if (layers == "brigades") { // To do: Check an array of layers
+  } else if (layers == "brigades" || show == "brigades") { // To do: Check an array of layers
         dp1.listTitle = "Coding Brigades";
         dp1.dataset = "https://neighborhood.org/brigade-information/organizations.json";
         dp1.datatype = "json";
@@ -1329,10 +1329,11 @@ function loadMap1(calledBy, show, dp) { // Called by index.html, map-embed.js an
         dp1.listTitle = "Georgia COVID-19 Response"; // Appears at top of list
         //dp1.listTitle = "Georgia PPE Suppliers"; // How do we set the layer title for checkbox?
         //dp1.editLink = "";
-        dp1.googleDocID = "1bqMTVgaMpHIFQBNdiyMe3ZeMMr_lp9qTgzjdouRJTKI";
+        //dp1.googleDocID = "1bqMTVgaMpHIFQBNdiyMe3ZeMMr_lp9qTgzjdouRJTKI"; // Producing 404's
         dp1.sheetName = "GA Suppliers List";
-        dp1.listInfo = "Select a category to the left to filter results. View&nbsp;<a href='https://map.georgia.org/display/products/suppliers-pdf/ga_suppliers_list_2021-03-10.pdf' target='_parent'>PDF&nbsp;version</a>&nbsp;of&nbsp;the&nbsp;complete&nbsp;list.";
-        
+        dp1.listInfo = "Select a category to the left to filter results. View&nbsp;<a href='https://map.georgia.org/display/products/suppliers/us_ga_suppliers_ppe_2021_08_09.csv' target='_parent'>PDF&nbsp;version</a>&nbsp;of&nbsp;the&nbsp;complete&nbsp;list.";
+        dp1.dataset = "https://map.georgia.org/display/products/suppliers/us_ga_suppliers_ppe_2021_08_09.csv";
+
         //dp1.dataTitle = "Manufacturers and Distributors";
         dp1.dataTitle = "PPE Suppliers";
         dp1.itemsColumn = "items";
