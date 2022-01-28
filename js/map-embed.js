@@ -118,7 +118,7 @@ strVar += "                  <i class=\"material-icons\" style=\"font-size:24px;
 strVar += "                  <i class=\"material-icons\" style=\"font-size:24px;cursor:pointer;display:none;\">&#xE313;<\/i>";
 strVar += "              <\/div>";
 strVar += "              <div style=\"width:100%\">";
-strVar += "                <div class=\"filterClickText\" id=\"showAppsText\" title=\"Display...\">Display...<\/div>";
+strVar += "                <div class=\"filterClickText\" id=\"showAppsText\" title=\"Goods & Services\">Goods & Services<\/div>";
 strVar += "              <\/div>";
 strVar += "            <\/div>";
 strVar += "";
@@ -1007,7 +1007,7 @@ strVar += "<div style=\"margin:0px 40px 0 40px\"><iframe id=\"mapframe\" style=\
 strVar += "";
 strVar += "<div id=\"tableSide\" class=\"hideMobile\">";
 strVar += "";
-strVar += "  <div id='sidecolumn' class='hideprint, local, earth' style=\"display: none\">";
+strVar += "  <div id='sidecolumnX' class='hideprint, local, earth' style=\"displayX: none\">";
 strVar += "";
 strVar += "";
 strVar += "";
@@ -1808,14 +1808,6 @@ function dualmapLoaded(param, root, count) {
 		//loadScript(root + 'https://cdn.jsdelivr.net/npm/vue', function(results) { // Need to check if function loaded
 			loadScript(root + 'js/map-filters.js', function(results) {
 
-				//loadMap1("map-embed.js"); // Now in map-filters.js
-				/*
-				document.addEventListener('hashChangeEvent', function (elem) {
-					//param = loadParam(location.search,location.hash);
-					console.log("embed-map.js detects hashChangeEvent");
-					loadMap1("map-embed.js from hashChangeEvent");
-				}, false);
-				*/
 			});
 		//});
 	} else if (count<100) { // Wait a 100th of a second and try again

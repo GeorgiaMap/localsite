@@ -1,6 +1,6 @@
 // Updates originate in GitHub localsite/js/localsite.js
 // To do: dynamically add target _parent to external link when in an iFrame and no existing target.
-
+// To do: If community folder is not parallel, link to model.earth domain.
 
 // Localsite Path Library - A global namespace singleton
 // Define a new object if localsite library does not exist yet.
@@ -99,33 +99,49 @@ var local_app = local_app || (function(module){
 //local_app.init({test1: "1", controlId: "okay"});
 //local_app.helloWorld("test2");
 
-// Above is alternative to placing params in javascript include path:
+// Above can also be used as alternative to placing params in javascript include path:
 // https://stackoverflow.com/questions/2190801/passing-parameters-to-javascript-files
 
 
 // USE params (plural) to isolate within functions when creating embedable widgets.
 // USE param for any html page using localsite.js.
-if(typeof param == 'undefined') {
-    var param = {};
-    param = loadParams(location.search,location.hash);
-} else {
-  param = mix(param,loadParams(location.search,location.hash));
-}
+// mix gives priority to the first (allowing it to delete using blanks). extend gives priority to the second.
+let paramIncludeFile = getParamInclude(); // From localsite.js include file param.
 if(typeof hiddenhash == 'undefined') {
-    var hiddenhash = {};
+  var hiddenhash = {};
 }
-initateHiddenhash();
-function initateHiddenhash() { // Load in values from params on javascript include file.
+if(typeof param != 'undefined') { // From settings in HTML page
+  hiddenhash = mix(hiddenhash,paramIncludeFile); // Before URL values added. Priority to hiddenhash.
+  hiddenhash = mix(param,hiddenhash); // param set in page takes priority over param set on localsite.js URL.
+  param = mix(param,loadParams(location.search,location.hash)); // Priority to first, the param values set in page.
+} else { // No param object in page, but could be set in localsite.js include.
+  hiddenhash = mix(hiddenhash,paramIncludeFile);
+  //var param = {}; // Clone paramIncludeFile
+  var param = extend(true, loadParams(location.search,location.hash), paramIncludeFile); // Subsequent overrides first giving priority to setting in page over URL. Clone/copy object without entanglement. 
+  //param = loadParams(location.search,location.hash); // Includes localsite.js include.
+}
+
+// TO DO: Add paramIncludeFile to call once rather than in both function
+function getParamInclude() {
+  let paramInclude = {};
   let scripts = document.getElementsByTagName('script'); 
   let myScript = scripts[ scripts.length - 1 ]; // Last script on page, typically the current script localsite.js
+  // But use localsite.js
+  for (var i = 0; i < scripts.length; ++i) {
+      if(scripts[i].src && scripts[i].src.indexOf('localsite.js') !== -1){
+        myScript = scripts[i];
+      }
+  }
   //let myScript = null;
-  // Now try to find one containging map-embed.js
+  // Now try to find one containing map-embed.js
+  /*
   for (var i = 0; i < scripts.length; ++i) {
       if(scripts[i].src && scripts[i].src.indexOf('map-embed.js') !== -1){
         myScript = scripts[i];
       }
   }
-  
+  */
+
   // Check if script resides on current server.
   //alert("myScript.src hostname and port: " + extractHostnameAndPort(myScript.src) + "\rwindow.location hostname and port: " + window.location.hostname + ((window.location.port) ? ':'+window.location.port :''));
 
@@ -136,9 +152,12 @@ function initateHiddenhash() { // Load in values from params on javascript inclu
   for (let i = 0; i < includepairs.length; i++) {
     if(!includepairs[i]) continue;
     let pair = includepairs[i].split('=');
-    hiddenhash[pair[0].toLowerCase()] = decodeURIComponent(pair[1]);
-    //consoleLog("Param from javascript include: " + pair[0].toLowerCase() + " " + decodeURIComponent(pair[1]));
+    if (pair[1]) {
+      paramInclude[pair[0].toLowerCase()] = decodeURIComponent(pair[1].replace(/\+/g, " "));
+      //consoleLog("Param from javascript include: " + pair[0].toLowerCase() + " " + decodeURIComponent(pair[1]));
+    }
   }
+  return paramInclude;
 }
 
 // Loads params with priority given to:
@@ -151,19 +170,13 @@ function loadParams(paramStr,hashStr) {
   // NOTE: Hardcoded to pull params from last script, else 'embed-map.js' only
   // Get Script - https://stackoverflow.com/questions/403967/how-may-i-reference-the-script-tag-that-loaded-the-currently-executing-script
   let scripts = document.getElementsByTagName('script'); 
-  let myScript = scripts[ scripts.length - 1 ]; // Last script on page, typically the current script localsite.js
-  //let myScript = null;
-
-  // This will be removed
-  //for (var i = 0; i < scripts.length; ++i) {
-  //    if(scripts[i].src && scripts[i].src.indexOf('embed-map.js') !== -1){
-  //      myScript = scripts[i];
-  //    }
-  //}
+  //let myScript = scripts[ scripts.length - 1 ]; // Last script on page, typically the current script localsite.js
+  let myScript = null;
 
   for (var i = 0; i < scripts.length; ++i) {
       if(scripts[i].src && scripts[i].src.indexOf('localsite.js') !== -1){
         myScript = scripts[i];
+        break;
       }
   }
 
@@ -222,8 +235,6 @@ function mix(incoming, target) { // Combine two objects, priority to incoming. D
    }   return target2;
 }
 function getHash() { // Includes hiddenhash
-    //return getHashOnly(); // Test
-    //alert("cat test in " + hiddenhash.cat);
     return (mix(getHashOnly(),hiddenhash));
 }
 function getHashOnly() {
@@ -238,13 +249,23 @@ function getHashOnly() {
       return b;
     })(window.location.hash.substr(1).split('&'));
 }
-function updateHash(addToHash, addToExisting) {
+function updateHash(addToHash, addToExisting, removeFromHash) { // Avoids triggering hash change event.
     let hash = {}; // Limited to this function
     if (addToExisting != false) {
       hash = getHashOnly(); // Include all existing. Excludes hiddenhash.
     }
     hash = mix(addToHash,hash); // Gives priority to addToHash
 
+    if (removeFromHash) {
+      if (typeof removeFromHash == "string") {
+        removeFromHash = removeFromHash.split(",");
+      }
+      for(var i = 0; i < removeFromHash.length; i++) {
+          delete hash[removeFromHash[i]];
+          delete hiddenhash[removeFromHash[i]];
+      }
+    }
+    
     var hashString = decodeURIComponent($.param(hash)); // decode to display commas in URL
     var pathname = window.location.pathname.replace(/\/\//g, '\/')
     var queryString = "";
@@ -257,10 +278,10 @@ function updateHash(addToHash, addToExisting) {
     let searchTitle = 'Page ' + hashString;
     window.history.pushState("", searchTitle, pathname + queryString);
 }
-function goHash(addToHash) {
+function goHash(addToHash,removeFromHash) {
   consoleLog("goHash ")
   consoleLog(addToHash)
-  updateHash(addToHash);
+  updateHash(addToHash,true,removeFromHash); // true = Include all of existing hash
   triggerHashChangeEvent();
 }
 function go(addToHash) {
@@ -316,6 +337,7 @@ function loadScript(url, callback)
 }
 
 var localsite_repo3; // TEMP HERE
+/*
 function extractHostnameAndPort(url) { // TEMP HERE
     console.log("hostname from: " + url);
     let hostname;
@@ -337,6 +359,7 @@ function extractHostnameAndPort(url) { // TEMP HERE
     console.log("hostname: " + hostname);
     return hostname;
 }
+*/
 function get_localsite_root3() { // Also in two other places
 //alert("call localsite_repo");
             if (localsite_repo3) { // Intensive, so allows to only run once
@@ -522,10 +545,10 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
         if ($("#" + param.insertafter).length) {
           $("#" + param.insertafter).append("<div id='bodyFile'></div>");
         } else if (!$("#bodyFile").length) {
-          $('body').append("<div id='bodyFile'></div>");
+          $('body').prepend("<div id='bodyFile'></div>");
         }
         console.log("param.display " + param.display)
-        if (param.display == "everything" || param.display == "map") {
+        if (param.display == "everything" || param.display == "locfilters" || param.display == "map") {
           let bodyFile = theroot + "map/index.html #insertedText";
 
           //console.log("Before template Loaded: " + bodyFile);
@@ -533,7 +556,7 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
           $("#bodyFile").load(bodyFile, function( response, status, xhr ) {
             consoleLog("Template Loaded: " + bodyFile);
             if (typeof relocatedStateMenu != "undefined") {
-              relocatedStateMenu.appendChild(state_select); // For apps/beyondcarbon
+              relocatedStateMenu.appendChild(state_select); // For apps hero
               $(".stateFilters").hide();
             }
             if (param.showstates != "false") {
@@ -548,7 +571,7 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
           $('body').append("<div id='infoFile'></div>");
         }
         if (param.display == "everything") {
-          let infoFile = theroot + "info/info-template.html #info-template";
+          let infoFile = theroot + "info/info-template.html #info-template"; // Including #info-template limits to div within page, prevents other includes in page from being loaded.
           //console.log("Before template Loaded infoFile: " + infoFile);
           //alert("Before template Loaded: " + bodyFile);
           $("#infoFile").load(infoFile, function( response, status, xhr ) {
@@ -656,7 +679,7 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
 
   </script>
   */
-  if (param.display == "everything" || param.display == "map") {
+  if (param.showheader == "true" || param.display == "everything" || param.display == "locfilters" || param.display == "navigation" || param.display == "map") {
 
     includeCSS3(theroot + 'css/map.css',theroot); // Before naics.js so #industries can be overwritten.
     includeCSS3(theroot + 'css/naics.css',theroot);
@@ -666,10 +689,9 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
           includeCSS3(theroot + 'css/leaflet.css',theroot);
           loadScript(theroot + 'js/leaflet.js', function(results) {
             loadScript(theroot + 'js/leaflet.icon-material.js', function(results) { // Could skip when map does not use material icon colors
-              $(".show-on-load").show();
               loadScript(theroot + 'js/map.js', function(results) {
                 // Loads map-filters.js
-                loadSearchFilters3(theroot,1); // Uses local_app library in localsite.js for community_data_root
+                loadMapFiltersJS(theroot,1); // Uses local_app library in localsite.js for community_data_root
               });
             });
           });
@@ -686,19 +708,32 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
     if (param.display == "everything") {
 
       loadScript(theroot + '../io/build/lib/useeio_widgets.js', function(results) {
-        loadScript(theroot + 'js/naics.js', function(results) {
-          //if(!param.state) {
-            //applyIO("");
-          //}
-        });
+        if (param.omit_old_naics == "true") {
+          loadScript(theroot + 'js/naics2.js', function(results) {
+          });
+        } else {
+          loadScript(theroot + 'js/naics.js', function(results) {
+            //if(!param.state) {
+              //applyIO("");
+            //}
+          });
+        }
       });
     }
-      
 
-    includeCSS3(theroot + '../io/build/widgets.css',theroot);
-    includeCSS3(theroot + '../io/build/slider.css',theroot);
+    // Tabulator
+    includeCSS3('https://unpkg.com/tabulator-tables/dist/css/tabulator.min.css',theroot);
+    includeCSS3(theroot + '../localsite/css/base-tabulator.css',theroot);
+    // Latest: https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js
+    loadScript('https://unpkg.com/tabulator-tables@4.9.3/dist/js/tabulator.min.js', function(results) {
 
-
+    });
+    
+    if (param.display == "everything") {
+      includeCSS3(theroot + '../io/build/widgets.css',theroot);
+      includeCSS3(theroot + '../io/build/iochart.css',theroot);
+    }
+    
     includeCSS3(theroot + 'css/base.css',theroot);
     includeCSS3(theroot + 'css/search-filters.css',theroot);
     if (param.preloadmap != "false") {
@@ -706,7 +741,31 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
     }
     
 
-    includeCSS3('https://fonts.googleapis.com/icon?family=Material+Icons',theroot);
+    //includeCSS3('https://fonts.googleapis.com/icon?family=Material+Icons',theroot);
+    !function() {
+      // Setting up listener for font checking
+      var font = "1rem 'Material Icons'";
+      document.fonts.addEventListener('loadingdone', function(event) {
+          console.log("Font loaded: ${font}: ${ document.fonts.check(font)}");
+      })
+
+      // Loading font
+      var link = document.createElement('link'),
+          head = document.getElementsByTagName('head')[0];
+
+      link.addEventListener('load', function() {
+          //alert('Font loaded');
+          $(document).ready(function () {
+            $(".show-on-load").show();
+          });
+      })
+
+      link.type = 'text/css';
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/icon?family=Material+Icons';
+      head.appendChild(link);
+    }();
+
     includeCSS3(theroot + 'css/leaflet.icon-material.css',theroot);
     
     loadScript(theroot + 'js/table-sort.js', function(results) {}); // For county grid column sort
@@ -717,14 +776,16 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
         loadScript(theroot + 'js/d3.v5.min.js', function(results) {
           loadScript(theroot + '../io/charts/bubble/js/bubble.js', function(results) {
             // HACK - call twice so rollovers work.
-              refreshBubbleWidget();
-              setTimeout( function() {
+              //refreshBubbleWidget();
+              //alert("go")
+
+              // Instead, called from naics.js
+              //displayImpactBubbles(1);
+              //setTimeout( function() {
                 
                 // No luck...
-              displayImpactBubbles(1);
-              //displayImpactBubbles(1);
-              //refreshBubbleWidget();
-            }, 1000 );
+                //displayImpactBubbles(1);
+              //}, 1000 );
           });
         });
       //}
@@ -879,7 +940,7 @@ function getUrlID3(url,theroot) {
   return urlID;
 }
 
-function loadSearchFilters3(theroot, count) {
+function loadMapFiltersJS(theroot, count) {
   if (typeof customD3loaded !== 'undefined' && typeof localsite_map !== 'undefined') {
     //alert("localsite_map " + localsite_map)
     //loadScript(theroot + 'https://cdn.jsdelivr.net/npm/vue', function(results) { // Need to check if function loaded
@@ -887,11 +948,11 @@ function loadSearchFilters3(theroot, count) {
     //});
   } else if (count<100) { // Wait a milisecond and try again
     setTimeout( function() {
-        consoleLog("try loadSearchFilters again")
-      loadSearchFilters(theroot,count+1);
+      consoleLog("try loadMapFiltersJS again")
+      loadMapFiltersJS(theroot,count+1);
       }, 10 );
   } else {
-    consoleLog("ERROR: loadSearchFilters exceeded 100 attempts.");
+    consoleLog("ERROR: loadMapFiltersJS exceeded 100 attempts.");
   }
 
 } 
@@ -1008,7 +1069,9 @@ function extractHostnameAndPort(url) { // TEMP HERE
 var selected_array=[];
 var omit_array=[];
 function formatRow(key,value,level,item) {
+
   var addHtml = '';
+  
   if (key == 'color') {
     // JQuery uses this attribute to set the bar color where class level1 immediately above this div.
     addHtml += "<div class='colorHolder' currentlevel='" + level + "' currentitem='" + item + "' color='" + value + "'></div>"
@@ -1027,8 +1090,7 @@ function formatRow(key,value,level,item) {
   //  addHtml += "<div class='hidden titlecell level1' style='width:100%'>" + key + "</div><div style='clear:both' class='hidden level" + level + "'>"
   //} else {
     addHtml += "<div class='hidden titlecell level" + level + "'>" + key + "</div><div class='hidden rightcell level" + level + "'>"
-  //}
-  
+  //}  
   //if (value.length == 0) {
   //    addHtml += "<div class='level" + level + "'>&nbsp;</div>\n";
   //    consoleLog("Blank: " + key + " " + value);
@@ -1043,11 +1105,11 @@ function formatRow(key,value,level,item) {
 
           // NEVER REACHED?
           consoleLog("This code is reached for location: " + key + " " + value);
-          if (value[c].length >1){
+          if (value[c].length > 1){
 
             for (d in value[c]){  
                 
-                if (isObject(value[c][d])) {
+              if (isObject(value[c][d])) {
                 //addHtml += "<b>Add something else here</b>\n";
                 for (e in value[c][d]){
                   //addHtml += "<div class='level" + level + "'>" + e + ":: " + value[c][d][e] + "</div>\n";
@@ -1066,7 +1128,7 @@ function formatRow(key,value,level,item) {
           //addHtml += "<div class='level'>" + c + ":::: " + value[c] + "</div>\n";
         }
       }       
-    } 
+     
     
     /*if (Object.keys(value).length >1){
       consoleLog(b);
@@ -1074,37 +1136,75 @@ function formatRow(key,value,level,item) {
 
       // value.constructor === Array
 
-    else if (isArray(value))  { // was b.   && selected_array.includes(key)  seems to prevent overload for DiffBot. Need to identify why.
+  } else if (isArray(value)) { // was b.   && selected_array.includes(key)  seems to prevent overload for DiffBot. Need to identify why.
       //consoleLog(value.length);
 
-      consoleLog("isArray: " + key + " " + value + " " + value.length);
+      //consoleLog("isArray: " + key + " " + value + " " + value.length);
+      console.log(value)
       if (value.length > 0) {
 
-        for (c in value) {
+        for (c in value) { // FOR EACH PROJECT
           curLine=""            
           //consoleLog(value[c],b,c); //c is 0,1,2 index
           
-          if (isObject(value[c]) || isArray(value[c])) {
-            for (d in value[c]){
-            
-              if (isObject(value[c][d])) { // Error in Drupal json
-                //addHtml += "<b>Add something else here</b>\n";
-                for (e in value[c][d]) {
-                  //if (isObject(value[c][d][e]) || isArray(value[c][d][e])) {
-                  //if (e !== null && e !== undefined) { // 
-                    
-                    // BUGBUG - Uncomment after preventoing error here: http://localhost:8887/community/resources/diffbot/?zip=91945
-                    //addHtml += formatRow(e,value[c][d][e],level);
+          if (isObject(value[c])) {
+            addHtml += "<div style='background:#999;color:#fff;padding:4px; clear:both'>" + (+c+1) + "</div>\n";
 
-                  //}
-                  //addHtml += "<div class='level5'>" + e + ": " + value[c][d][e] + "</div>\n";
+            for (d in value[c]) { // Projects metatags
+              console.log(d)
+              console.log(value[c])
+
+              /*
+              if (!value[c][d] || typeof value[c][d] == "undefined") {
+                  addHtml += formatRow(d,"",level);
+                } else if (typeof value[c][d] == "string") {
+                  addHtml += formatRow(d,value[c][d],level);
+              */
+                if (typeof value[c] == "undefined") {
+                  addHtml += formatRow(d,"",level);
+                } else if (typeof value[c][d] == "string" || typeof value[c][d] == "number") {
+                  addHtml += formatRow(d,value[c][d],level);
+                } else if (typeof value[c][d] == "object" ) {
+                //} else if (isObject(value[c][d]) || isArray(value[c][d])) {
+                  if (value[c][d].length > 1) {
+                    addHtml += formatRow(d,value[c][d],level); // 2021
+                  }
+                } else if (typeof value[c][d] != "undefined") {
+                  addHtml += formatRow(d, value[c][d],level);
+                } else {
+                  addHtml += formatRow(d,value[c][d],level);
+                  //addHtml += "<div class='level" + level + "'>" + value[c][d] + "</div>\n";
                 }
-              } else {
-                //consoleLog("Found: " + value[c][d])
+
+
+                /*
+                if (isObject(value[c][d])) {
+                  //addHtml += "<b>Add something else here</b>\n";
+                  for (e in value[c][d]) {
+                    //if (isObject(value[c][d][e]) || isArray(value[c][d][e])) {
+                    //if (e !== null && e !== undefined) { // 
+                      
+                      // BUGBUG - Uncomment after preventoing error here: http://localhost:8887/community/resources/diffbot/?zip=91945
+                      //addHtml += formatRow(e,value[c][d][e],level);
+
+                      //addHtml += "TEST"
+                      addHtml += "<div class='level" + level + "'>TEST: " + e + "</div>\n";
+
+                    //}
+                    //addHtml += "<div class='level5'>" + e + ": " + value[c][d][e] + "</div>\n";
+                  }
+                }
+                */
+
+            }
+
+          } else if (isArray(value[c])) {
+              for (d in value[c]) {
+                consoleLog("Found Array: " + value[c][d])
                 addHtml += formatRow(d,value[c][d],level);
                 //addHtml += "<div class='level4'>" + d + ":: " + value[c][d] + "</div>\n";
+              
               }
-
               // if (value[c].constructor === Array && selected_array.includes(c) )  {
               //  addHtml += "<b>Add loop here</b>\n";
               // }
@@ -1112,7 +1212,9 @@ function formatRow(key,value,level,item) {
               //  addHtml += "<b>Add something here</b>\n";
               // }
               
-            }
+            
+
+
           /*
           } else if (isArray(value[c])) {
             for (d in value[c]) {
@@ -1136,10 +1238,10 @@ function formatRow(key,value,level,item) {
               // For much of first level single names.
               addHtml += "<div class='level" + level + "'>" + value[c] + "</div>\n";
           }
-            
+        }    
                         
         
-          }
+          
     } else {
       consoleLog("Array of 0: " + key + " " + value);
       //addHtml += formatRow(c,value[c],level);
@@ -1161,6 +1263,8 @@ function formatRow(key,value,level,item) {
   addHtml += "</div>\n";
 
     //result.innerHTML = result.innerHTML + addHtml;
+
+  addHtml += "<div style='border-bottom:#ccc solid 1px; clear:both'></div>" // Last one hidden by css in base.css
 
   return addHtml;
 }
@@ -1203,7 +1307,9 @@ addEventListener("load", function(){
     var anchor = getParentAnchor(e.target);
     if(anchor !== null) {
       //$('#log_display').hide();
-      document.getElementById("log_display").style.display = 'none';
+      if (document.getElementById("log_display").length >= 0) {
+        document.getElementById("log_display").style.display = 'none';
+      }
     }
   }, false);
 });
@@ -1213,3 +1319,6 @@ addEventListener("load", function(){
 String.prototype.toTitleCase = function () {
     return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 };
+function getKeyByValue(object, value) {
+  return Object.keys(object).find(key => object[key] === value);
+}

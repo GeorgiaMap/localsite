@@ -6,7 +6,7 @@
 <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
 <!--
-  To create a widget from this page, see steps in map-embed.js.
+  localsite.js pulls in the #insertedText div within this page as template for map portion of layout.
 -->
 
 <title>Community Map</title>
@@ -28,6 +28,8 @@
       hiddenhash.state = "GA";
     }
   }
+  // To implement
+  // param.zoom = 8
 </script>
 
 <link type="text/css" rel="stylesheet" href="../css/base.css" id="/localsite/css/base.css" />
@@ -134,6 +136,7 @@
 <!-- /INTRO -->
 
 <div id="insertedText">
+<!-- about 5px of extra space still remains in the followign -->
 
 <!-- Start HTML -->
 
@@ -147,8 +150,6 @@
   .visually-hidden {display: none !important;}
 </style>
 
-<div id="log_display" style="display:none" class="localonlyX"><span style='float:left; font-size:10px'>LOG</span><br><textarea id="logText">MyTest</textarea></div>
-
 <!-- Also update headerbar and headerOffset 
 class="headerbarheight"
 -->
@@ -161,17 +162,16 @@ class="headerbarheight"
 <div class="search-filters-css" style="display:none">
 <div id="headerFixed" class="filterPanel">
 
-  <div class="headerOffset headerOffsetOne">&nbsp;</div>
+  <div class="headerOffset headerOffsetOne"></div>
 
-  <div class="filterPanel_background">
-  </div>
+  <div class="filterPanel_background"></div>
 
   <div id="activeLayer" style="display: none"></div>
 
   
   <div class="hideWhenPop">
 
-  <div id="filterFieldsHolder" class="contentfull noprint" style="margin:0 auto; padding-top:0px; float:left; width:100%">
+  <div id="filterFieldsHolder" class="contentfull noprint" style="margin:0 auto; padding-top:0px; padding-left:40px; float:left; width:100%">
 
     <!-- Displayed on scroll up -->
     <div class="showMenuSmNav" style="float:right; display:none">
@@ -181,7 +181,7 @@ class="headerbarheight"
       </div>
       -->
       <div class="showMenu" style="font-size:24px;color:#999;float:left">
-        <img src="../img/icon/hamburger.png" style="width:30px; opacity:0.5; margin-top:10px">
+        <img src="/localsite/img/icon/hamburger.png" style="width:30px; opacity:0.5; margin-top:10px">
       </div>
     </div>
 
@@ -190,69 +190,94 @@ class="headerbarheight"
       <div id="logoholderbar" style="display:none;float:left;">
       </div>
 
-      <div class="hideMobile" style="float:right;">
+
+      <div style="float:left;">
         <div class="filterLabel">
             <div class="filterLabelMain">
             </div>
         </div>
         <div class="showApps" style="border:0px solid #ccc;">
-          <i class="material-icons show-on-load georgiaorg-hide" style="font-size:34px">&#xE5C3;</i>
+          <i class="material-icons show-on-load georgiaorg-hide" style="margin-left:-8px;padding-right:10px;font-size:34px;">&#xE5C3;</i>
         </div>
       </div>
 
-      <div style="overflow:visible" class="filterField locationTab">
-        <div class="filterLabel">
-          <div class="filterLabelMain">
-            Where
+      <div class="hideMobile localX" style="float:right;display:none;">
+        <ul class="filterUL" style="margin:18px 12px 0 10px;clear:both;min-width:120px;">
+
+            <li data-id="all"><a href="#">Earth</a></li>
+            <li data-id="country" geo="US"><a href="#">USA</a></li>
+            <!--
+            <li data-id="state" class="selected" style="white-space:nowrap"><a href="#">Entire State</a></li>
+            
+            <li data-id="state" geo="US13" class="selected" style="white-space:nowrap"><a href="#">Georgia</a></li>
+            -->
+            
+            <li data-id="city" class="local" style="display:none"><a href="#">Cities</a></li>
+            <li data-id="counties"><a href="#">Counties</a></li>
+            <li data-id="zip" class="local" style="display:none,white-space:nowrap"><a href="#">Zip Code</a></li>
+            
+            <li data-id="latlon" class="hideFilter"><a href="#">Lat/Lon</a></li>
+            <li data-id="nearby" class="hideFilter"><a href="#">Nearby</a></li>
+            
+        </ul>
+      </div>
+
+
+      <div style="float:left">
+        <div style="overflow:visible" class="filterField locationTab">
+          <div class="filterLabel">
+            <div class="filterLabelMain">
+              Where
+              </div>
+          </div>
+
+          <!--
+            https://www.maxon.net/en/buy
+
+            overflow:auto; causes vertical scroll to appear here:
+          -->
+          <div style="position:relative;">
+            <div class="filterClick" id="filterClickLocation" style="display:none">
+
+              <div class="select-menu-arrow-holder">
+                <!-- We could place over all select menus
+                  https://fabriceleven.com/design/clever-way-to-change-the-drop-down-selector-arrow-icon/ -->
+                <i id="showLocations" class="material-icons" style="font-size:24px;display:none">&#xE313;</i>
+                <i id="hideLocations"  class="material-icons show-on-load" style="font-size:24px;cursor:pointer;">&#xE409;</i>
+              </div>
+              <div class="filterClickText locationTabText">Locations</div><!-- Entire State -->
             </div>
-        </div>
-
-        <!--
-          https://www.maxon.net/en/buy
-
-          overflow:auto; causes vertical scroll to appear here:
-        -->
-        <div style="position:relative;">
-          <div class="filterClick" id="filterClickLocation" style="display:none">
-
-            <div class="select-menu-arrow-holder">
-              <!-- We could place over all select menus
-                https://fabriceleven.com/design/clever-way-to-change-the-drop-down-selector-arrow-icon/ -->
-              <i id="showLocations" class="material-icons" style="font-size:24px;display:none">&#xE313;</i>
-              <i id="hideLocations"  class="material-icons show-on-load" style="font-size:24px;cursor:pointer;">&#xE409;</i>
-            </div>
-            <div class="filterClickText locationTabText">States and Counties...</div><!-- Entire State -->
           </div>
         </div>
 
-      </div>
 
+        <div id="appSelectHolder" class="filterField layerclass">
+          <div id="catSearchHolder">
 
-      <div id="appSelectHolder" class="filterField layerclass">
-        <div id="catSearchHolder">
-
-            <div class="filterLabel">
-              <div class="filterLabelMain">
-              Show
+              <div class="filterLabel">
+                <div class="filterLabelMain">
+                Show
+                </div>
               </div>
-            </div>
 
-            <div class="filterClick showApps" style="position:relative; overflow:auto;">
+              <div class="filterClick showApps" style="position:relative; overflow:auto; margin-right:10px">
 
-              <div class="select-menu-arrow-holder">
-                  <i class="material-icons show-on-load" style="font-size:24px;cursor:pointer;">&#xE409;</i>
-                  <i class="material-icons" style="font-size:24px;cursor:pointer;display:none;">&#xE313;</i>
+                <div class="select-menu-arrow-holder">
+                    <i class="material-icons show-on-load" style="font-size:24px;cursor:pointer;">&#xE409;</i>
+                    <i class="material-icons" style="font-size:24px;cursor:pointer;display:none;">&#xE313;</i>
+                </div>
+                <div style="width:100%">
+                  <div class="filterClickText" id="showAppsText" title="Goods & Services">Goods & Services</div>
+                </div>
               </div>
-              <div style="width:100%">
-                <div class="filterClickText" id="showAppsText" title="Display...">Display...</div>
+              <div id="hitRefreshNote" style="display: none;float:left; padding-top:8px; font-size:14px; margin-bottom:8px;">
+                  Hit reload (cmd-R) after changing the state to refresh the input-output chart below.
               </div>
-            </div>
-
+          </div>
         </div>
       </div>
 
-
-      <div style="display:none;" class="filterField layerclass mock-up suppliers exporter">
+      <div style="display:none;" class="filterField layerclass mock-up suppliers exporter products">
         <div id="catSearchHolder">
           <div class="filterLabel">
             <div class="filterLabelMain">
@@ -305,9 +330,9 @@ class="headerbarheight"
           <!-- speech input -->
             <!-- was a button -->
           
-          <div class="si-wrapperX" style="position:relative; float:left">
+          <div class="si-wrapper" style="position:relative; float:left">
             
-              <div style="display:none" class="si-btn mock-up">
+              <div style="display:none; float:right; padding-left:7px" class="si-btn mock-up">
                   <span class="si-holder" style="font-size: 20px">&#127897;</span>
               </div>
           
@@ -355,7 +380,10 @@ class="headerbarheight"
                     <div class="filterBubble">
 
                       <div id="findWhat" style="min-width: 176px">
+
+                        <!--
                         <div class="hideAdvanced" style="float:right;cursor:pointer">&#10005;</div>
+                        -->
 
                         <div style="display:none;float:left;margin-right:20px">
                           <input type="checkbox" name="findLocation" id="findLocation" value="findLocation" checked><label for="findLocation" class="filterCheckboxTitle">Search Listings</label><br>
@@ -376,7 +404,7 @@ class="headerbarheight"
       <!-- END KEYWORD SEARCH -->
 
       <!-- Down arrow -->
-        <div class="local catchClick hideEmbed" style="position:relative;float:right;overflow:visible;">
+        <div class="localX catchClick hideEmbed" style="position:relative;float:right;overflow:visible;display:none">
 
           <div class="filterLabel">
             <div class="filterLabelMain">
@@ -729,7 +757,10 @@ class="headerbarheight"
 <!-- Currently map-filters.js limits loading to localhost -->
 <div class="search-filters-css" style="display:none">
 <div id="bigThumbPanelHolder" style="display:none;position: relative;">
+
+  <!--
   <div class="hideApps close-X" style="position:absolute;right:0;top:0;z-index:1">✕</div>
+  -->
 
   <div style="overflow:auto;position:relative">
   <a name="sections"></a>
@@ -781,38 +812,17 @@ class="headerbarheight"
       </div>
       -->
     
-    
-      <div class="hideMobile localonly" style="display:none;clear:both">
-        <ul class="filterUL" style="margin:18px 12px 0 30px;clear:both;min-width:120px;">
-
-            <li data-id="all" style="display:none"><a href="#">All</a></li>
-            <li data-id="country" geo="US"><a href="#">USA</a></li>
-            <!--
-            <li data-id="state" class="selected" style="white-space:nowrap"><a href="#">Entire State</a></li>
-            
-            <li data-id="state" geo="US13" class="selected" style="white-space:nowrap"><a href="#">Georgia</a></li>
-            -->
-            
-            <li data-id="city" class="local" style="display:none"><a href="#">Cities</a></li>
-            <li data-id="counties"><a href="#">Counties</a></li>
-            <li data-id="zip" class="local" style="display:none,white-space:nowrap"><a href="#">Zip Code</a></li>
-            
-            <li data-id="latlon" class="hideFilter"><a href="#">Lat/Lon</a></li>
-            <li data-id="nearby" class="hideFilter"><a href="#">Nearby</a></li>
-            
-        </ul>
-
-
-      </div>
       <div id="locationFilterHolder" style="overflow:auto; padding:20px 0 20px 40px;">
 
+            
             <div class="hideAdvanced close-X" style="float:right; margin-top:-20px">&#10005;
             </div>
 
             <div class="stateFilters input-output" style="float:left; display:none" class="mock-up earth">
-              <b>State</b><br>
+              <b><!--States--></b>
+              <div id="state_select_holder">
                 <select id="state_select" name="state">
-                 <option></option>
+                 <option value="">Choose a location...</option>
 <!-- Removed 0 from 01 to 09, not sure why stateID skips 3 and 7 -->
 <option value="AL" stateid="1" lat="32.7396" lon="-86.8435" km="131174">Alabama</option>
 <option value="AK" stateid="2" lat="63.3474" lon="-152.8397" km="1478927">Alaska</option>
@@ -872,15 +882,18 @@ class="headerbarheight"
 <option value="WY" stateid="56" lat="42.9897" lon="-107.5444" km="251459">Wyoming</option>
 
                </select>
-               <br><br>
+               </div>
+               <br>
             </div>
 
             <div class="stateFilters" style="display:none">
               <div class="regionFilter input-output" style="float:left; display:none">
+
+                <!--
                 <b>Region</b><br>
-                
+                -->
                 <select id="region_select">
-                  <option value=''>
+                  <option value=''>Region...</option>
                   <option value='Metro Atlanta' lat='33.8498' lon='-84.4383' geo='US13121,US13097,US13067,US13,US13057,US13113,US13063,US13089,US13135,US13151,US13247'>Metro Atlanta</option>
                   <option value='West Central Georgia' lat='33.0362' lon='-85.0322' geo='US13045,US13077,US13143,US13145,US13149,US13199,US13223,US13233,US13263,US13285,US01111,US01017'>West Central Georgia</option>
                   <option value='Central Georgia' lat='32.3771' lon='-82.5924' geo='US13023,US13043,US13091,US13109,US13167,US13175,US13209,US13267,US13271,US13279,US13283,US13309,US13315,US13107,US13235'>Central Georgia</option>
@@ -894,26 +907,23 @@ class="headerbarheight"
 
         <!-- GOOGLE ADDRESS AUTOCOMPLETE -->
         <!-- USES "Google Autocomplete" javascript in map-filters.js 
-        Currently flacky.  Works after returning to page, sometimes.
-
-        For testing (this works fine):
-          /localsite/map/auto/
+        Currently flacky.  Works after returning to page, sometimes.          
         -->
         <style>
 
         </style>
         <div id="app">
 
-          <div class="local" style="display:none">
+          <div id="local_auto_complete" class="localX" style="display:none">
             <div class="place_details input-output" style="float:left;margin-bottom:15px">
-            
-              <b style="margin-top:0px">Address Lookup</b> <a href="auto">project</a><br>
+              <a style="float:right" href="/localsite/map/auto">?</a>
+              <b style="margin-top:0px">Address</b> <br>
             
               <input 
                 class="filterClick"
                 id="searchloc"
-                style="max-width:400px; float:left; display: block; width: 60vw; font-size: 1rem; font-weight: 400; line-height: 2rem;"
-                placeholder="Enter an address, city, state, county or zip"
+                style="max-width:300px; float:left; display: block; width: 60vw; font-size: 1rem; font-weight: 400; line-height: 2rem;"
+                placeholder="Address, city, state, county or zip"
                 onfocus="value = ''" 
                 type="text" />
               <br><br>
@@ -927,7 +937,7 @@ class="headerbarheight"
               <h3>Website: &nbsp; {{ website }}</h3>
               </div>
 
-              <div id="readmeDiv"></div>
+              
             </div>
 
             <!--
@@ -1046,7 +1056,7 @@ class="headerbarheight"
         <div id="geoPicker" style="display:none">
           <div style="float:left">
             <!-- Must be displayed initiallly so tiles are visible -->
-              <div id="geomap" style="width:440px; height:530px; margin:0 30px 30px 0; border:1px solid blue; position: relative">
+              <div id="geomap" style="width:702px; height:530px; margin:0 30px 30px 0; border:1px solid blue; position: relative">
               </div>
           </div>
 
@@ -1058,12 +1068,13 @@ class="headerbarheight"
 
               <div style="position:absolute; bottom:0; left:0px; right:36px; padding:2px 2px 2px 16px; background-color:#ddd; z-index:2">
 
+                  <div style="float:right; padding:0px 12px 0px 12px; margin-top:5px; margin-bottom:5px;">
+                    <div class="detailbutton hideAdvanced greenbutton" style="padding:10px 18px 10px 18px;">DONE</div>
+                  </div>
+
                   <div style="displayX:table; width:100%">
                     <div style="float:left; min-height:30px; padding:10px; displayX: table-cell; vertical-align: middle">
-                      Choose counties above or click on map.
-                    </div>
-                    <div style="displayX: table-cell; padding:3px 7px 7px 7px;">
-                      <div class="detailbutton hideAdvanced greenbutton" style="float:left">Done</div>
+                      Check one or more counties above or click the map.
                     </div>
                   </div>
 
@@ -1076,6 +1087,36 @@ class="headerbarheight"
                 </div>
                 -->
                 
+                <style>
+                  #show_county_colors {
+                    position: absolute;
+                    right:50px;
+                    bottom:50px;
+                    background-color: #fff;
+                    border-radius: 18px;
+                    font-size: 14px;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    z-index:2000;
+                  }
+                  #show_county_colors:hover {
+                    background-color: #999;
+                    color:#fff;
+                  }
+                </style>
+
+                <div class="local" style="display:none">
+                  <div id="show_county_colors">Test another chlorpleth</div>
+                </div>
+
+                <!-- Tabulator: Latest version -->
+                
+                <div id="tabulator-statetable"></div>
+                <div id="tabulator-geotable"></div>
+                <div style="margin-top:8px; font-size: 12px">
+                  Dataset displayed by <a href="../../../localsite/info/data/" target="_blank">Tabulator</a><br><br>
+                </div>
+
                 <div style="width:100%" class="output_table rotateHeader">
                 </div>
               </div>
@@ -1140,7 +1181,7 @@ Displayed by hashChanged() in map-filters.js
 
 <div id="tableSide" class="hideMobile">
 
-  <div id='sidecolumn' class='hideprint, local, earth' style="display: none">
+  <div id='sidecolumnX' class='hideprint, local, earth' style="displayX: none">
 
 
 
@@ -1532,7 +1573,7 @@ Removed 0 from 01 to 09, not sure why stateID skips 3 and 7 -->
           <div id="detaillist"></div>
           <div id="narrowlist" style="display:none"></div>
 
-          <div id="dataListTop" class='exporter' style="display:none;overflow:auto;margin-bottom:8px">
+          <div id="dataListTop" class='exporter products' style="display:none;overflow:auto;margin-bottom:8px">
 
             <div style='float:left'>
               Select up to 10 companies when requesting contact info.
@@ -1605,6 +1646,8 @@ Removed 0 from 01 to 09, not sure why stateID skips 3 and 7 -->
   </div>
 </div>
 
+<div id="log_display" style="display:none" class="localonlyX"><span style='float:left; font-size:10px'>LOG</span><br><textarea id="logText">MyTest</textarea></div>
+
 <!-- End HTML -->
 
 </div><!-- End insertedText -->
@@ -1658,22 +1701,14 @@ local_app.init(["somevalue", 1, "controlId"]); // Used by link to feedback form
 //local_app.helloWorld();
 //local_app.community_root();
 
-//var localmap = 
-//loadMap1("map/index.html 2", hash.show, dp); // Now in map-filters.js
-if (param["show"] != "suppliers") {
-  // Additional layer
-  //loadMap1("suppliers", dp);
-}
+
 document.addEventListener('hashChangeEvent', function (elem) {
   //param = loadParam(location.search,location.hash);
   console.log("index.html detects hashChangeEvent");
-  hash = getHash();
-  //if 
-  //loadMap1("map/index.html");
-  
+  hash = getHash();  
 }, false);
 
-// Append railroads here, somehow
+// Try appending railroads here, somehow
 //layerControl['map1'].addOverlay(baselayers["Rail"], "Railroads"); // Appends to existing layers
 //layerControl['map2'].addOverlay(baselayers["Rail"], "Railroads"); // Appends to existing layers
 //localmap.addOverlay(baselayers["Rail"], "Railroads"); // Appends to existing layers

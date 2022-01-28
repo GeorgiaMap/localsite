@@ -7,15 +7,14 @@ Join us to create new tools and industry maps for Sustainable Material Managemen
 
 We're exploring infusing Google Data Commons with US EPA indicators. 
 
-See additional details in the Google Data Commons section of our [project list](../../../../community/projects/).  
+See additional details in the Google Data Commons section of our [project list](../../../../community/projects/#google).  
 
 <!--
 Areas of focus include:  
 
 - <a href="../../../localsite/info/#showloc">Industries and Impacts by county</a> - great to also include by zip! 
 - [Bureau of Labor Statistics (BLS)](https://www.bls.gov/data/)  
-- [Solar Companies](../../localsite/map/#show=solar)  
-- [Recycling, Processors, Transfer Stations](../../localsite/map/recycling/ga/)   
+- [Solar Companies](../../localsite/map/#show=solar)   
 - [Electric Vehicle Ecosystems](../../localsite/info/#state=GA&show=vehicles)  
 - [Commute Times and Walkability](../)  
 <br>

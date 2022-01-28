@@ -6,37 +6,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 
-<!-- 
-To do: backing up shows black rectangle instead of video.  
--->
-
-<!-- CFAtl -->
-<!--
-<link rel="icon" href="https://lh3.googleusercontent.com/HPVBBuNWulVbWxHAT3Nk_kIhJPFpFObwNt4gU2ZtT4m89tqjLheeRst_cMnO8mSrVt7FOSlWXCdg6MGcGV6kwSyjBVxk5-efdw">
--->
-
-<!--
-<link rel="icon" type="image/x-icon" href="../atlanta/img/logo/partners/neighborhood-icon.png" />
--->
-
 <title>Local Site</title>
-<link type="text/css" rel="stylesheet" href="css/base.css" />
-<script type="text/javascript" src="js/d3.v5.min.js"></script>
-<script type="text/javascript" src="js/jquery.min.js"></script>
+<link type="text/css" rel="stylesheet" href="css/base.css" id="/localsite/css/base.css" />
+<script type="text/javascript" src="js/d3.v5.min.js" id="/localsite/js/d3.v5.min.js"></script>
+<script type="text/javascript" src="js/jquery.min.js" id="/localsite/js/jquery.min.js"></script>
+<script type="text/javascript" src="js/showdown.min.js" id="/localsite/js/showdown.min.js"></script>
+<script type="text/javascript" src="js/navigation.js" id="/localsite/js/navigation.js"></script>
 <script type="text/javascript" src="js/localsite.js"></script>
-<script type="text/javascript" src="js/showdown.min.js"></script>
-<script type="text/javascript" src="js/navigation.js"></script>
-
-<!--
-<script type="text/javascript" src="js/map-filters.js"></script>
--->
 
 <script>
   //param.startTitle = "Neighborhood.org"
-  //param.startTitle = "Code for Atlanta"
-  //param.startTitle = "Georgia.org"
-  //param.startTitle = "Model Earth"
-
   //param.titleArray = ["local","site"] // The header title will default to Neighborhood when no titleArray.
 	param.footer = "footer.html"
 </script>
@@ -81,6 +60,7 @@ text-align:left; overflow:scroll;
 
   .swiper-button-white {
     displayX: none; /* remove to change arrow style */
+    color: #fff;
   }
   .swiper-button-circle {
     display: none; /* remove to change arrow style */
@@ -96,6 +76,7 @@ text-align:left; overflow:scroll;
     overflow: auto;
     margin-left: auto;
     margin-right: auto;
+    position: relative;
   }
   .swiper-slide {
     text-align: center;
@@ -504,6 +485,12 @@ text-align:left; overflow:scroll;
 
 
   <h1 style="padding-top: 0px">Tools for Sustainable Communities</h1>
+  <a href="https://github.com/localsite/planning/blob/main/schema.prisma">Real World 2.0 Data Structure</a> - Common tables for civic tech apps (<a href="https://www.prisma.io">Prisma.io</a>)<br><br>
+
+  <section id="parameters">
+    <div id="paramsDiv" style="clear:both"></div>
+  </section>
+  
 	<div class="two pageColumns">
 	    <div class="pageColumn">
 	      <div class="pageColumnInside">
@@ -516,11 +503,13 @@ text-align:left; overflow:scroll;
 	      </div>
 	    </div>
 	</div>
+  
 </div>
 
 <script>
     loadMarkdown("README.md", "readmeDiv", "_parent");
     loadMarkdown("start/features.md", "featuresDiv", "_parent");
+    loadMarkdown("start/params.md", "paramsDiv", "_parent");
 </script>
 
 <div id="footer"></div>
