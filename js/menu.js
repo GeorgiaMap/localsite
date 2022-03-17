@@ -1,5 +1,5 @@
 var currentAccess = 0;
-function access(minlevel,alevel) {
+function accessBool(minlevel,alevel) {
     var level = 0;
     if (alevel) { level = parseInt(alevel) }
     if (minlevel >= level) {
@@ -10,14 +10,23 @@ function access(minlevel,alevel) {
         return false;
     }
 }
-
+function itemtypeBool(partnerMenu, item) {
+    if (item.basetype) {
+        if (item.basetype.split(",").indexOf(partnerMenu.basetype) >= 0) {
+            return true;
+        }
+        return false;
+    } else {
+        return true;
+    }
+}
 // Rename from map-filters.js
 function getDirectMenuLink(partnerMenu,item) {
     let directlink = item.directlink;
     let rootfolder = item.rootfolder;
     let layer = item.item;
 
-    console.log("incoming partnerMenu.itemid: " + partnerMenu.itemid);
+    //console.log("incoming partnerMenu.itemid: " + partnerMenu.itemid);
     if (item.link) {
         if (partnerMenu.itemid) {
             //item.link = item.link.replace(/ /g,"-");
@@ -42,9 +51,9 @@ function getDirectMenuLink(partnerMenu,item) {
             //rootfolder = "/explore/" + rootfolder;
         }
         directlink = removeFrontMenuFolder(rootfolder + "#" + layer);
-        console.log("directlink rootfolder: " + directlink);
+        //console.log("directlink rootfolder: " + directlink);
     }
-    console.log("directlink final: " + directlink);
+    //console.log("directlink final: " + directlink);
     return(directlink);
 }
 function removeFrontMenuFolder(path) {
@@ -73,7 +82,7 @@ function initMenu(partnerMenu) {
 	          callback(); // Triggers initialHighlight()
 	        });
 	        */
-            console.log("initMenu() fetched menu for div " + partnerMenu.menuDiv);
+            //console.log("initMenu() fetched menu for div " + partnerMenu.menuDiv);
 	    });
 
 		$(document).on("click", partnerMenu.revealButton, function(event) {
@@ -184,7 +193,7 @@ function displaypartnerCheckboxes(partnerMenu,menuDataset) { // For Layer Icon o
     if ($(partnerMenu.menuDiv).text().length > 0) {
 		return; // Already loaded
 	}
-    console.log("displaypartnerCheckboxes start location.hash: " + location.hash);
+    //console.log("displaypartnerCheckboxes start location.hash: " + location.hash);
     var partnerCheckboxes = "";
     var overlayList = ""; // Clicking selects checkbox in partnerCheckboxes list
     var previousSet = "";
@@ -221,7 +230,7 @@ function displaypartnerCheckboxes(partnerMenu,menuDataset) { // For Layer Icon o
         // location.host.indexOf('localhost') >= 0 || 
         
         // && item.section.toLowerCase() != item.item
-        if (access(currentAccess,menuaccess) && currentAccess <= menuaccessmax) {
+        if (itemtypeBool(partnerMenu, item) && accessBool(currentAccess,menuaccess) && currentAccess <= menuaccessmax) {
             var title = "";
             try { // For IE error
                 title = ((item.navtitle) ? item.navtitle : item.title);
@@ -240,7 +249,7 @@ function displaypartnerCheckboxes(partnerMenu,menuDataset) { // For Layer Icon o
                         var overlaylevel = item.overlaylevel;
                         var hideOverlay = "";
                         if (!overlaylevel) {
-                            overlayList += '<div class="user-' + menuaccess + '"><div ' + layerSectionDisplay + ' class="dontsplit layerSection layerSection-' + item.section.toLowerCase().replace(/ /g,"-") + '" menulevel="' + menulevel + '"><div style="clear:both; pointer-events: auto;" class="layerSectionClick">';
+                            overlayList += '<div class="user-' + menuaccess + '"><div ' + layerSectionDisplay + ' class="dontsplit layerSection layerSection-' + item.section.toLowerCase().replace(/ /g,"-") + '" menulevel="' + menulevel + '"><div style="clearX:both; pointer-events: auto;" class="layerSectionClick">';
                             if (partnerMenu.showArrows) {
                                 overlayList += '<div class="sectionArrowHolder"><div class="leftArrow"></div></div>';
                             }
@@ -253,7 +262,7 @@ function displaypartnerCheckboxes(partnerMenu,menuDataset) { // For Layer Icon o
                         overlayList += '<div class="overlayAction"><i class="material-icons active-' + item.item + '" style="float:right;color:#ccc;display:none">&#xE86C;</i></div><div class="layerCbTitle">' + title + '</div>';
                     }
                     
-                    overlayList += '</div></div><div style="clear:both"></div>';
+                    overlayList += '</div></div><div style="clearX:both"></div>';
                     previousOverlaySet = item.section;
                 }
 
@@ -278,7 +287,7 @@ function displaypartnerCheckboxes(partnerMenu,menuDataset) { // For Layer Icon o
                     if (item.sectionicon) {
                         //sectionIcon = item.sectionicon;
                     }
-                    partnerCheckboxes += '<div class="layerSectionAccess user-' + menuaccess + '" style="display:none"><div ' + layerSectionDisplay + ' class="dontsplit layerSection layerSection-' + item.section.toLowerCase().replace(/ /g,"-") + '" menulevel="' + menulevel + '"><div style="clear:both; pointer-events: auto;" data-layer-section="' + item.section + '" class="layerSectionClick">';
+                    partnerCheckboxes += '<div class="layerSectionAccess user-' + menuaccess + '" style="display:none"><div ' + layerSectionDisplay + ' class="dontsplit layerSection layerSection-' + item.section.toLowerCase().replace(/ /g,"-") + '" menulevel="' + menulevel + '"><div style="clearX:both; pointer-events: auto;" data-layer-section="' + item.section + '" class="layerSectionClick">';
                     if (partnerMenu.showArrows) {
                         partnerCheckboxes += '<div class="sectionArrowHolder"><div class="leftArrow"></div></div>';
                     }
@@ -308,7 +317,7 @@ function displaypartnerCheckboxes(partnerMenu,menuDataset) { // For Layer Icon o
                     partnerCheckboxes += '</a></div><div class="layerCbTitle"><input type="checkbox" class="layersCB" name="layersCB" id="go-' + item.item + '" value="' + item.item + '"><a href="' + item.link + '">' + title + '</a></div></div></div>';
                     
                 }
-                partnerCheckboxes += '<div style="clear:both"></div>';
+                partnerCheckboxes += '<div style="clearX:both"></div>';
                 previousSet = item.section;
             }
         }

@@ -536,7 +536,13 @@ function processOutput(dp,map,map2,whichmap,whichmap2,basemaps1,basemaps2,callba
   // ADD BACKGROUND BASEMAP to Side Map
   if (layerControl[whichmap2] == undefined) {
     layerControl[whichmap2] = L.control.layers(basemaps2, overlays2).addTo(map2); // Init layer checkboxes
-    basemaps2["OpenStreetMap"].addTo(map2); // Set the initial baselayer.
+    if (location.host.indexOf('localhost') >= 0) {
+      // OpenStreetMap tiles stopped working on localhost in March of 2022. Using Grayscale locally for small map instead.
+      // "Access denied. See https://operations.osmfoundation.org/policies/tiles/"
+      basemaps2["Grayscale"].addTo(map2); // Set the initial baselayer.
+    } else {
+      basemaps2["OpenStreetMap"].addTo(map2); // Set the initial baselayer.
+    }
   } else {
     layerControl[whichmap2].addOverlay(dp.group2, dp.dataTitle); // Add layer checkbox
   }
@@ -1320,7 +1326,8 @@ function loadMap1(calledBy, show, dp_incoming) { // Called by this page. Maybe s
 
   // Temp - until widget includes local industry lists
   if((show == "industries" || show == "parts" || show == "vehicles" || show == "bioeconomy") && location.href.indexOf('/info') == -1) {
-    location.href = "/localsite/info/" + location.hash;
+    ////location.href = "/localsite/info/" + location.hash;
+    //location.href = "/localsite/info/#show=" + show;
   }
 
   if (show == "beyondcarbon") {
@@ -1520,12 +1527,24 @@ function loadMap1(calledBy, show, dp_incoming) { // Called by this page. Maybe s
         if (show == "ev") {
           dp.listTitle = "Electric Vehicle Manufacturing";
         }
+        // Is this in use?
         dp.editLink = "https://docs.google.com/spreadsheets/d/1OX8TsLby-Ddn8WHa7yLKNpEERYN_RlScMrC0sbnT1Zs/edit?usp=sharing";
         //dp.googleDocID = "1OX8TsLby-Ddn8WHa7yLKNpEERYN_RlScMrC0sbnT1Zs";
+
+        //https://docs.google.com/spreadsheets/d/e/2PACX-1vSEbtuDxqld2wdlFqUh23MQl-BO7faEm1DGSkgJ4A5wNqkK5TOj82bkIjtRsOWx5yAThbcC6IsxPzYV/pubhtml
+        //dp.googleCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBRXb005Plt3mmmJunBMk6IejMu-VAJOPdlHWXUpyecTAF-SK4OpfSjPHNMN_KAePShbNsiOo2hZzt/pub?gid=1924677788&single=true&output=csv";
+        dp.googleCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSEbtuDxqld2wdlFqUh23MQl-BO7faEm1DGSkgJ4A5wNqkK5TOj82bkIjtRsOWx5yAThbcC6IsxPzYV/pub?gid=0&single=true&output=csv";
+
+        // Not sure if any of these are needed.
         dp.sheetName = "Automotive";
-        dp.dataset = "https://model.earth/georgia-data/automotive/automotive.csv";
+        dp.nameColumn = "name";
+        dp.latColumn = "latitude";
+        dp.lonColumn = "longitude";
+
+        // Temp, prior to change from Google API 2 to 3
+        //dp.dataset = "https://model.earth/georgia-data/automotive/automotive.csv";
         dp.datastates = "GA";
-        dp.listInfo = "<br><br>Dark green map points indicate electric vehicle parts manufacturing.<br>Post comments in our <a href='https://docs.google.com/spreadsheets/d/1OX8TsLby-Ddn8WHa7yLKNpEERYN_RlScMrC0sbnT1Zs/edit?usp=sharing'>Google Sheet</a> to submit updates. Learn about <a href='../../community/projects/mobility/'>data sources</a>.";
+        //dp.listInfo = "<br><br>Dark green map points indicate electric vehicle parts manufacturing.<br>Post comments in our <a href='https://docs.google.com/spreadsheets/d/1OX8TsLby-Ddn8WHa7yLKNpEERYN_RlScMrC0sbnT1Zs/edit?usp=sharing'>Google Sheet</a> to submit updates. Learn about <a href='../../community/projects/mobility/'>data sources</a>.";
         dp.valueColumn = "ev industry";
         dp.valueColumnLabel = "EV Industry";
         dp.markerType = "google";
@@ -2344,7 +2363,7 @@ function showList(dp,map) {
       element.mapframe = getMapframe(element);
 
       let showListing = true;
-      if (!jQuery.isEmptyObject(element.status) && (element.status != "Update" && element.status != "Active")) {
+      if (element.status && !jQuery.isEmptyObject(element.status) && (element.status != "Update" && element.status != "Active")) {
           showListing = false;
           console.log("Excluded element.status " + element.status);
       }
