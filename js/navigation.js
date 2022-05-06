@@ -42,13 +42,16 @@ const changeFavicon = link => {
 
 $(document).ready(function(){
 	
- 	var modelpath = climbpath;
+ 	let modelpath = climbpath;
+ 	if (modelpath == "./") {
+ 		//modelpath = "";
+ 	}
+ 	let modelroot = ""; // For links that start with /
  	
- 	if(location.host.indexOf('localhost') < 0 && location.host.indexOf('model.') < 0 && location.host.indexOf('hood') < 0) { // When not localhost or other sites that have a fork of io and community.
+ 	if(location.host.indexOf('localhost') < 0 && location.host.indexOf('model.') < 0 && location.host.indexOf('neighborhood.org') < 0) { // When not localhost or other sites that have a fork of io and community.
  		// To do: allow "Input-Output Map" link in footer to remain relative.
  		modelpath = "https://model.earth/" + modelpath; // Avoid - gets applied to #headerSiteTitle and hamburger menu
- 		
- 		//modelpath = "/" + modelpath;
+ 		modelroot = "https://model.earth";
  	}
  	if (param.showhero != "false") {
  		if(location.host.indexOf("georgia") >= 0) { 
@@ -87,7 +90,7 @@ $(document).ready(function(){
 		earthFooter = true;
 	} else if (param.startTitle == "Georgia.org" || location.host.indexOf("georgia.org") >= 0
 	// Show locally for Brave Browser only
-	//|| (((location.host.indexOf('localhost') >= 0 && navigator && navigator.brave) || false) && !param.headerLogo)
+	|| (((location.host.indexOf('localhost') >= 0 && navigator && navigator.brave) || false) && !param.headerLogo)
 	) {
 		showLeftIcon = true;
 		$(".siteTitleShort").text("Model Georgia");
@@ -130,16 +133,22 @@ $(document).ready(function(){
 		$(".siteTitleShort").text("Democracy Lab");
 
 		param.headerLogo = "<img src='/localsite/img/logo/partners/democracy-lab.png' style='width:190px;margin-top:15px'>";
-	param.headerLogoSmall = "<img src='/localsite/img/logo/partners/democracy-lab-icon.jpg' style='width:32px;margin:4px 8px 0 0'>";
-	$('.dlab').css('display', 'inline'); 
-	earthFooter = true;
+		param.headerLogoSmall = "<img src='/localsite/img/logo/partners/democracy-lab-icon.jpg' style='width:32px;margin:4px 8px 0 0'>";
+		$('.dlab').css('display', 'inline'); 
+		earthFooter = true;
 	} else if (!Array.isArray(param.titleArray) && !param.headerLogo) {
 	//} else if (location.host.indexOf('model.earth') >= 0) {
 		showLeftIcon = true;
-		$(".siteTitleShort").text("Model Earth");
-		param.titleArray = ["model","earth"]
+		if (location.host.indexOf("planet.live") >= 0) {
+			$(".siteTitleShort").text("Planet Live");
+			param.titleArray = ["planet","live"]
+			document.title = "Planet Live - " + document.title
+		} else {
+			$(".siteTitleShort").text("Model Earth");
+			param.titleArray = ["model","earth"]
+			document.title = "Model Earth - " + document.title
+		}
 		param.headerLogoSmall = "<img src='/localsite/img/logo/partners/model-earth.png' style='width:34px; margin-right:2px'>";
-		document.title = "Model Earth - " + document.title
 		changeFavicon(modelpath + "../localsite/img/logo/partners/model-earth.png")
 		$('.earth').css('display', 'inline'); 
 		console.log(".earth display");
@@ -224,7 +233,7 @@ $(document).ready(function(){
 
  		// LOAD HEADER.HTML
 	 	//if (earthFooter) {
-	 		let headerFile = modelpath + "../localsite/header.html";
+	 		let headerFile = modelroot + "/localsite/header.html";
 	 		if (slash_count <= 4) { // Folder is the root of site
 	 			// Currently avoid since "https://model.earth/" is prepended to climbpath above.
 	 			//headerFile = climbpath + "../header.html";
@@ -271,18 +280,18 @@ $(document).ready(function(){
 			 		  	if($(this).attr("href").indexOf("/") != 0) { // Don't append if starts with /
 			 		  		//alert($(this).attr('href'))
 				      		$(this).attr("href", modelpath + $(this).attr('href'));
-				        }
-				  	  }
-				    })
-				    $("#local-header img[src]").each(function() {
-			 		  if($(this).attr("src").toLowerCase().indexOf("http") < 0) {
-			 		  	if($(this).attr("src").indexOf("/") != 0) { // Don't append if starts with /
-				      		$(this).attr("src", modelpath + $(this).attr('src')); // Was climbpath
-				      	}
-				  	  }
-				    })
-
-				    // Was here
+			        }
+			  	  }
+			    })
+			    $("#local-header img[src]").each(function() {
+		 		  	if($(this).attr("src").toLowerCase().indexOf("http") < 0) {
+		 		  		if($(this).attr("src").indexOf("/") == 0) { // Starts with slash
+		 		  			$(this).attr("src", modelroot + $(this).attr('src'));
+		 		  		} else {
+			      		$(this).attr("src", modelpath + $(this).attr('src'));
+			      	}
+			  	  }
+			    })
 
 				 	if(location.host.indexOf('neighborhood') >= 0) {
 				 		// Since deactivated above due to conflict with header logo in app.
@@ -415,9 +424,14 @@ $(document).ready(function(){
 					showLeftIcon = true;
 				}
 				if (showLeftIcon) {
-					$("body").prepend( "<div id='sidecolumn-closed' class='hideprint' style='position:relative'><div id='showSide' class='showSide' style='top:109px; opacity:.8'><img src='/localsite/img/icon/sidemenu.png' style='width:13px'></div></div>\r" );
+					$("body").prepend( "<div id='sidecolumn-closed' class='hideprint' style='position:relative'><div id='showSide' class='showSide' style='top:109px; opacity:.8'><img src='" + modelroot + "/localsite/img/icon/sidemenu.png' style='width:13px'></div></div>\r" );
 		 		}
 
+		 		// Only apply if id="/icon?family=Material+Icons" is already in DOM.
+		 		// Running here incase header has not loaded yet when the same runs in localsite.js.
+		 		if (document.getElementById("/icon?family=Material+Icons")) {
+		 			$(".show-on-load").removeClass("show-on-load");
+		 		}
 			}); // End $("#header").load
 		//}
 	}
