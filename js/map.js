@@ -134,14 +134,11 @@ function hashChangedMap() {
               zoom = 7; // For Georgia map
           }
           dp.latitude = $("#state_select").find(":selected").attr("lat");
-          dp.lonitude = $("#state_select").find(":selected").attr("lon");
-          //mapCenter = [lat,lon];
+          dp.longitude = $("#state_select").find(":selected").attr("lon");
         }
     } else {
       console.log("ERROR #state_select not available in hashChangedMap()");
-    }
-    console.log("Recenter map " + mapCenter)
-
+    }    
 
     loadMap1("hashChanged() in map.js new state(s) " + hash.state, hash.show, dp);
 
@@ -180,6 +177,113 @@ L.Control.Layers.include({
     return layers;
   }
 });
+
+
+// NULLSCHOOL
+$(document).on("click", "#earthZoom .leaflet-control-zoom-in", function(event) { // ZOOM IN
+  zoomEarth(200);
+  event.stopPropagation();
+});
+$(document).on("click", "#earthZoom .leaflet-control-zoom-out", function(event) { // ZOOM IN
+  zoomEarth(-200);
+  event.stopPropagation();
+});
+function zoomEarth(zoomAmount) {
+  if (!localObject.earth) {
+    let earthSrc = document.getElementById("mainframe").src; // Only returns the initial cross-domain uri.
+    localObject.earth = getEarthObject(earthSrc.split('#')[1]);
+  }
+  // Add 100 to orthographic map zoom
+  let orthographic = localObject.earth.orthographic.split(",");
+  localObject.earth.orthographic = orthographic[0] + "," + orthographic[1] + "," + (+orthographic[2] + zoomAmount);
+  
+  /*
+  let theMonth = 6;
+  let theDay = 1;
+  let theHour = 0;
+
+  let monthStr = String(theMonth).padStart(2, '0');
+  let dayStr = String(theDay).padStart(2, '0');
+  let hourStr = String(theHour).padStart(2, '0');
+  $("#mapText").html("NO<sub>2</sub> - " + monthStr  + "/" + dayStr + "/2022 " + " " + theHour + ":00 GMT (7 PM EST)");
+  */
+
+  let earthUrl = "https://earth.nullschool.net/#";
+  if (localObject.earth.date) {
+    earthUrl += localObject.earth.date + "/" + localObject.earth.time + "/";
+  } else {
+    earthUrl += "current/";
+  }
+  earthUrl += localObject.earth.mode + "/overlay=" + localObject.earth.overlay + "/orthographic=" + localObject.earth.orthographic;
+  loadIframe("mainframe", earthUrl);
+  //loadIframe("mainframe","https://earth.nullschool.net/#2022/" + monthStr + "/" + dayStr + "/" + hourStr + "00Z/chem/surface/currents/overlay=no2/orthographic=-115.84,31.09,1037");  
+}
+function getEarthObject(url) {
+  let urlPart = url.split('/');
+  let params = {};
+  if (urlPart.length > 6) { // URL contains date and time
+    params.date = urlPart[0] + "/" + urlPart[1] + "/" + urlPart[2];
+    params.time = urlPart[3];
+    params.mode = urlPart[4] + "/" + urlPart[5] + "/" + urlPart[6];
+  } else {
+    params.mode = urlPart[1] + "/" + urlPart[2] + "/" + urlPart[3];
+  }
+  for (let i = 4; i < urlPart.length; i++) {
+      if(!urlPart[i])
+          continue;
+      if (i==0 && urlPart[i].indexOf("=") == -1) {
+        params[""] = urlPart[i];  // Allows for initial # params without =.
+        continue;
+      }
+      let hashPair = urlPart[i].split('=');
+      params[decodeURIComponent(hashPair[0]).toLowerCase()] = decodeURIComponent(hashPair[1]);
+   }
+   return params;
+}
+function loadIframe(iframeName, url) {
+  localObject.earth = getEarthObject(url.split('#')[1]);
+  
+  var $iframe = $('#' + iframeName);
+  if ($iframe.length) {
+      //alert("loadIframe" + url)
+      $iframe.attr('src',url);
+      ///localObject.earthSrc = url;
+      $("#nullschoolHeader #mainbucket").show();
+      return false;
+  }
+  return true;
+}
+function delay(time) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
+async function loopMap() {
+  await delay(200);
+  let theMonth = 6;
+  let theDay = 1;
+  let theHour = 0;
+  while (theDay <= 20) {
+    let monthStr = String(theMonth).padStart(2, '0');
+    let dayStr = String(theDay).padStart(2, '0');
+    let hourStr = String(theHour).padStart(2, '0');
+    $("#mapText").html("NO<sub>2</sub> - " + monthStr  + "/" + dayStr + "/2022 " + " " + theHour + ":00 GMT (7 PM EST)");
+
+    loadIframe("mainframe","https://earth.nullschool.net/#2022/" + monthStr + "/" + dayStr + "/" + hourStr + "00Z/chem/surface/currents/overlay=no2/orthographic=-115.84,31.09,1037");  
+    await delay(1000);
+
+    $("#mapText").html("NO<sub>2</sub> - " + monthStr  + "/" + dayStr + "/2022 " + " 12:00 GMT (7 AM EST)");
+    loadIframe("mainframe","https://earth.nullschool.net/#2022/" + monthStr + "/" + dayStr + "/1200Z/chem/surface/currents/overlay=no2/orthographic=-115.84,31.09,1037");  
+    await delay(1000);
+
+    theDay += 1;
+    //theHour += 2;   
+  }
+}
+$(document).ready(function () {
+  // Run animation - add a button for this
+  //loopMap();
+});
+// END NULLSCHOOL
+
 
 function loadFromSheet(whichmap,whichmap2,dp,basemaps1,basemaps2,attempts,callback) {
   console.log("loadFromSheet - Might not need to call from Beyond Carbon when state not displayed.")
@@ -1446,6 +1550,26 @@ function loadMap1(calledBy, show, dp_incoming) { // Called by this page. Maybe s
 
         dp.latColumn = "plant_or_group.latitude";
         dp.lonColumn = "plant_or_group.longitude";
+  } else if (show == "trade") {
+        dp.listTitle = "Georgia Commercial Recyclers";
+        dp.googleCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBRXb005Plt3mmmJunBMk6IejMu-VAJOPdlHWXUpyecTAF-SK4OpfSjPHNMN_KAePShbNsiOo2hZzt/pub?gid=1924677788&single=true&output=csv";
+        dp.googleCategories = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBRXb005Plt3mmmJunBMk6IejMu-VAJOPdlHWXUpyecTAF-SK4OpfSjPHNMN_KAePShbNsiOo2hZzt/pub?gid=381237740&single=true&output=csv";
+        dp.nameColumn = "organization name";
+        dp.titleColumn = "organization name";
+        dp.searchFields = "organization name";
+        dp.addressColumn = "address";
+
+        dp.valueColumn = "category";
+        dp.valueColumnLabel = "Category";
+        dp.catColumn = "Category";
+        dp.subcatColumn = "Materials Accepted";
+        dp.itemsColumn = "Materials Accepted"; // Needs to remain capitalized. Equivalent to PPE items column, checkboxes
+
+        // https://map.georgia.org/recycling/
+        dp.editLink = "https://docs.google.com/spreadsheets/d/1YmfBPEFpfmaKmxcnxijPU8-esVkhaVBE1wLZqPNOKtY/edit?usp=sharing";
+        dp.listInfo = "Submit updates using our <a href='https://map.georgia.org/recycling/'>Google Form</a> or post comments in our <a href='https://docs.google.com/spreadsheets/d/1YmfBPEFpfmaKmxcnxijPU8-esVkhaVBE1wLZqPNOKtY/edit?usp=sharing' target='georgia_recyclers_sheet'>Google&nbsp;Sheet</a>.&nbsp; View&nbsp;additional <a href='../map/recycling/ga/'>recycling datasets</a>.";
+        dp.search = {"In Main Category": "Category", "In Materials Accepted": "Materials Accepted", "In Location Name": "organization name", "In Address": "address", "In County Name": "county", "In Website URL": "website"};
+
   } else if (theState == "GA") {
 
       if (show == "opendata") {
@@ -1812,6 +1936,18 @@ function loadMap1(calledBy, show, dp_incoming) { // Called by this page. Maybe s
     });
   }
   showprevious = show;
+
+  // Sulfer Dioxide - Good indicator of smoke stacks, Source of acidity
+  // https://earth.nullschool.net/#current/chem/surface/level/overlay=so2smass/orthographic=-94.02,32.31,1023
+
+  // Surface wind
+  // https://earth.nullschool.net/#current/wind/surface/level/orthographic=-73.52,34.52,532
+
+  // US East Coast Ocean Currant
+  // https://earth.nullschool.net/#current/wind/surface/currents/overlay=wind/orthographic=-73.52,34.52,1101
+
+  loadIframe("mainframe","https://earth.nullschool.net/#current/wind/surface/level/orthographic=" +  dp.longitude + "," + dp.latitude + ",1381");
+
 }
 function initialHighlight(hash) {
   if (hash.name) {
@@ -1956,7 +2092,7 @@ function loadGeos(geo, attempts, callback) {
           geoParams.permile = d.perMile;
           geoParams.active = activeGeo;
 
-          geoArray.push([theGeo, geoParams]); // Append an array with an object as the value
+          geoArray.push([theGeo, geoParams]); // Append a key-value with an object as the value
         });
 
         console.log("geoArray")
@@ -2867,12 +3003,13 @@ function linkify(inputText) { // https://stackoverflow.com/questions/37684/how-t
 }
 
 // For stateImpact colors
-var colorTheStateCarbonX = d3.scaleThreshold()
-    .domain(d3.range(2, 10))
-    .range(d3.schemeBlues[9]);
 
 var colorTheStateCarbon = d3.scaleThreshold()
     .domain(d3.range(2, 10))
+    .range(d3.schemeBlues[9]);
+
+var colorTheCountry = d3.scaleThreshold()
+    .domain(d3.range(2, 1000000))
     .range(d3.schemeBlues[9]);
 
 function popMapPoint(dp, map, latitude, longitude, name) {
@@ -3149,7 +3286,12 @@ $(window).scroll(function() {
     revealHeader = true; // For next manual scroll
   } else if ($(window).scrollTop() > previousScrollTop) { // Scrolling Up
     if ($(window).scrollTop() > previousScrollTop + 20) { // Scrolling Up fast
-      $("#headerLarge").addClass("headerLargeHide"); $('.headerbar').hide(); $('.headerOffset').hide(); $('#logoholderbar').show(); $('#logoholderside').show();
+      $("#headerLarge").addClass("headerLargeHide"); $('.headerbar').hide(); $('.headerOffset').hide(); $('#logoholderbar').show(); 
+
+      // BUGBUG - occuring on initial reload when page is a little from top.
+      //$('#logoholderside').show();
+      //alert("load")
+
       $("#filterFieldsHolder").addClass("filterFieldsHolderFixed");
       if (param.showheader != "false") {
         $('.showMenuSmNav').show(); 
@@ -3195,6 +3337,8 @@ $(window).scroll(function() {
   previousScrollTop = $(window).scrollTop();
 
   lockSidemap(mapFixed);
+  let headerFixedHeight = $("#headerLarge").height();
+  $('#sidecolumnContent').css("top",headerFixedHeight + "px");
 });
 function lockSidemap() {
   // Detect when #hublist is scrolled into view and add class mapHolderFixed.
@@ -3296,11 +3440,8 @@ function styleShape(feature) {
 function styleShape(feature) { // Called FOR EACH topojson row
 
   let hash = getHash(); // To do: pass in as parameter
+  //console.log("feature: ", feature)
 
-  //alert(stateDataList);
-  //console.log("feature ", feature)
-
-  // console.log("feature.properties.COUNTYFP: " + feature.properties.COUNTYFP);
   var fillColor = 'rgb(51, 136, 255)'; // 
   // For hover '#665';
   
@@ -3314,7 +3455,6 @@ function styleShape(feature) { // Called FOR EACH topojson row
     })
   */
   let stateID = getIDfromStateName(feature.properties.name);
-
   let fillOpacity = .05;
   if (hash.geo && hash.geo.includes("US" + feature.properties.STATEFP + feature.properties.COUNTYFP)) {
       fillColor = 'purple';
@@ -3322,15 +3462,28 @@ function styleShape(feature) { // Called FOR EACH topojson row
   } else if (hash.mapview == "country" && hash.state && hash.state.includes(stateID)) {
       fillColor = 'red';
       fillOpacity = .2;
+  } else if (hash.mapview == "countries") {
+      let theValue = 2;
+      //console.log("country: " + (feature.properties.name));
+      if (localObject.countries[feature.id]) {
+        //alert("Country 2020 " + localObject.countries[feature.id]["2020"]);
+        theValue = localObject.countries[feature.id]["2020"];
+      }
+      // TO DO - Adjust for 2e-7
+      theValue = theValue/10000000;
+      fillColor = colorTheCountry(theValue);
+      console.log("fillColor: " + fillColor + "; theValue: " + theValue + " " + feature.properties.name);
+      fillOpacity = .5;
   } else if ((hash.mapview == "country" || (hash.mapview == "state" && !hash.state)) && typeof localObject.state != 'undefined') {
       let theValue = 2;
-      if (localObject.state[getState(stateID)] && localObject.state[getState(stateID)].CO2_per_capita != "No data") {
+       if (localObject.state[getState(stateID)] && localObject.state[getState(stateID)].CO2_per_capita != "No data") {
         console.log(stateID + " " + getState(stateID));
         console.log(stateID + " " + localObject.state[getState(stateID)].CO2_per_capita);
         theValue = localObject.state[getState(stateID)].CO2_per_capita;
       }
-      theValue = theValue/4;
+      theValue = theValue/4; // Ranges from 0 to 26
       fillColor = colorTheStateCarbon(theValue);
+      console.log("fillColor: " + fillColor + "; theValue: " + theValue + " " + feature.properties.name);
       fillOpacity = .5;
   } return {
       weight: 1,
@@ -3353,7 +3506,7 @@ function getIDfromStateName(stateName) {
 }
 function getStateNameFromID(stateID) {
   if (typeof stateID == "undefined" || stateID.length < 2) { return; }
-  let stateName;
+  let stateName = ""; // Avoids error when made lowercase
   $("#state_select option").map(function(index) {
     if ($("#state_select option").get(index).value == stateID) {
       stateName = $("#state_select option").get(index).text;
@@ -3463,6 +3616,11 @@ function renderMapShapeAfterPromise(whichmap, hash, attempts) {
 
   //var url = local_app.custom_data_root() + '/counties/GA-13-georgia-counties.json';
   
+  var lat = 32.69;
+  var lon = -20; // -83.2;
+  let zoom = 2;
+  let theState = $("#state_select").find(":selected").val();
+
   var url;
   let topoObjName = "";
   var layerName = "Map Layer";
@@ -3475,16 +3633,13 @@ function renderMapShapeAfterPromise(whichmap, hash, attempts) {
     }
     topoObjName = "topoob.objects.data";
     $("#geomap").width("700px");
-  } else if (hash.mapview == "earth") { // ALL COUNTIRES
-    url = local_app.modelearth_root() + "/topojson/world-countries-sans-antarctica.json";
-    topoObjName = "topoob.objects.countries1";
-  } else if (stateAbbr.length <= 1 || hash.mapview == "country") { // USA
+  }  else if (hash.mapview == "country" && stateAbbr.length != 2) { // USA
     layerName = "States";
     url = local_app.modelearth_root() + "/localsite/map/topo/states-10m.json";
     topoObjName = "topoob.objects.states";
     $("#geomap").width("700px");
     //$(".geoListHolder").hide();
-  } else { // COUNTIES
+  } else if (stateAbbr && stateAbbr.length <= 2) { // COUNTIES
     layerName = stateAbbr + " Counties";
     let stateNameLowercase = getStateNameFromID(stateAbbr).toLowerCase();
     let countyFileTerm = "-counties.json";
@@ -3502,8 +3657,16 @@ function renderMapShapeAfterPromise(whichmap, hash, attempts) {
 
     //url = local_app.modelearth_root() + "/opojson/countries/us-states/GA-13-georgia-counties.json";
     // IMPORTANT: ALSO change localhost setting that uses cb_2015_alabama_county_20m below
-  }
+  } else { // ALL COUNTIRES
+  //} else if (hash.mapview == "earth") {
+    if (hash.mapview == "earth") {
+      hideAdvanced();
+      showGlobalMap();
+    } 
 
+    url = local_app.modelearth_root() + "/topojson/world-countries-sans-antarctica.json";
+    topoObjName = "topoob.objects.countries1";
+  }
 
   req.open('GET', url, true);
   req.onreadystatechange = handler;
@@ -3614,20 +3777,16 @@ function renderMapShapeAfterPromise(whichmap, hash, attempts) {
 
     // Georgia 32.1656° N, 82.9001° W
     
-    var lat = 32.69;
-    var lon = -83.2;
 
-    let zoom = 7;
-    let theState = $("#state_select").find(":selected").val();
-    if (theState == "" || hash.mapview == "country") {
-      zoom = 4
-      lat = "39.5"
-      lon = "-96"
-    } else if (theState == "" || hash.mapview == "earth") {
+    if (hash.mapview == "earth" && theState == "") {
       zoom = 2
       lat = "25"
       lon = "0"
-    } else {
+    } else if (hash.mapview == "country" && theState == "") {
+      zoom = 4
+      lat = "39.5"
+      lon = "-96"
+    } else if ($("#state_select").find(":selected").attr("lat")) {
       let kilometers_wide = $("#state_select").find(":selected").attr("km");
       zoom = zoomFromKm(kilometers_wide);
       lat = $("#state_select").find(":selected").attr("lat");
@@ -3713,9 +3872,6 @@ function renderMapShapeAfterPromise(whichmap, hash, attempts) {
         //L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         //    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         //}).addTo(map);
-
-
-
       }
       
         // Add 
@@ -3961,32 +4117,6 @@ function renderMapShapeAfterPromise(whichmap, hash, attempts) {
         //layerControl = L.control.layers(baseLayers, overlays).addTo(map);
       }
     }
-
-    // NOT USED
-    /*
-    if (typeof stateImpact != 'undefined') {
-      //alert("found stateImpact " + stateImpact);
-      let dp = {};
-      dp.data = stateImpact;
-      dp.scale = getScale(dp.data, dp.scaleType, dp.valueColumn);
-    }
-    */
-
-    // Remove - clear the markers from the map for the layer
-     //if (map.hasLayer(overlays1[dp.dataTitle])){
-     //   overlays1[dp.dataTitle].remove();
-     //}
-     //if (map.hasLayer(overlays["Counties"])){
-     //   alert("found layer")
-        //no effect
-          //overlays["Counties"].remove();
-     //}
-
-    // Make a layer active. 
-    // Seems to prevent error
-    //geojsonLayer.addTo(map);
-        
-    // End MAPS FROM TOPOJSON
 
     // To add additional layers:
     //layerControl.addOverlay(dp.group, dp.name); // Appends to existing layers

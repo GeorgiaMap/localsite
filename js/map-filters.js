@@ -26,9 +26,6 @@ if(typeof localObject.stateCountiesLoaded == 'undefined') {
 if(typeof localObject.geo == 'undefined') {
     localObject.geo = []; // Holds counties. Should this also be {} ?
 }
-if(typeof localObject.state == 'undefined') {
-    localObject.state = {}; // Holds states.
-}
 if(typeof localObject.layers == 'undefined') {
     localObject.layers = {}; // Holds layers.
 }
@@ -296,7 +293,24 @@ $(document).ready(function () {
     	event.stopPropagation();
     });
 	
- 	$('#state_select').on('change', function() {
+    $(document).on("change", "#country_select", function(event) {
+        //alert("this.value " + this.value);
+
+        goHash({'mapview':this.value});
+        /*
+        if (this.value) {
+            //$('#state_select').val("");
+            //$("#region_select").val("");
+            goHash({'state':'','geo':'','name':'','regiontitle':'','mapview':this.value}); // Triggers map changes
+        } else { // US selected
+            goHash({'mapview':'country','state':''});
+            //clearHash("state")
+            //$("#geoPicker").hide();
+            //$("#industryListHolder").hide();
+        }
+        */
+    });
+ 	$(document).on("change", "#state_select", function(event) {
  		if (this.value) {
 	    	$("#geoPicker").show();
 	    	$("#region_select").val("");
@@ -753,7 +767,7 @@ function locationFilterChange(selectedValue,selectedGeo) {
     //$(".geoListHolder > div").hide();
     $(".geoListCounties").show();
 
-    //showSearchClick(); // Display filters
+    //showSearchFilter(); // Display filters
     hideLocationFilters();
 
     //$(".hideLocationsMenu").trigger("click");
@@ -895,6 +909,9 @@ function loadStateCounties(attempts) { // To avoid broken tiles, this won't be e
 	console.log("loadStateCounties " + attempts);
 	if (typeof d3 !== 'undefined') {
 
+        let element = {};
+        element.scope = "geo";
+
 		let hash = getHash();
 		let theState = $("#state_select").find(":selected").val();
 		if (hash.state) {
@@ -1004,10 +1021,10 @@ function loadStateCounties(attempts) { // To avoid broken tiles, this won't be e
                 }
                 console.log("myData");
                 console.log(myData);
-				showTabulatorList(0);
+				showTabulatorList(element, 0);
 
 			});
-		} 
+		}
 	} else {
 		attempts = attempts + 1;
 	      if (attempts < 2000) {
@@ -1020,115 +1037,141 @@ function loadStateCounties(attempts) { // To avoid broken tiles, this won't be e
 	}
 }
 
-function loadCountryStates(attempts) {
-    console.log("loadCountryStates " + attempts);
+function loadObjectData(element, attempts) {
+    console.log("loadObjectData " + attempts);
     if (typeof d3 !== 'undefined') {
+        if(typeof localObject[element.scope] == 'undefined') {
+            localObject[element.scope] = {}; // Holds states, countries.
+        }
 
-        //if (localObject.state && localObject.state.length <= 0) { // Just add first time
-        if (Object.keys(localObject.state).length <= 0) {
-            let stateDataUrl = "https://model.earth/beyond-carbon-scraper/fused/result.json"; // Also resides in app/js/bc.js
+        // Just load from file the first time
+        if (Object.keys(localObject[element.scope]).length <= 0) { // state, countries
 
-            d3.json(stateDataUrl).then(function(json,error) {
+            if (element.datasource.toLowerCase().endsWith(".csv")) {
+                d3.csv(element.datasource).then(function(data) { // One row per line
+                    // element.scope = countries
+                    if (element.key) {
 
+                        data.forEach(function(d, i) {
+                          // TO DO - might remove the key from the data
+                          localObject[element.scope][d[element.key]] = data[i];
+                        });
 
-              stateImpact = $.extend(true, {}, json); // Clone/copy object without entanglement
-              if (param.state) {
-                //theStateName = $("#state_select").find(":selected").text();
-                //let theStateName = getState(param.state);
+                    } else {
+                        localObject[element.scope] = makeRowValuesNumeric(data, element.numColumns, element.valueColumn);
+                    }
+                    console.log("localObject.countries")
+                    console.log(localObject[element.scope])
+                    showTabulatorList(element, 0);
+                })
+            } else {
+                d3.json(element.datasource).then(function(json,error) {
 
-                  $(document).ready(function () {
-                    //displaystateImpact(theStateName, stateImpact);
-                  });
+                    stateImpact = $.extend(true, {}, json); // Clone/copy object without entanglement
 
-              }
+                      /*
+                      if (Array.isArray(json)) { // Other than DifBot - NASA when count included
+                        for (a in json) {
+                          fullHtml += "<div class='level1'><b>Product ID:</b> " + json[a].id + "</div>\n";
+                          for (b in json[a]) {
+                            fullHtml += formatRow(b,json[a][b],1); // Resides in localsite.js
+                          }
+                        }
+                      } else {
+                        alert("not array")
+                        if (!json.data) {
+                          //json.data = json; // For NASA
+                        }
+                      }
+                      alert(fullHtml);
+                      */
 
-              /*
-              if (Array.isArray(json)) { // Other than DifBot - NASA when count included
-                for (a in json) {
-                  fullHtml += "<div class='level1'><b>Product ID:</b> " + json[a].id + "</div>\n";
-                  for (b in json[a]) {
-                    fullHtml += formatRow(b,json[a][b],1); // Resides in localsite.js
-                  }
-                }
-              } else {
-                alert("not array")
-                if (!json.data) {
-                  //json.data = json; // For NASA
-                }
-              }
-              alert(fullHtml);
-              */
+                      if (error) throw error;
+                      //console.log("stateImpact");
+                      //return(stateImpact);
+                      
+                      /*
+                      let rowcount = 0;
+                      //stateImpactArray = [];
+                      $.each(stateImpact, function(key,val) {             
+                          //alert(key+val);
+                          if (val["jurisdiction"]) {
+                            //stateImpactArray.push(val)
 
-              if (error) throw error;
-              //console.log("stateImpact");
-              //return(stateImpact);
-              
-              /*
-              let rowcount = 0;
-              //stateImpactArray = [];
-              $.each(stateImpact, function(key,val) {             
-                  //alert(key+val);
-                  if (val["jurisdiction"]) {
-                    //stateImpactArray.push(val)
+                            localObject.state.push(val)
+                            rowcount++;
+                          }
+                      });
+                      console.log("Loaded set of states. rowcount: " + rowcount)
+                      */
 
-                    localObject.state.push(val)
-                    rowcount++;
-                  }
-              });
-              console.log("Loaded set of states. rowcount: " + rowcount)
-              */
+                        // To Do: Remove from json:
+                        // jurisdiction: "Alabama"
+                        // juristiction: "Alabama"
 
-              localObject.state = $.extend(true, {}, json); // Clone/copy object without entanglement
-
-              showTabulatorList(0);
-            });
+                        localObject[element.scope] = $.extend(true, {}, json); // Clone/copy object without entanglement
+                        console.log("localObject.state")
+                        console.log(localObject[element.scope])
+                        showTabulatorList(element, 0);
+                });
+            }
 
         } else {
-            showTabulatorList(0);
+            showTabulatorList(element, 0);
         }
 
     } else {
         attempts = attempts + 1;
           if (attempts < 2000) {
             setTimeout( function() {
-              lloadCountryStates(attempts);
+              loadObjectData(element, attempts);
             }, 20 );
           } else {
-            alert("D3 javascript not available for loadCountryStates csv.")
+            alert("D3 javascript not available for loadObjectData csv.")
           }
     }
 }
 var statetable = {};
 var geotable = {};
-function showTabulatorList(attempts) {
+function showTabulatorList(element, attempts) {
     //alert("showTabulatorList " + attempts);
 	let hash = getHash();
 	if (typeof Tabulator !== 'undefined') {
+        
 		console.log("showTabulatorList " + attempts)
 		// Try this with 5.0. Currently prevents row click from checking box.
 		// selectable:true,
 
-        // Since localObject.state is an array of objects (for each state), convert to a flat array (like a spreadsheet)
-        let stateImpactArray = [];
-        $.each(localObject.state , function(key,val) {             
-          //alert(key+val);
-          if (val["jurisdiction"]) {
-            stateImpactArray.push(val)
-
-            //localObject.state.push(val)
+        // Convert key-value object to a flat array (like a spreadsheet)
+        let dataForTabulator = [];
+        $.each(localObject[element.scope] , function(key,val) { // val is an object     
+          if (element.scope == "state") {
+            if (val["jurisdiction"]) { // 3 in the state json file don't have a jurisdiction value.
+                dataForTabulator.push(val);
+            }
+            //localObject[element.scope].push(val)
             //rowcount++;
+            console.log("1 " + element.scope);
+          } else { // countries
+            dataForTabulator.push(val);
+            console.log("2 " + element.scope);
           }
         });
+
+        console.log("dataForTabulator")
+        //console.log(dataForTabulator)
 
 		// For fixed header, also allows only visible rows to be loaded. See "Row Display Test" below.
 		// maxHeight:"100%",
 
         // COUNTRY
-        if (!hash.state && typeof stateImpact != 'undefined') {
+        //if (!hash.state && typeof stateImpact != 'undefined') {
+        if (!hash.state) {
+         console.log("load countries OR USA states list");
          $("#tabulator-geotable").hide();
          $("#tabulator-statetable").show();
          statetable = new Tabulator("#tabulator-statetable", {
-            data:stateImpactArray,    //load row data from array of objects
+            data:dataForTabulator,    //load row data from array of objects
             layout:"fitColumns",      //fit columns to width of table
             responsiveLayout:"hide",  //hide columns that dont fit on the table
             tooltips:true,            //show tool tips on cells
@@ -1138,13 +1181,7 @@ function showTabulatorList(attempts) {
             resizableRows:true,       //allow row order to be changed
             
             paginationSize:10000,
-            columns:[
-                {formatter:"rowSelection", titleFormatter:"rowSelection", hozAlign:"center", headerHozAlign:"center", width:10, headerSort:false},
-                {title:"State", field:"jurisdiction"},
-                {title:"Population", field:"population", hozAlign:"right", headerSortStartingDir:"desc", formatter:"money", formatterParams:{precision:false}},
-                {title:"CO<sub>2</sub> per capita", field:"CO2_per_capita", hozAlign:"right", formatter:"money", formatterParams:{precision:false}},
-            ],
-
+            columns:element.columns,
             rowClick:function(e, row){
                 row.toggleSelect(); //toggle row selected state on row click
 
@@ -1218,6 +1255,7 @@ function showTabulatorList(attempts) {
 		// Might modify to load multiple states
 
         if (hash.state) {
+            console.log("load county list")
             $("#tabulator-statetable").hide();
             $("#tabulator-geotable").show();
 
@@ -1335,13 +1373,14 @@ function showTabulatorList(attempts) {
 
 	} else {
 	  attempts = attempts + 1;
-      if (attempts < 2000) {
+      loadTabulator();
+      if (attempts < 4000) {
       	// To do: Add a loading image after a coouple seconds. 2000 waits about 300 seconds.
         setTimeout( function() {
-          showTabulatorList(attempts);
-        }, 20 );
+          showTabulatorList(element, attempts);
+        }, 100 );
       } else {
-        alert("Tabulator JS not available for displaying list.")
+        alert("Tabulator JS not available for displaying list1. (map-filters.js)")
       }
 	}
 }
@@ -2602,6 +2641,10 @@ function hashChanged() {
 		}
 	}
 
+    if (hash.mapview != priorHash.mapview) {
+        $("#country_select").val(hash.mapview);
+    }
+
 	if (hash.state != priorHash.state) {
 		loadGeomap = true;
 		if(location.host.indexOf('model.georgia') >= 0) {
@@ -2655,7 +2698,28 @@ function hashChanged() {
     } else if (hash.mapview != priorHash.mapview && hash.mapview == "state") {
         loadStateCounties(0);
 	} else if (hash.mapview != priorHash.mapview && hash.mapview == "country") {
-        loadCountryStates(0);
+        let element = {};
+        element.scope = "state";
+        element.datasource = "https://model.earth/beyond-carbon-scraper/fused/result.json"; // Also resides in app/js/bc.js
+        element.columns = [
+                {formatter:"rowSelection", titleFormatter:"rowSelection", hozAlign:"center", headerHozAlign:"center", width:10, headerSort:false},
+                {title:"State", field:"jurisdiction"},
+                {title:"Population", field:"population", hozAlign:"right", headerSortStartingDir:"desc", formatter:"money", formatterParams:{precision:false}},
+                {title:"CO<sub>2</sub> per capita", field:"CO2_per_capita", hozAlign:"right", formatter:"money", formatterParams:{precision:false}},
+            ];
+        loadObjectData(element, 0);
+    } else if (hash.mapview != priorHash.mapview && (hash.mapview == "earth" || hash.mapview == "countries")) {
+        let element = {};
+        element.scope = "countries";
+        element.key = "Country Code";
+        element.datasource = "https://model.earth/country-data/population/population-total.csv";
+        element.columns = [
+                {formatter:"rowSelection", titleFormatter:"rowSelection", hozAlign:"center", headerHozAlign:"center", width:10, headerSort:false},
+                {title:"Country Name", field:"Country Name"},
+                {title:"2010", field:"2010", hozAlign:"right", headerSortStartingDir:"desc", formatter:"money", formatterParams:{precision:false}},
+                {title:"2020", field:"2020", hozAlign:"right", headerSortStartingDir:"desc", formatter:"money", formatterParams:{precision:false}}
+            ];
+        loadObjectData(element, 0);
     } else if (hash.mapview != priorHash.mapview) { // For backing up within apps
         if (typeof relocatedStateMenu != "undefined") {
             relocatedStateMenu.appendChild(state_select); // For apps hero
