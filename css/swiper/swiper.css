@@ -1,5 +1,5 @@
 .swiper-pagination {
-  display: none;
+  displayX: none;
 }
 .headerImage {
   display: none;
@@ -12,9 +12,6 @@
   displayX: none; /* remove to change arrow style */
   color: #fff;
 }
-.swiper-button-circle {
-  display: none; /* remove to change arrow style */
-}
 .swiper-pagination {
   position: relative;
 }
@@ -23,7 +20,7 @@
   width: 100%;
   heightX: 100%;
   max-heightX: 700px;
-  overflow: auto;
+  /*overflow: auto;*/
   margin-left: auto;
   margin-right: auto;
   position: relative;
@@ -137,10 +134,10 @@
     right: 30px;
 }
 .prev-buttonXXX {
-	position: relative;
-	display: inline-block;
-	border: 5px solid red;
-	margin-left: 20px;
+  position: relative;
+  display: inline-block;
+  border: 5px solid red;
+  margin-left: 20px;
 }
 .nav-circle {
     content: "" !important;
@@ -151,7 +148,7 @@
     width: 48px !important;
     height: 48px !important;
     border-radius: 50% !important;
-    background: rgb(255, 255, 255);
+    background: rgb(250, 250, 250);
     border-width: 1px !important;
     border-style: solid !important;
     border-color: rgb(176, 176, 176) !important;
@@ -167,7 +164,7 @@
 }
 /*
 .nav-circle-text {
-	position: absolute;
+  position: absolute;
     -webkit-appearance: none !important;
     display: block !important;
     color: rgb(34, 34, 34) !important;
@@ -186,8 +183,8 @@
 }
 */
 .circle-text {
-	height:50px;
-	padding:18px;
+  height:50px;
+  padding:18px;
   width:50px;
   text-align:center;
   pointer-events: none;
@@ -228,4 +225,112 @@
 }
 .top-credit a {
   color: #fff;
+}
+
+
+.swiper-button-next:after, .swiper-button-prev:after {
+  color: #fff;
+  text-shadow: 2px 2px 4px #000000;
+}
+.swiper-slide {
+  height: 732px;
+  overflow: scroll;
+}
+.swiper-button {
+  width: 100px;
+  background-color: #333;
+  border: 1px solid red;
+  display: none;
+}
+.swiper-button-prev, .swiper-button-next {
+  opacity: 0;
+  transition: all .5s ease-in;
+}
+.swiper-button-prev:hover {
+  opacity: 1;
+  transition: all .5s ease-out;
+  background-color: rgb(0, 0, 0, 0.03);
+  background-imageX: url(/localsite/img/plyr/arrow-prev.png);
+  text-shadow: 2px 2px 2px rgba(33,33,33,0.3);
+}
+.swiper-button-next:hover {
+  opacity: 1;
+  transition: all .5s ease-out;
+  background-color: rgb(0, 0, 0, 0.03);
+  background-imageX: url(/localsite/img/plyr/arrow-next.png);
+  text-shadow: 2px 2px 2px rgba(33,33,33,0.3);
+}
+
+.swiper-button-prev {
+  left: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  height: 100%;
+  background-size: 57px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.swiper-button-next {
+  right: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  height: 100%;
+  background-size: 57px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.swiper-button-play, .swiper-button-pause {
+  position: absolute;
+  top: 2%;
+  bottom: 2%;
+  left: 2%;
+  right: 2%;
+  z-index: 1;
+  transition: all .5s ease-in;
+  background-size: 50px;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0;
+}
+.swiper-button-pause {
+  background-image: url(/localsite/img/plyr/pause.png);
+}
+.swiper-button-play {
+  background-image: url(/localsite/img/plyr/play.png);
+  z-indexX: 1; /* in front of pause */
+  displayX: none;
+}
+.swiper-button-play:hover, .swiper-button-pause:hover {
+  opacity: .8;
+  transition: all .5s ease-out;
+  cursor: pointer;
+}
+.showPauseQuick {
+  opacity: .8;
+  transition: 2s ease-out; /* no effect, jumps off */
+}
+.overrideShowPauseQuick {
+  opacity: 0;
+  display: none !important;
+}
+.swiper-container {
+  position: relative;
+  borderX: 1px solid red;
+}
+.swiper-blur {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: -1px;
+  opacity: 0.3;
+
+  -webkit-filter: blur(25px);
+  -moz-filter: blur(25px);
+  -o-filter: blur(25px);
+  -ms-filter: blur(25px);
+  filter: blur(25px);
 }
