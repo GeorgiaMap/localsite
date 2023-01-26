@@ -5,20 +5,34 @@
     height: 85vh;
     width: 100%;
   }
-  #mapList1 {
+  #mapList1Holder {
     position: absolute;
     top: 20px;
     left: 20px;
     width: 400px;
     max-width: 400px;
-    max-height: 85%;
+    height: 85%;
     background-color: #666;
     color: #fff;
     z-index: 1000;
+    border-radius: 20px;
+  }
+  #mapList1Header {
+    background-color:#111;
+    padding:10px;
+    border-bottom: 1px solid #777;
+  }
+  #mapList1 {
+    position: absolute;
+    top: 32px;
+    bottom: 0px;
+    width: 100%;
+    padding: 6px;
+    background-color: #333;
   }
   #mapList1 .detailTitle {
     overflow: auto;
-    font-size: 18px;
+    font-size: 16px;
     margin-top: -4px;
     padding-bottom: 8px;
   }
@@ -32,6 +46,12 @@
     margin-bottom: 2px;
     position: relative;
     border-bottom: 1px solid #777;
+  }
+  #mapList1 .detail:hover {
+    background-color: #555;
+  }
+  #mapList1 .detailLocation {
+    font-size:11px;
   }
 
   .always-show-scroll {
@@ -173,8 +193,7 @@
     border-radius: 20px;
   }
   #detaillist .detail:hover {
-    background-colorX: #fcfcfc;
-    background-colorX: #ccc;
+    background-color: rgb(250, 250, 250, 0.3);
     border: 1px solid #fff;
     cursor:pointer;
   }

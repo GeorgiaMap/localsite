@@ -50,7 +50,7 @@ localsite.js pulls the #insertedText div from this page as the template for head
 <link rel="stylesheet" href="../css/search-filters.css" id="/localsite/css/search-filters.css" />
 <link rel="stylesheet" href="../css/map-display.css" id="/localsite/css/map-display.css" />
 
-<script type="text/javascript" src="../js/localsite.js?showheader=true&showsearch=true"></script>
+<script type="text/javascript" src="../js/localsite.js?show=vehicles&state=GA&showheader=true&showsearch=true&templatepage=true"></script>
 
 <!--
 <link rel="stylesheet" href="../css/hexagons.css">
@@ -228,7 +228,7 @@ localsite.js pulls the #insertedText div from this page as the template for head
           Add Optional Text 5
         </div>
       </div>
-      
+
 
     </div>
 
@@ -486,7 +486,7 @@ $(".swiper-button-play").show();
           </div>
       </div>
 
-    <div class="earthX local" style="float:left; display:none">
+    <div class="earth local" style="float:left; display:none">
       <div class="showEarth">
         <i class="material-icons show-on-load" style="font-size:34px;opacity:0.2; margin-top:-3px" data="apps">&#xE894;</i>
       </div>
@@ -1746,8 +1746,17 @@ Displayed by hashChanged() in map-filters.js
   <div id="mainbucket" style="display:none">
     <a href="../io/charts/"><img src="/community/img/logo/epa-circle.png" style="width:100px;float:left;margin-right:16px;"></a>
 
-    <div style="padding-top:5px">
-      Join us in building Product Lifecycle Tools that&nbsp;increase positive environmental impacts through&nbsp;local innovation. <a href="/localsite/info/" class="linkondark">Explore&nbsp;Impacts</a>
+    <div style="padding-top:5px; overflow:auto">
+      Join us in building Product Lifecycle Tools that&nbsp;increase positive environmental impacts through&nbsp;local innovation. 
+      
+      <br><br><a href="https://democracylab.org/events/hackynewyear2023" class="linkondark">Democracy Lab - Hacky New Year!</a><br>
+      January 27th and 28, 2023<br>
+      <a href="/io/coders/" class="btn btn-white" style="margin-top:10px;">Our Hackathon Projects</a>
+
+      <!--
+        <a href="/localsite/info/" class="linkondark">Explore&nbsp;Impacts</a>
+      -->
+
     </div>
     <!--
     <a href="projects/">Current Projects</a> and <a href="/localsite/info/">Data Visualizations</a><br>
@@ -1782,7 +1791,11 @@ Displayed by hashChanged() in map-filters.js
 
 <!-- Try to reactivate both of these display:none and update map.js waitForElm('#bodyFile #' + whichmap -->
 <div class="displayOnload displayMapForLoad" style="display:none;position:relative;overflow:hidden;">
-  <div id="mapList1" class="always-show-scroll"></div>
+  <div id="mapList1Holder" class="local" style="display:none">
+    <div id="mapList1Header">Locations</div>
+    <div id="mapList1" class="always-show-scroll"></div>
+  </div>
+
   <div id="map1" class="displayMapForLoad" style="display:none"></div>
 
   <!-- not in use -->
