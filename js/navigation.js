@@ -166,10 +166,15 @@ function closeExpandedMenus(menuClicked) {
     //alert("rightTopMenuInner 3");
 }
 function showSide() {
-	$("#mapList1Holder").show();
-	$("#fullcolumn #showSide").hide();
-	$('body').addClass('bodyLeftMargin'); // Creates margin on right for fixed sidetabs.
-	$('body').addClass('mobileView');
+	if(document.getElementById("containerLayout") != null) {
+		$('#navcolumn').addClass("navcolumnClear");
+		$('body').addClass('bodyLeftMarginNone');
+	} else {
+		$("#fullcolumn #showSide").hide();
+		$('body').addClass('bodyLeftMargin'); // Creates margin on right for fixed sidetabs.
+		$('body').addClass('mobileView');
+	}
+	$("#sideIcons").hide();
 	$("#navcolumn").show();
 }
 function applyNavigation() { // Called by localsite.js so local_app path is available.
@@ -286,7 +291,7 @@ function applyNavigation() { // Called by localsite.js so local_app path is avai
 	}
 
 	if(document.getElementById("navcolumn") == null) {
- 		$("body").prepend( "<div id='navcolumn' class='hideprint sidecolumnLeft liteDiv' style='display:none'><div class='hideSide close-X-sm' style='position:absolute;right:0;top:0;z-index:1;margin-top:0px'>✕</div><div class='sidecolumnLeftScroll'><div id='listLeft'></div><div id='cloneLeftTarget'></div></div></div>\r" );
+ 		$("body").prepend( "<div id='navcolumn' class='navcolumn navcolumnLower greyDiv hideprint sidecolumnLeft liteDiv' style='display:none'><div class='hideSide close-X-sm' style='position:absolute;right:0;top:0;z-index:1;margin-top:0px'>✕</div><div class='navcolumnBar'></div><div class='sidecolumnLeftScroll'><div id='navcolumnTitle' class='maincat'></div><div id='listLeft'></div><div id='cloneLeftTarget'></div></div></div>\r" );
  	} else {
  		// TODO - change to fixed when side reaches top of page
  		console.log("navigation.js report: navcolumn already exists")
@@ -312,6 +317,7 @@ function applyNavigation() { // Called by localsite.js so local_app path is avai
  	$(document).on("click", ".hideSide", function(event) {
 		$("#navcolumn").hide();
 		$("#showSide").show();
+		$("#sideIcons").show();
 		$('body').removeClass('bodyLeftMargin'); // Creates margin on right for fixed sidetabs.
 		if (!$('body').hasClass('bodyRightMargin')) {
         	$('body').removeClass('mobileView');

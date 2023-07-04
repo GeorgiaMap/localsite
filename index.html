@@ -13,12 +13,6 @@
 <script type="text/javascript" src="/localsite/js/showdown.min.js" id="/localsite/js/showdown.min.js"></script>
 <script type="text/javascript" src="/localsite/js/localsite.js?showheader=true&showsearch=false&showfilters=false"></script>
 
-<script>
-  //param.startTitle = "Neighborhood.org"
-  //param.titleArray = ["local","site"] // The header title will default to Neighborhood when no titleArray.
-	param.footer = "footer.html"
-</script>
-
 </head>
 
 <body>
@@ -26,10 +20,33 @@
 <!-- Swiper and Plyr -->
 
 <style>
-.optionalText {
-  display: none;
+.slideText {
   position:absolute;
-  bottom:-30px;
+  color: #fff;
+  font-size: 18px;
+  background-color: rgba(33,33,33,0.6);
+  border-radius: 30px;
+}
+
+.swiper-slide .swiper-lazy { /* could also use: .swiper-slide img */
+    opacity: 0.9;
+    min-width: 100%;
+    min-height: 100%;
+    object-fit: cover;
+}
+/* Add an icon and script to add class .fullimage to swiper-slide to override object-fit above. */
+.swiper-slide.fullimage .swiper-lazy {
+    min-width: inherit;
+    min-height: inherit;
+    object-fit: none;
+}
+
+.swiper-button-play, .swiper-button-pause {
+  background-position: right 0px bottom 10px !important;
+}
+.swiper-button-next {
+  height: auto !important;
+  bottom: 85px !important;
 }
 </style>
 
@@ -57,33 +74,45 @@ text-align:left; overflow:scroll;
   <!-- overflow:hidden here caused slides to be hidden -->
   <div class="swiper-container" style="overflowX:hidden; background: #000; background-color: #000;" id="sample1">
 
-    <div class="swiper-wrapper" style="">
+    <div class="swiper-wrapper">
       
       <!-- Slide 1 -->
-      <div class="swiper-slide" data-hash="plant">
-        <img class="swiper-lazy" data-src="/localsite/img/hero/plant.png" style="opacity:0.9;width:100%;max-width:2000px">
+      <!-- /localsite/img/hero/future-teepee.png -->
+      <div class="swiper-slide" data-hash="explore">
+        <img class="swiper-lazy" data-src="/localsite/img/hero/daisy.png">
         <div class="swiper-lazy-preloader swiper-lazy-preloader-white"></div>
-        <div class="optionalText content contentpadding" style="displayX:none;position:absolute; bottom:-30px">
-          Add Optional Text 1
+        <div class="slideText content contentpadding" style="padding-bottom:22px">
+          Slider.js is cool.
         </div>
       </div>
 
       <!-- Slide 2 -->
-      <div class="swiper-slide" data-hash="2to1-ratio">
-        <img class="swiper-lazy" data-src="/localsite/img/hero/2to1-ratio.png" style="opacity:0.9;width:100%;max-width:2000px">
+      <div class="swiper-slide" data-hash="plant">
+        <img class="swiper-lazy" data-src="/localsite/img/hero/plant.png" style="opacity:0.9;">
         <div class="swiper-lazy-preloader swiper-lazy-preloader-white"></div>
-        <div class="optionalText content contentpadding" style="displayX:none;position:absolute; bottom:-30px">
-          Add Optional Text 2
+        <div class="slideText content contentpadding" style="position:absolute; bottom:-30px">
+          Text at bottom
         </div>
       </div>
 
       <!-- Slide 3 -->
+      <div class="swiper-slide" data-hash="2to1-ratio">
+        <img class="swiper-lazy" data-src="/localsite/img/hero/2to1-ratio.png" style="opacity:0.9;width:100%;max-width:2000px">
+        <div class="swiper-lazy-preloader swiper-lazy-preloader-white"></div>
+        <div class="slideText content contentpadding" style="position:absolute; bottom:-30px; left: 0px">
+          Text in corner
+        </div>
+      </div>
+
+      <!-- Slide 4 -->
       <div class="swiper-slide" data-hash="sun">
         <!-- Example of smaller: solar-rect-sm.png -->
-        <!--img class="swiper-lazy swiper-blur" data-src="/localsite/img/hero/solar-rect.png" style="width:100%;max-width:2000px;"--><img class="swiper-lazy" data-src="/localsite/img/hero/solar-rect.png" style="opacity:0.9;max-width:2000px;">
+        <!--img class="swiper-lazy swiper-blur" data-src="/localsite/img/hero/solar-rect.png" style="width:100%;max-width:2000px;"-->
+        <img class="swiper-lazy" data-src="/localsite/img/hero/solar-rect.png">
         <div class="swiper-lazy-preloader swiper-lazy-preloader-white" style="position: relative; border: 10px solid red;"></div>
-        <div class="optionalText content contentpadding" style="displayX:none;position:absolute; bottom:-30px">
-          Add Optional Text 3
+        <div class="slideText content contentpadding" style="padding-bottom:22px">
+         Centered Text<br>
+         On a tall cropped image
         </div>
       </div>
 
@@ -92,36 +121,30 @@ text-align:left; overflow:scroll;
         <!--img class="swiper-lazy swiper-blur" data-src="/localsite/img/hero/sustainable-communities.jpg" style="width:100%;max-width:2000px;"-->
         <img class="swiper-lazy" data-src="/localsite/img/hero/sustainable-communities.jpg" style="opacity:0.9;width:100%;max-width:3000px">
         <div class="swiper-lazy-preloader swiper-lazy-preloader-white"></div>
-        <div class="box" style="display:none">
-          <!--div class="title">Title</div-->
-          <!--
-          <div class="subtitle" data-swiper-parallax="-200">Graphics project</div>
-          -->
+        <div class="box" style="border-radius:30px; padding:30px; min-width:150px">
+
+          <div class="title">Title</div>
+          <!-- data-swiper-parallax="-200" -->
+          <div class="subtitle">Subtitle</div>
+          
         </div>
       </div>
 
-      <!-- Slide 5 -->
-      <div class="swiper-slide" data-hash="explore">
-        <img class="swiper-lazy" data-src="/localsite/img/hero/future-teepee.png" style="opacity:0.9;width:100%;max-width:2000px;height:740px">
-        <div class="swiper-lazy-preloader swiper-lazy-preloader-white"></div>
-        <div class="optionalText content contentpadding">
-          Add Optional Text 5
-        </div>
-      </div>
+      
 
       
     </div>
 
   
     <!-- Swiper Nav -->
-    <div class="swiper-button-prev swiper-button-prev-sample1">
+    <div class="swiper-button-prev swiper-button-prev-sample1 swiper-no-swiping noSwipingClass">
       <!--<div class="swiper-button-white"></div>-->
     </div>
     <div class="swiper-button-play swiper-button-play-sample1"></div>
     <!-- e034 -->
     <div class="swiper-button-pause swiper-button-pause-sample1"></div>
 
-    <div class="swiper-button-next swiper-button-next-sample1">
+    <div class="swiper-button-next swiper-button-next-sample1 swiper-no-swiping noSwipingClass">
       <!--<div class="swiper-button-white"></div>-->
     </div>
     <!-- /Swiper Nav-->
@@ -152,10 +175,9 @@ const buildSwiperSlider = sliderElm => {
     const sliderIdentifier = sliderElm.id;
     const homeSwiper = new Swiper(`#${sliderElm.id}`, {
         slidesPerView: 1,
-        spaceBetween: 30,
+        spaceBetween: 0,
         loop: true,
-        speedX: 2500, /* transition */
-        speed: 300, /* transition */
+        speed: 1400, /* transition */
         slidesPerView: 'auto',
         lazy: {
           loadPrevNext: true,
@@ -169,8 +191,9 @@ const buildSwiperSlider = sliderElm => {
             clickable: true,
         },
         
-        effect: 'fade',
-
+        effectX: 'fade',
+        mousewheelX: true,
+        
         /* change hash value (and load based on hash) -- problem: overwrites other hash values */
         /*
         hashNavigation: {
@@ -182,7 +205,7 @@ const buildSwiperSlider = sliderElm => {
           enabled: true,
           onlyInViewport: false
         },
-        direction: 'horizontal',
+        directionX: 'horizontal',
         /*
         history: {
           keepQuery: true
