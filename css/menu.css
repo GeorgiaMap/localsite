@@ -321,8 +321,8 @@
 }
 
 .dropdown-menu {
-		position: absolute;
-		display: none;
+	position: absolute;
+	display: none;
     z-index: 1000;
     float: left;
     min-width: 160px;
@@ -476,10 +476,38 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
 	left:0;
 	bottom:0;
 }
-.navcolumnLower {
+.listcolumn {
+    position: fixed;
+    width:380px;
+    padding-right:0px;
+	top:0;
+	left:220px;
+	bottom:0;
+	background-color: #ddd;
+}
+#bodyFileHolder .listcolumn { /* Display next to map */
+	position: relative;
+	float: left;
+	top:auto; left:auto; bottom:auto;
+}
+.pagecolumn {
+	top:54px;
+}
+.pagecolumnLower {
 	top:94px;
 }
-.sideIcons {
+.pagecolumnToTop {
+	top:0px;
+}
+.rightIcons {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	z-index: 999;
+	font-size: 44px;
+	text-shadow: 1px 1px 4px #fff;
+}
+.bothSideIcons {
   top:0px;
   z-index:10000;
 }
@@ -487,7 +515,7 @@ ul.nav li.dropdown:hover ul.dropdown-menu {
   top:92px;
 }
 @media (max-width: 600px) {
-	.navcolumnLower {
+	.pagecolumnLower {
 		top:64px;
 	}
 	.sideIconsLower {

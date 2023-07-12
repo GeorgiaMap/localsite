@@ -429,20 +429,29 @@ function get_localsite_root3() { // Also in two other places
             return (theroot);
 }
 
-// Called from header.html files
-function toggleFullScreen() {
-  if (document.fullscreenElement) { // Already fullscreen
+function toggleFullScreen(alsoToggleHeader) {
+  if (document.fullscreenElement && !alsoToggleHeader) { // Already fullscreen and not small header
     consoleLog("Already fullscreenElement");
+    if (alsoToggleHeader) {
+      hideHeaderBar();
+    }
     if (document.exitFullscreen) {
-      consoleLog("Attempt to exit fullscreen")
+      consoleLog("Exit fullscreen")
       document.exitFullscreen();
-      $('.reduceFromFullscreen').hide();
-      $('.expandToFullscreen').show();
+      if (alsoToggleHeader) {
+        showHeaderBar();
+        $('.reduceSlider').hide();
+        $('.expandSlider').show();
+      } else {
+        $('.reduceFromFullscreen').hide();
+        $('.expandToFullscreen').show();
+      }
       return;
     }
   }
   if ((document.fullScreenElement && document.fullScreenElement !== null) ||    
    (!document.mozFullScreen && !document.webkitIsFullScreen)) {
+    // EXPAND
     // Only if video is not visible. Otherwise become black.
     $('.moduleBackground').css({'z-index':'0'});   
     $('.expandFullScreen span').text("Shrink");
@@ -454,10 +463,18 @@ function toggleFullScreen() {
     } else if (document.documentElement.webkitRequestFullScreen) {  
       document.documentElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);  
     }
-    $('.expandToFullscreen').hide();
-    $('.reduceFromFullscreen').show(); 
-  } else {
     
+    if (alsoToggleHeader) { // Use only small header
+      hideHeaderBar();
+      $("#filterFieldsHolder").addClass("filterFieldsHolderFixed");
+      $(".pagecolumn").removeClass("pagecolumnLower");
+      $('.expandSlider').hide();
+      $('.reduceSlider').show();
+    } else {
+      $('.expandToFullscreen').hide();
+      $('.reduceFromFullscreen').show();
+    }
+  } else {
     $('.moduleBackground').css({'z-index':'-1'}); // Allows video to overlap.
     $('.expandFullScreen span').text("Expand");
     if (document.cancelFullScreen) {  
@@ -467,8 +484,17 @@ function toggleFullScreen() {
     } else if (document.webkitCancelFullScreen) {  
       document.webkitCancelFullScreen();  
     }
-    $('.reduceFromFullscreen').hide();
-    $('.expandToFullscreen').show();
+    if (alsoToggleHeader) { // Restore taller header bar
+      showHeaderBar();
+      $("#filterFieldsHolder").removeClass("filterFieldsHolderFixed");
+      $(".pagecolumn").addClass("pagecolumnLower");
+      $(".pagecolumn").removeClass("pagecolumnToTop");
+      $('.reduceSlider').hide();
+      $('.expandSlider').show();
+    } else {
+      $('.reduceFromFullscreen').hide();
+      $('.expandToFullscreen').show();
+    }
   }
 }
 
@@ -598,6 +624,12 @@ function loadLocalTemplate() {
     });
   });
 }
+function hideHeaderBar() {
+  //$('#headerbar').addClass("headerbarhide");
+  $('#local-header').hide();
+  $('#headerbar').hide();
+  $('.bothSideIcons').removeClass('sideIconsLower');
+}
 function showHeaderBar() {
   //$('.headerOffset').show(); 
   $('#headerbar').show();
@@ -699,8 +731,9 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
         } else if(document.getElementById("bodyFile") == null) {
           $('body').prepend("<div id='bodyFile'></div>");
         }
+
         if(param.showheader == "true") {
-          $('body').prepend("<div id='sideIcons' class='sideIcons sideIconsLower' style='position:fixed;left:0;width:32px'><div id='showSide' class='showSide' style='left:-28px;'><i class='material-icons show-on-load' style='font-size:35px; opacity:0.7; background:#fcfcfc; padding-left:2px; padding-right:2px; border:1px solid #555; border-radius:8px; min-width: 38px;'>&#xE5D2;</i></div></div>");
+          $('body').prepend("<div id='sideIcons' class='bothSideIcons sideIconsLower' style='position:fixed;left:0;width:32px'><div id='showSide' class='showSide' style='left:-28px;'><i class='material-icons show-on-load' style='font-size:35px; opacity:1; background:#fcfcfc; color:#333; padding-left:2px; padding-right:2px; border:1px solid #555; border-radius:8px; min-width: 38px;'>&#xE5D2;</i></div></div>");
         }
         
         waitForElm('#fullcolumn').then((elm) => {
@@ -782,8 +815,11 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
       //document.write(strVarCss);
       document.head.insertAdjacentHTML("beforeend", strVarCss);
 
+      $(document).on("click", ".expandSlider, .reduceSlider", function(event) {
+        toggleFullScreen(true);
+      });
       $(document).on("click", ".expandToFullscreen, .reduceFromFullscreen", function(event) {
-        toggleFullScreen();  
+        toggleFullScreen(false);
       });
       $(document).on("click", ".showSearch", function(event) {
           //loadLeafletAndMapFilters();
@@ -1906,11 +1942,34 @@ function waitForElmKickoff(selector, resolve) {
 }
 
 
-function loadMarkdown(pagePath, divID, target, callback) {
+function loadMarkdown(pagePath, divID, target, attempts, callback) {
+  if (typeof attempts === 'undefined') {
+    attempts = 1;
+  }
   // WAIT FOR SCRIPT THAT LOADS README.md Files
   loadScript(theroot + 'js/d3.v5.min.js', function(results) {
   //loadScript(theroot + 'js/jquery.min.js', function(results) {
   loadScript(theroot + 'js/showdown.min.js', function(results) {
+
+  if (typeof customD3loaded !== 'undefined' && typeof showdownLoaded !== 'undefined') { // Ready
+  } else if (attempts < 300) { // Wait and try again
+    setTimeout( function() {
+      //consoleLog("try loadMarkdown again")
+      loadMarkdown(pagePath, divID, target, attempts+1, callback); // Do we need , callback here?
+    }, 30 );
+    return;
+  } else {
+    consoleLog("ERROR: loadMarkdown exceeded " + attempts + " attempts.");
+    if (typeof customD3loaded === 'undefined') {
+      consoleLog("REASON customD3loaded undefined");
+    }
+    if (typeof showdownLoaded === 'undefined') {
+      consoleLog("REASON showdownLoaded undefined");
+    }
+    return;
+  }
+
+  //waitForElm(customD3loaded).then((elm) => {
 
     // getPageFolder:
     let pageFolder = pagePath;
@@ -1932,10 +1991,10 @@ function loadMarkdown(pagePath, divID, target, callback) {
     // Get the levels below root
     //let foldercount = (location.pathname.split('/').length - 1); // - (location.pathname[location.pathname.length - 1] == '/' ? 1 : 0) // Removed because ending with slash or filename does not effect levels. Increased -1 to -2.
     
-
     // Might not be used
     //alert(location.pathname)
-    //let foldercount = (location.pathname.split('/').length - 1);
+    ////let foldercount = (location.pathname.split('/').length - 1);
+    /*
     let foldercount = (pagePath.split('/').length - 1);
     foldercount = foldercount - 2;
     let climbcount = foldercount;
@@ -1949,12 +2008,14 @@ function loadMarkdown(pagePath, divID, target, callback) {
     if(climbpath == "") {
       //climbpath == "./";
     }
-    if (typeof customD3loaded === 'undefined') {
-      console.log("ALERT - d3 not available yet. This may occur if showdown.min.js is included in page, but not d3.v5.min.js")
-    }
+    */
     d3.text(pagePath).then(function(data) {
       // Path is replaced further down page. Reactivate after adding menu.
-      var pencil = "<div class='markdownEye' style='display:none;position:absolute;font-size:28px;right:0px;text-decoration:none;opacity:.7'><a href='" + pagePath + "' style='color:#555'>…</a></div>";
+      let pencil = "<div class='markdownEye' style='position:absolute;font-size:28px;right:0px;top:-25px;text-decoration:none;opacity:.7'><a href='" + pagePath + "' style='color:#555'>…</a></div>";
+      if(location.host.indexOf('localhost') < 0) {
+        pencil = "";
+      }
+
       // CUSTOM About YAML metadata converter: https://github.com/showdownjs/showdown/issues/260
 
       // Also try adding simpleLineBreaks http://demo.showdownjs.com/
