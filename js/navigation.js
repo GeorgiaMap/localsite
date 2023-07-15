@@ -165,16 +165,24 @@ function closeExpandedMenus(menuClicked) {
     //alert("rightTopMenuInner 3");
 }
 function showSide() {
+	$("#sideIcons").hide();
+	$("#navcolumn").show();
 	if(document.getElementById("containerLayout") != null) {
 		$('#navcolumn').addClass("navcolumnClear");
 		$('body').addClass('bodyLeftMarginNone');
 	} else {
 		$("#fullcolumn #showSide").hide();
-		$('body').addClass('bodyLeftMargin'); // Creates margin on left for fixed sidetabs.
-		if($('#listcolumnList').html().length) {
+		$('body').addClass('bodyLeftMargin'); // Margin on left for fixed nav column.
+		if($('#listcolumnList').html().length) { // Showing both nav and list columns
 			$("#listcolumn").show();
+			$('#listcolumn').removeClass('listcolumnOnly');
 			if(document.getElementById("bodyFileHolder") == null) {
-				$('body').addClass('bodyLeftMarginFull'); // Creates margin on left for both fixed sidetabs.
+				if ($("#navcolumn").is(":visible")) {
+					$('body').addClass('bodyLeftMarginFull'); // Creates margin on left for both fixed sidetabs.
+				} else {
+					$('#listcolumn').addClass('listcolumnOnly');
+					$('body').addClass('bodyLeftMarginList');
+				}
 			}
 		}
 		$('body').addClass('mobileView');
@@ -188,8 +196,6 @@ function showSide() {
 			document.querySelector('#map2')._leaflet_map.invalidateSize(); // Refresh map tiles.
 		}
 	}
-	$("#sideIcons").hide();
-	$("#navcolumn").show();
 }
 function applyNavigation() { // Called by localsite.js so local_app path is available.
 	// To do: fetch the existing background-image.
@@ -304,7 +310,7 @@ function applyNavigation() { // Called by localsite.js so local_app path is avai
 		$("#fullcolumn").prepend("<div id='bodyFile'></div>\r");
 	}
 
-	let listColumnElement = "<div id='listcolumn' class='listcolumn pagecolumn sidelist pagecolumnLower' style='display:none'><div class='listHeader'><div class='hideSide close-X-sm' style='position:absolute;right:0;top:0;z-index:1;margin-top:0px'>✕</div><h1 class='listTitle'></h1><div class='listSubtitle'></div><div class='listSpecs'></div></div><div id='listmain'><div id='listcolumnList'></div></div><div id='listinfo' class='listinfo'></div></div>\r";
+	let listColumnElement = "<div id='listcolumn' class='listcolumn pagecolumn sidelist pagecolumnLower' style='display:none'><div class='listHeader'><div class='hideSideList close-X-sm' style='position:absolute;right:0;top:0;z-index:1;margin-top:0px'>✕</div><h1 class='listTitle'></h1><div class='listSubtitle'></div><div class='listSpecs'></div></div><div id='listmain'><div id='listcolumnList'></div></div><div id='listInfo' class='listInfo content'></div></div>\r";
 	if(document.getElementById("bodyFileHolder") != null) {
 		$("#bodyFileHolder").prepend(listColumnElement);
 		listColumnElement = "";
@@ -319,9 +325,9 @@ function applyNavigation() { // Called by localsite.js so local_app path is avai
  	}
 
  	$(document).on("click", "#showSide", function(event) {
-		//$("#showSide").hide();
-		if ($("#navcolumn").is(':visible')) {
-			//$("#showSide").css("opacity","1");
+		if ($("#navcolumn").is(':hidden')) {
+			showSide();
+		} else {
 			$("#navcolumn").hide();
 			$("#showSide").show();
 			$('body').removeClass('bodyLeftMargin');
@@ -329,19 +335,45 @@ function applyNavigation() { // Called by localsite.js so local_app path is avai
 			if (!$('body').hasClass('bodyRightMargin')) {
 	        	$('body').removeClass('mobileView');
 	    	}
-		} else {
-			showSide();
 		}
 		let headerFixedHeight = $("#headerLarge").height();
 		$('#cloneLeft').css("top",headerFixedHeight + "px");
 	});
+	$(document).on("click", ".hideSideList", function(event) {
+ 		hideSide("list");
+	});
  	$(document).on("click", ".hideSide", function(event) {
-		$("#navcolumn").hide();
-		$("#listcolumn").hide(); // Later we'll retain this location list when closing side navcolumn.
-		$("#showSide").show();
-		$("#sideIcons").show();
-		$('body').removeClass('bodyLeftMargin');
-		$('body').removeClass('bodyLeftMarginFull');
+ 		hideSide("");
+	});
+	function hideSide(which) {
+		if (which != "list") {
+			$("#navcolumn").hide();
+			$('body').removeClass('bodyLeftMarginFull');
+			if ($("#listcolumn").is(':visible')) {
+				$('#listcolumn').addClass('listcolumnOnly');
+				$('body').addClass('bodyLeftMarginList');
+			}
+		} else {
+			$("#listcolumn").hide();
+		}
+		if ($("#navcolumn").is(':hidden') && $("#listcolumn").is(':hidden')) {
+			$("#showSide").show();
+			$("#sideIcons").show();
+		} else if ($("#navcolumn").is(':hidden') && $("#listcolumn").is(':visible')) {
+			$("#showSide").prependTo("#filterFieldsMain");
+			$("#showSide").show();
+		}
+		if ($("#navcolumn").is(':hidden')) {
+			$('body').removeClass('bodyLeftMargin');
+		}
+		if ($("#listcolumn").is(':visible')) {
+			//$('body').addClass('bodyLeftMarginList');
+		} else {
+			$('body').removeClass('bodyLeftMarginList');
+		}
+		if ($("#navcolumn").is(':hidden') || $("#listcolumn").is(':hidden')) {
+			$('body').removeClass('bodyLeftMarginFull');
+		}
 		if (!$('body').hasClass('bodyRightMargin')) {
         	$('body').removeClass('mobileView');
     	}
@@ -352,7 +384,7 @@ function applyNavigation() { // Called by localsite.js so local_app path is avai
 		if (document.querySelector('#map2')._leaflet_map) {
 			document.querySelector('#map2')._leaflet_map.invalidateSize(); // Refresh map tiles.
 		}
-	});
+	}
  	if (param["showapps"] && param["showapps"] == "false") {
  		$(".showApps").hide();
 		$("#appSelectHolder").hide();
@@ -391,9 +423,9 @@ function applyNavigation() { // Called by localsite.js so local_app path is avai
 
 			if (param.header) headerFile = param.header;
 
-			if (earthFooter && param.showSideTabs != "false") { // Sites includieng modelearth and neighborhood
-			 	$(".showSideTabs").show(); // Before load headerFile for faster display.
-			}
+			//if (earthFooter && param.showSideTabs != "false") { // Sites includieng modelearth and neighborhood
+			// 	$(".showSideTabs").show(); // Before load headerFile for faster display.
+			//}
 
 			// headerFile contains only navigation
 			$("#local-header").load(headerFile, function( response, status, xhr ) {
@@ -449,16 +481,6 @@ function applyNavigation() { // Called by localsite.js so local_app path is avai
 
 			 		//if (param.showSideTabs != "false") { // brig
 			 		
-			 		if (location.host.indexOf('localhost') >= 0) {
-			 			console.log("LOCAL ONLY - Show menu icon for localhost")
-			 			$(".showSideTabs").show();
-			 			$(".upperIcons .earth").show();
-			 			setTimeout( function() {
-							$(".showSideTabs").show();
-			 				//$(".upperIcons .earth").show();
-			 				//$(".earth").show();
-						}, 1000);
-			 		}
 			 		$("#filterEmbedHolder").insertAfter("#headeroffset");
 			 		////$(".filterbarOffset").insertAfter("#headeroffset");
 			 		
@@ -968,7 +990,8 @@ function displayBigThumbnails(attempts, activeLayer, layerName, insertInto) {
 		            }
 		        }
 		    }
-	        $("#honeycombPanel").prepend("<div class='hideThumbMenu close-X' style='position:absolute; right:0px; top:0px;'><i class='material-icons' style='font-size:32px'>&#xE5CD;</i></div>");
+		    // Hidden to reduce clutter
+	        $("#honeycombPanel").prepend("<div class='hideThumbMenu close-X' style='display:none; position:absolute; right:0px; top:0px;'><i class='material-icons' style='font-size:32px'>&#xE5CD;</i></div>");
 		    $(insertInto).append("<div id='bigThumbMenuInner' class='bigThumbMenuInner'>" + sectionMenu + "</div>");
 
 	        if (theState == "GA") {
