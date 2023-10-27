@@ -1,6 +1,7 @@
 // Site specific settings
 // Maintained in localsite/js/navigation.js
 //alert("navigation.js param.state " + param.state);
+var navigationJsLoaded = "true";
 if(typeof page_scripts == 'undefined') {  // Wraps script below to insure navigation.js is only loaded once.
 if(typeof localObject == 'undefined') { var localObject = {};}
 if(typeof localObject.layers == 'undefined') {
@@ -515,16 +516,16 @@ function applyNavigation() { // Called by localsite.js so local_app path is avai
 		 			// Currently avoid since "https://model.earth/" is prepended to climbpath above.
 		 			//headerFile = climbpath + "../header.html";
 		 		}
-		 		if (param.headerFile) {
-		 			modelpath = ""; // Use the current repo when custom headerFile provided.
+		 		
+		 		if (param.header) {
+					headerFile = modelroot + param.header;
+				} else if (param.headerFile) {
+		 			modelpath = ""; // Use the current repo when custom headerFile provided. Allows for site to reside within repo.
 		 			headerFile = param.headerFile;
-		 		}
-
-				if (param.header) headerFile = param.header;
-				//THE FOLLOWING LINE PREVENTED NAV FROM SHOWING IN DS.
-				//if (earthFooter) { // Or should this go above param?
+				} else {
 					headerFile = modelroot + "/localsite/header.html";
-				//}
+				}
+
 				//if (earthFooter && param.showSideTabs != "false") { // Sites includieng modelearth and neighborhood
 				// 	$(".showSideTabs").show(); // Before load headerFile for faster display.
 				//}
