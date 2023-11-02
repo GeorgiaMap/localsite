@@ -1,5 +1,7 @@
 console.log("settings.js loaded.")
 
+// Probably won't retain this page, copied from explore
+
 // For login and any cookie settings.
 
 /*******************************************/
@@ -158,11 +160,11 @@ console.log("settings.js loaded.")
 /* End jQuery Cookie Plugin */
 /*******************************************/
 
-let params = parseQuery(scriptParamString);
+//let params = parseQuery(scriptParamString);
 let showLogin = true;
 var workoffline = false;
 function embedded() {
-    if (params["embed"] == "1" || params["embed"] == "true") {
+    if (param["embed"] == "1" || param["embed"] == "true") {
         return true;
     } else {
         return false;
@@ -174,6 +176,7 @@ initEvents(); // Also in explore/js/embed.js
 $(document).ready(function () {
     initElements();
 });
+// Copied to localsite.js and renamed to initSitelook()
 function initElements() {
 
     let layerName = "main"; // Added, could change to hash.show
@@ -181,7 +184,7 @@ function initElements() {
     var sitemode;
     var sitesource;
     var sitelook;
-    if(typeof Cookies!='undefined') {
+    if(typeof Cookies != 'undefined') {
         sitemode = Cookies.get('sitemode');
         sitesource = Cookies.get('sitesource');
         sitelook = Cookies.get('sitelook');
@@ -189,10 +192,10 @@ function initElements() {
             sitemode = param["sitemode"]; 
             Cookies.set('sitemode', sitemode);
             $(".sitemode").val(sitemode);
-        } else if (params["sitemode"]) { // From index.html
-            sitemode = params["sitemode"];
-            $(".sitemode").val(sitemode);
-            console.log("Set sitemode from index.html: " + sitemode);
+        //} else if (params["sitemode"]) { // From index.html
+        //   sitemode = params["sitemode"];
+        //    $(".sitemode").val(sitemode);
+        //    console.log("Set sitemode from index.html: " + sitemode);
         } else {
             setSiteMode(sitemode);
         }
@@ -229,10 +232,6 @@ function initElements() {
         $(".moduleContent").insertAfter($(".moduleContentPosition")); // .moduleContent resides in menu/wrap.html
         $(".smartHolderInsert").append($(".smartHolder")); // Used by dod
 
-        if (params["sitemode"] != "widget") { // Hides for /defense
-            //$(".topTitleBar").show();
-        }
-
         //setSiteSource(sitesource);
         if(layerName == "main") {
             $(".videoHeightHolder").show();
@@ -245,25 +244,14 @@ function initElements() {
                 $(".expandFromIFrame").show();
             }
         }
-        if (params["logo"]) {
-            //$( "#siteHeader" ).append( "<a href='/'><img src='" + params["logo"] + "' style='" + params["logostyle"] + "' /></a>" );
-        }
-        if (params["headerElement"]) {
-            $("#siteHeader").append( params["headerElement"] );
-        }
+        //if (params["headerElement"]) {
+        //    $("#siteHeader").append( params["headerElement"] );
+        //}
         if ($(".sitemode").val() != "fullnav") {
             // Never fix the navTop, always fix the siteHeader
             //$('#siteHeader').css("position","fixed");
             //$('.moduleBackgroundImage').css("position","fixed");
             // What about offset here?
-        }
-        if (params["heroheight"]) {
-            // Add space here: https://localhost/explore/defense/contractors/
-            //$(".panelMinHeight").css("min-height",params["heroheight"] + "px");
-            var heroHeight = parseInt(params["heroheight"]) + parseInt($("#siteHeader").height());
-            $(".moduleBackgroundImage").css("min-height",heroHeight + "px");
-            $(".sitemoduleBackground").hide();
-            $(".siteHeaderImage").hide();
         }
         /*
         setTimeout(function(){
@@ -298,7 +286,7 @@ function initElements() {
         $('.bigThumbUl .user-4').detach(); // Prevents gap due to hidden divs when using nth-child in site.css
 
     });
-    if(typeof Cookies!='undefined') {
+    if(typeof Cookies != 'undefined') {
         if (Cookies.get('sitemode')) {
             $(".sitemode").val(Cookies.get('sitemode'));
         }
@@ -317,16 +305,16 @@ function initElements() {
     if (param["sitelook"]) { // From URL
         sitelook = param["sitelook"]; 
         //Cookies.set('sitelook', sitelook);
-    } else if (params["sitelook"]) { // From widget
-        sitelook = params["sitelook"]; 
+    //} else if (params["sitelook"]) { // From widget
+    //    sitelook = params["sitelook"]; 
         // Prevent video from appearing when going to menu. Cookies probably need to be specific to domain.
         //Cookies.set('sitelook', sitelook);
-    } else if (typeof Cookies!='undefined' && Cookies.get('sitelook')) {
+    } else if (typeof Cookies != 'undefined' && Cookies.get('sitelook')) {
         sitelook = Cookies.get('sitelook');
     }
     console.log("sitelook init: " + sitelook);
     setSiteLook(sitelook,layerName);
-    if (typeof Cookies!='undefined') {
+    if (typeof Cookies != 'undefined') {
         $("#sitelook").val(Cookies.get('sitelook'));
     }
 }
@@ -354,9 +342,7 @@ function getCurrentLayer() {
         consoleLog("getCurrentLayer(): " + theLayer);
         return theLayer;
     } else {
-        if (params["go"]) {
-            return(params["go"]); // Set within calling page.
-        }
+
         //return "main"; // Jan 2017
 
         // This will be changed sice it prevents a use of header without layer showing.
@@ -388,7 +374,7 @@ $(document).on("change", ".sitesource", function(event) {
     event.stopPropagation();
 });
 $(document).on("change", "#sitelook", function(event) { // Style: default, coi, gc
-    if (typeof Cookies!='undefined') {
+    if (typeof Cookies != 'undefined') {
         Cookies.set('sitelook', $("#sitelook").val());
     }
     changeSiteLook();
@@ -396,7 +382,7 @@ $(document).on("change", "#sitelook", function(event) { // Style: default, coi, 
 });
 $(document).on("change", ".sitebasemap", function(event) {
     sitebasemap = $(".sitebasemap").val();
-    if (typeof Cookies!='undefined') {
+    if (typeof Cookies != 'undefined') {
         Cookies.set('sitebasemap', $(".sitebasemap").val());
     }
     setSiteSource($(".sitebasemap").val());
@@ -404,7 +390,6 @@ $(document).on("change", ".sitebasemap", function(event) {
 });
 
 function changeSiteLook() {
-    alert("changeSiteLook 1")
     layerName = getLayerName();
     consoleLog("changeSiteLook: " + $("#sitelook").val());
     setSiteLook($("#sitelook").val(),layerName);
@@ -439,7 +424,6 @@ function includeCssExplore(url) {
     }
 }
 
-
 function setSiteLook(siteLook,layerName) {
 
     let root = "/explore/"; // TEMP
@@ -453,7 +437,6 @@ function setSiteLook(siteLook,layerName) {
         //toggleVideo("show","nochange");
         $("body").addClass("dark");
         includeCssExplore(root + 'css/site-dark.css' + forceReload); // To remove
-        includeCssExplore('/localsite/css/dark.css' + forceReload);
         $("#css-site-dark-css").removeAttr('disabled');
         $("#css-site-green-css").attr("disabled", "disabled");
         $("#css-site-plain-css").attr("disabled", "disabled");
@@ -478,6 +461,9 @@ function setSiteLook(siteLook,layerName) {
         $("#css-site-plain-css").attr("disabled", "disabled");
         //$('.searchTextHolder').append($('.searchTextMove'));
     } else { // Light
+        removeElement('/localsite/css/bootstrap.darkly.min.css');
+        removeElement(root + 'css/site-dark.css');
+
         $('.sitebasemap').val("positron_light_nolabels").change();
         includeCssExplore(root + 'css/site-plain.css' + forceReload);
         $("#css-site-plain-css").removeAttr('disabled');
@@ -537,7 +523,7 @@ function loadUserAccess(userAccess) {
 }
 
 function parseQuery (query) {
-   var Params = new Object ();
+   let Params = new Object ();
    if ( ! query ) return Params; // return empty object
    var Pairs = query.split(/[;&]/);
    for ( var i = 0; i < Pairs.length; i++ ) {
@@ -607,9 +593,6 @@ function setSiteMode(sitemode) {
         var headerOffset = 90;
         $(".showFull").hide();
         $('.sectionBarBkgd2').css('background-position-y', -headerOffset);
-        if (params["navloc"] != "top") { // Not Film
-            //$(".sectionBarBkgd").removeClass("sectionBarBkgdColor");
-        }
         //$(".sectionBarSpacer").show();
 
         $(".sectionBarAtTop").prepend($(".sectionBar"));
@@ -645,11 +628,6 @@ function setSiteMode(sitemode) {
             $('.showSearchClick').trigger("click"); // For COI
             $('.searchHeader').show(); // For COI
             $('.hideEmbed').hide();
-            if (params["navbymap"] == "1") {
-                $('.tabSections').hide();
-                $('.byMap').prepend($('.tabSections'));
-                //$('.showLayers').trigger("click");
-            }
         } else {
             $('.layerTitleLine').show();
             $('.navTopRight .hideFilters').hide();
@@ -670,7 +648,7 @@ function setSiteMode(sitemode) {
 }
 function initEvents() {
     $(document).ready(function () {
-        if(typeof Cookies!='undefined'){
+        if(typeof Cookies != 'undefined'){
             Cookies.remove('access_token'); // temp
             Cookies.remove('a_access_token'); // temp
             Cookies.remove('p_access_token'); // temp
@@ -1505,7 +1483,7 @@ $('.accountSignout').click(function(event) {
         window.location = gologout;
     }
     if (showLogin) {
-        $(".showAccountTools").show();
+        //$(".showAccount").show();
     }
     event.stopPropagation();
 });
