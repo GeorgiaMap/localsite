@@ -6,7 +6,8 @@
 // Define a new object if localsite library does not exist yet.
 let localStart = Date.now();
 let onlineApp = true; // Set to false during air travel. Also sets local to no state.
-let defaultState = "GA"; // GA
+let localsiteTitle = "Localsite";
+let defaultState = ""; // GA
 consoleLog("start localsite");
 var local_app = local_app || (function(module){
     let _args = {}; // private, also worked as []
@@ -679,9 +680,12 @@ function loadLocalTemplate() {
         $("#sideTabs").prependTo("#fullcolumn"); // Move back up to top.
 
         // Replace paths in div
-        if(location.host.indexOf("intranet") >= 0) {
-          $("#intranet-nav a").each(function() {
-            $(this).attr('href', $(this).attr('href').replace(/\/docs\//g,"\/"));
+
+        if(location.host.indexOf("desktop") >= 0) {
+          waitForElm('#desktop-nav').then((elm) => {
+            $("#desktop-nav a").each(function() {
+              $(this).attr('href', $(this).attr('href').replace(/\/desktop\//g,"\/"));
+            });
           });
         }
         if(location.host.indexOf("dreamstudio") >= 0) {
@@ -791,35 +795,30 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
       $(document).ready(function () {
         useSet(); // Below
 
-        // this approach brakes events. Do not "add" to innerHTML. Use DOM API e.g. appendChild
+        // This approach brakes events. Do not "add" to innerHTML. Use DOM API e.g. appendChild
         //document.getElementsByTagName('body')[0].innerHTML += divForBodyLoaded;
+        
         document.body.appendChild(divForBodyLoaded);
 
-        //loadScript('/localsite/js/settings.js', function(results) { // Currently needed for cookies
-          let sitelook;
-          if (typeof Cookies != 'undefined' && Cookies.get('sitelook')) {
-            sitelook = Cookies.get('sitelook');
+        let sitelook;
+        if (typeof Cookies != 'undefined' && Cookies.get('sitelook')) {
+          sitelook = Cookies.get('sitelook');
+        }
+        if (param.sitelook) {
+          sitelook = param.sitelook;
+        }
+        if (sitelook == "light") {
+          removeElement('/localsite/css/bootstrap.darkly.min.css');
+          removeElement('/explore/css/site-dark.css');
+          //includeCSS3(theroot + 'css/light.css',theroot);
+          if (typeof Cookies != 'undefined') {
+              waitForElm('#sitelook').then((elm) => {
+                $("#sitelook").val(sitelook);
+              });
+              Cookies.set('sitelook', sitelook);
+              console.log("Bring on the sitelook: " + Cookies.get('sitelook'));
           }
-          if (param.sitelook) {
-            sitelook = param.sitelook;
-          }
-          //alert(sitelook)
-          if (sitelook == "light") {
-            removeElement('/localsite/css/bootstrap.darkly.min.css');
-            removeElement('/explore/css/site-dark.css');
-            includeCSS3(theroot + 'css/light.css',theroot);
-            //$(".darkLayout").removeClass("darkLayout");
-            //loadScript(theroot + 'js/settings.js', function(results) {
-              if (typeof Cookies != 'undefined') {
-                  waitForElm('#sitelook').then((elm) => {
-                    $("#sitelook").val(sitelook);
-                  });
-                  Cookies.set('sitelook', sitelook);
-                  console.log("Bring on the sitelook: " + Cookies.get('sitelook'));
-              }
-            //});
-          }
-        //});
+        }
       });
 
       $(document).on('click', function(event) { // Hide open menus in core
@@ -1087,10 +1086,9 @@ loadScript(theroot + 'js/jquery.min.js', function(results) {
       loadMapAndMapFilters();
     }
 
-  } else if (param.showsearch == "true" || hash.showmap || hash.appview) {
+  } else if (param.showsearch == "true" || param.showmap || param.appview) { // Second two were hash, but not defined here
     loadLocalTemplate();
     loadMapAndMapFilters();
-
 
     // This is already in the above
     //loadMapFiltersJS(theroot,1); // Uses local_app library in localsite.js for community_data_root
@@ -2677,7 +2675,8 @@ function setSitemode(sitemode) {
 function setSitelook(siteLook) {
     console.log("setSitelook init: " + sitelook);
 
-    let root = "/explore/"; // TEMP
+    //let root = "/explore/"; // TEMP
+    //let root = "/localsite/";
     consoleLog("setSiteLook: " + siteLook);
     
     // Force the brower to reload by changing version number. Avoid on localhost for in-browser editing. If else.
@@ -2687,8 +2686,8 @@ function setSitelook(siteLook) {
         $('.sitebasemap').val("dark").change();
         //toggleVideo("show","nochange");
         $("body").addClass("dark");
-        removeElement('/localsite/css/light.css');
-        includeCSS3(root + 'css/bootstrap.darkly.min.css');
+        //removeElement('/localsite/css/light.css');
+        includeCSS3('/localsite/css/bootstrap.darkly.min.css');
         $("#css-site-dark-css").removeAttr('disabled');
         $("#css-site-green-css").attr("disabled", "disabled");
         $("#css-site-plain-css").attr("disabled", "disabled");
@@ -2702,14 +2701,14 @@ function setSitelook(siteLook) {
         $("#css-site-plain-css").attr("disabled", "disabled");
         $('.searchTextHolder').append($('.searchTextMove'));
     } else if (siteLook == "default") {
-        removeElement('/localsite/css/light.css');
+        //removeElement('/localsite/css/light.css');
         removeElement('/localsite/css/bootstrap.darkly.min.css');
         $("#css-site-green-css").removeAttr('disabled');
         $("#css-site-dark-css").attr("disabled", "disabled");
         $("#css-site-plain-css").attr("disabled", "disabled");
         //$('.searchTextHolder').append($('.searchTextMove'));
     } else { // Light
-        includeCSS3(root + 'css/light.css'); // + forceReload
+        //includeCSS3(root + 'css/light.css'); // + forceReload
         removeElement('/localsite/css/bootstrap.darkly.min.css');
         //removeElement(root + 'css/site-dark.css');
 
