@@ -1940,10 +1940,10 @@ function showTabulatorList(element, attempts) {
                     rowData = localObject.geo.filter(function(el){return el.state == theState.split(",")[0].toUpperCase();}); // load row data from array of objects
                     columnArray = [
                         {formatter:"rowSelection", titleFormatter:"rowSelection", hozAlign:"center", headerHozAlign:"center", width:10, headerSort:false},
-                        {title:"County", field:"name"},
-                        {title:"Population", field:"pop", hozAlign:"right", headerSortStartingDir:"desc", formatter:"money", formatterParams:{precision:false}},
-                        {title:"Sq Miles", field:"sqmiles", hozAlign:"right"},
-                        {title:"Per Mile", field:"permile", hozAlign:"right"},
+                        {title:"County", field:"name", width:170},
+                        {title:"Population", field:"pop", width:110, hozAlign:"right", headerSortStartingDir:"desc", formatter:"money", formatterParams:{precision:false}},
+                        {title:"Sq Miles", field:"sqmiles", width:90, hozAlign:"right"},
+                        {title:"Per Mile", field:"permile", width:100, hozAlign:"right"},
                     ];
                 }
         		geotable = new Tabulator("#tabulator-geotable", {
@@ -1958,6 +1958,8 @@ function showTabulatorList(element, attempts) {
         		    initialSort:[             //set the initial sort order of the data - NOT WORKING
         		        {column:"pop", dir:"desc"},
         		    ],
+                    frozenRows:1,
+                    maxHeight:"500px", // For frozenRows
         		    paginationSize:10000,
         		    columns:columnArray,
 
@@ -2857,18 +2859,6 @@ function hashChanged() {
     if (hash.mapview && hash.mapview != priorHash.mapview) {
         $("#country_select").val(hash.mapview);
     }
-    /* Delete, occurs below
-    if (hash.mapview && hash.mapview != priorHash.mapview) {
-        //$("#country_select").val(hash.mapview);
-        loadScript(theroot + 'js/navigation.js', function(results) {
-            alert("Call openMapLocationFilter() 1")
-            openMapLocationFilter();
-        });
-    } else if (priorHash.mapview && !hash.mapview) {
-        $("#country_select").val("");
-        closeLocationFilter();
-    }
-    */
 
     if (hash.state != priorHash.state) {
 		loadGeomap = true;
@@ -2943,7 +2933,7 @@ function hashChanged() {
                     if (hash.mapview == "country") {
                         loadObjectData(element, 0);
                     }
-                    $("#tabulator-geocredit").show();
+                    //$("#tabulator-geocredit").show();
                 }
             //}
         } else if (hash.mapview == "earth" || hash.mapview == "countries") {
@@ -2976,8 +2966,6 @@ function hashChanged() {
             //alert("country");
             $("#geoPicker").show(); // Required for map to load
             $("#state_select").show();
-            
-            //openMapLocationFilter();
         }
     } else if (hash.mapview == "state") {
         $("#state_select").show();
