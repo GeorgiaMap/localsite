@@ -1,4 +1,4 @@
-// DISPLAYS TWO LEAFLET MAPS
+// DISPLAYS TWO LEAFLET MAPS -- processOutput() calls renderMap() twice
 // 1. ITEM LOCATIONS ON LARGE MAP
 // 2. LOCATION DETAILS ON SIDE MAP
 // Top geomap is displayed by map-filters.js
@@ -9,8 +9,6 @@
 
 // INIT
 var dataParameters = []; // Probably can be removed, along with instances below.
-var sideTopOffsetEnabled = true;
-var sideTopOffsetEnabledBig = false;
 
 if(typeof styleObject=='undefined'){ var styleObject={}; } // https://docs.mapbox.com/mapbox-gl-js/style-spec/root/
 console.log("map.js styleObject.layers");
@@ -83,13 +81,6 @@ document.addEventListener('hashChangeEvent', function (elem) {
   console.log("map.js detects URL hashChangeEvent");
   hashChangedMap();
 }, false);
-document.addEventListener('hiddenhashChangeEvent', function (elem) {
-  console.log("Doinng nothing: map.js detects hiddenhashChangeEvent, calls hashChangedMap()");
-  // Instead, we'll create a hash change event without changing the hash.
-  
-  // But needed for io center column red bars (not)
-  //hashChangedMap();
-}, false);
 
 // MAP 1
 // var map1 = {};
@@ -102,7 +93,7 @@ function clearListDisplay() {
   $(".listSpecs").html(""); // Clear
   $(".sideListSpecs").html(""); // Clear
   $("#listcolumnList").html(""); // Clear
-  $("#dataList").html(""); // Clear
+  $("#mainList").html(""); // Clear
   $("#detaillist").html(""); // Clear
 }
 
@@ -111,14 +102,16 @@ let dp = {}; // So available on .detail click for popMapPoint() and zoomMapPoint
 // TO DO: Can we avoid calling outside of the localsite repo by files in community, including community/map/starter/embed-map.js 
 function loadMap1(calledBy, show, dp_incoming) {
   // Calls loadDataset
-  //let hash = $.extend(true, {}, getHash()); // Clone/copy object without entanglement. Includes hiddenhash
   let hash = getHash();
-
+  let showDirectory = true;
   if (!show && param["show"]) {
     show = param["show"];
   }
-  consoleLog('loadMap1 start. CalledBy ' + calledBy + '. Show: ' + show + '. Cat: ' + hash.cat);
-
+  let modelsite;
+  if (Cookies.get('modelsite')) {
+    modelsite = Cookies.get('modelsite');
+  }
+  console.log('loadMap1 start. CalledBy ' + calledBy + '. Show: ' + show + '. Cat: ' + hash.cat);
   dp = {}; // Clear prior
   if (dp_incoming) { // Parameters set in page or layer json
     dp = dp_incoming;
@@ -128,16 +121,10 @@ function loadMap1(calledBy, show, dp_incoming) {
   var basemaps1 = {};
   var basemaps2 = {};
 
-  // Could display a very small loading indicator
-
   let theState;
-  //if (param["state"]) {
-  //  theState = param["state"].toUpperCase();
-  //}
   if (hash.state) {
-    theState = hash.state;
+    theState = hash.state.split(",")[0].toUpperCase()
   }
-
   waitForElm('#state_select').then((elm) => {
 
     if (theState != "") {
@@ -173,20 +160,27 @@ function loadMap1(calledBy, show, dp_incoming) {
 
   if (show == "farmfresh") { // In naics.js we also default to GA for this one topic // && theState
     if (!theState) {
-      theState = "GA"; // Since there is not a national dataset for map.
+      theState = "NY"; // Since there is not yet a national dataset for map. Using NY for shorter topics menu.
       updateHash({"state":theState});
     }
     dp.listTitle = "USDA Farm Produce";
     if (theState) {
       //if (location.host.indexOf('localhost') >= 0) {
         //dp.categories = "farm = Direct from Farm, market = Farmers Markets";
-        dp.categories = {"farm": {"title":"Direct from Farm","color":"#b2df8a"}, "market": {"title":"Farmers Markets","color":"#33a02c"}};
+        dp.categories = {"on-farm-market": {"title":"Direct from Farm","color":"#b2df8a"}, "farmers-market": {"title":"Farmers Markets","color":"#33a02c"}};
         // Green colors above
         // #b2df8a, #33a02c 
         dp.valueColumn = "type";
         dp.valueColumnLabel = "Type";
         // https://model.earth/community-data
-        dp.dataset = local_app.community_data_root() + "us/state/" + theState + "/" + theState.toLowerCase() + "-farmfresh.csv";
+        
+        // Delete these files. From before 2022. Used until 2024
+        //dp.dataset = local_app.community_data_root() + "us/state/" + theState + "/" + theState.toLowerCase() + "-farmfresh.csv";
+      
+        dp.dataset = local_app.community_data_root() + "locations/farmfresh/us/" + theState + "/" + theState.toLowerCase() + "-farmfresh.csv";
+
+        // https://model.earth/community-data/locations/farmfresh/us/state/GA/ga-farmfresh.csv
+
       //} else {
       //  // Older data
       //  dp.valueColumn = "Prepared";
@@ -302,12 +296,7 @@ function loadMap1(calledBy, show, dp_incoming) {
         dp.mapInfo = "<a href='https://map.georgia.org/display/products/'>View active version</a>";
         dp.search = {"In Company Name": "Account Name", "In Industries": "Industries Trade"};
 
-  //} else if (theState == "GA") {
-
-  //    if (show == "opendata") {
-
-  // Switch to 2 lines above when other states are added
-  } else if (show == "opendata") {
+      } else if (show == "opendata") {
 
         dp.editLink = "https://docs.google.com/spreadsheets/d/1bvD9meJgMqLywdoiGwe3f93sw1IVI_ZRjWSuCLSebZo/edit?usp=sharing";
         dp.dataTitle = "Georgia Open Data";
@@ -319,14 +308,14 @@ function loadMap1(calledBy, show, dp_incoming) {
         dp.valueColumnLabel = "Type";
         dp.mapInfo = "<a href='https://docs.google.com/spreadsheets/d/1bvD9meJgMqLywdoiGwe3f93sw1IVI_ZRjWSuCLSebZo/edit?usp=sharing'>Update Google Sheet</a>.";
         dp.search = {"In Dataset Name": "name", "In Type": "Category1", "In Website URL": "website"};
-        dp.datastates = "GA";    
+        dp.datastates = ["GA"];
       } else if (show == "360") {
         dp.listTitle = "Birdseye Views";
         dp.dataset =  local_app.custom_data_root() + "360/GeorgiaPowerSites.csv";
         dp.search = {"In Location Name": "name", "In City": "CITY", "In Property URL": "property_link"};
         dp.color = "#ff9819"; // orange - Since there is no type column. An item column is filtered.
         dp.markerType = "google";
-        dp.datastates = "GA";
+        dp.datastates = ["GA"];
       } else if (show == "dmap") {
         dp.listTitle = "Georgia Map";
         dp.googleCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPe-t3GBhimUV6JN62lLmtpZ5XsmLDXPusjOfrJ-_tW7BZlVrvcVT4oLFXtAtRX79WSAgVQe9zK2Ik/pub?gid=0&single=true&output=csv";
@@ -344,7 +333,7 @@ function loadMap1(calledBy, show, dp_incoming) {
         dp.showLabels = "Industry";
         dp.search = {"In Company Name": "recipient_name", "In naics description": "naics description", "In Address" : "address"};
         dp.itemsColumn = "NAICS Description"; // The column being search
-        dp.datastates = "GA";
+        dp.datastates = ["GA"];
       } else if (show == "recyclers") {
         dp.listTitle = "Georgia B2B Recyclers";
         dp.dataTitle = "B2B Recyclers";
@@ -371,9 +360,8 @@ function loadMap1(calledBy, show, dp_incoming) {
         dp.listInfo = "<a href='https://map.georgia.org/recycling/georgia/'>View Recycling Datasets</a>";
         dp.mapInfo = "Add <a href='https://map.georgia.org/recycling/'>B2B&nbsp;Recycler Listings</a> or post comments to submit additions to our <a href='https://docs.google.com/spreadsheets/d/1YmfBPEFpfmaKmxcnxijPU8-esVkhaVBE1wLZqPNOKtY/edit?usp=sharing' target='georgia_recyclers_sheet'>Google&nbsp;Sheet</a>.";
         dp.search = {"In Main Category": "Category", "In Materials Accepted": "Materials Accepted", "In Location Name": "organization name", "In Address": "address", "In County Name": "county", "In Website URL": "website"};
-        dp.datastates = "GA";
+        dp.datastates = ["GA"];
       } else if (show == "wastewater") {
-        //alert("wastewater4")
         dp.listTitle = "Georgia Wastewater Facilities (2023)";
         dp.editLink = "https://docs.google.com/spreadsheets/d/1YmfBPEFpfmaKmxcnxijPU8-esVkhaVBE1wLZqPNOKtY/edit?usp=sharing";
         dp.mapInfo = "View&nbsp;<a href='/recycling/georgia/'>Solid Waste and Recycling&nbsp;Datasets</a>.";
@@ -407,7 +395,7 @@ function loadMap1(calledBy, show, dp_incoming) {
         dp.markerType = "google";
         dp.color = "#339";
         dp.search = {"In Name": "PERMIT_NAME", "In Address": "facility_addr", "In County Name": "county", "SIC Code": "SIC_CODE_LIST", };
-        dp.datastates = "GA";
+        dp.datastates = ["GA"];
       } else if (show == "landfills") {
         dp.listTitle = "Georgia Landfills (2017)";
         dp.editLink = "https://docs.google.com/spreadsheets/d/1YmfBPEFpfmaKmxcnxijPU8-esVkhaVBE1wLZqPNOKtY/edit?usp=sharing";
@@ -432,7 +420,7 @@ function loadMap1(calledBy, show, dp_incoming) {
         dp.color = "#393";
         dp.latColumn = "latitude"; // Only works when lowercase, despite Google Sheet column being uppercase
         dp.lonColumn = "longitude";
-        dp.datastates = "GA";
+        dp.datastates = ["GA"];
       } else if (show == "solidwaste") {
         dp.listTitle = "Georgia Solid Waste (Oct 2023)";
         dp.editLink = "https://docs.google.com/spreadsheets/d/1YmfBPEFpfmaKmxcnxijPU8-esVkhaVBE1wLZqPNOKtY/edit?usp=sharing";
@@ -453,7 +441,7 @@ function loadMap1(calledBy, show, dp_incoming) {
 
         dp.markerType = "google";
         dp.color = "#933";
-        dp.datastates = "GA";
+        dp.datastates = ["GA"];
       } else if (show == "solidwaste-old") { // This tab can be deleted in Google Sheet
         dp.listTitle = "Georgia Solid Waste (Old)";
         dp.editLink = "https://docs.google.com/spreadsheets/d/1YmfBPEFpfmaKmxcnxijPU8-esVkhaVBE1wLZqPNOKtY/edit?usp=sharing";
@@ -474,7 +462,19 @@ function loadMap1(calledBy, show, dp_incoming) {
 
         dp.markerType = "google";
         dp.color = "#933";
-        dp.datastates = "GA";
+        dp.datastates = ["GA"];
+      } else if (show == "cities") {
+        dp.shortTitle = "GDEcD Team Map"; // In side nav
+        dp.listTitle = "GDEcD Team Map";
+        dp.dataTitle = "GDEcD Team Map";
+        dp.datatype = "csv";
+        dp.dataset1 = "/display/team/map/cities.csv";
+        dp.dataset =  "/team/projects/map/cities.csv";
+        dp.markerType = "google";
+        dp.nameColumn = "city";
+        dp.search = {"In City": "City", "In County Name": "County"};
+        dp.datastates = ["GA"];
+        dp.mapInfo = "Georgia Department of Economic Development Cities";
       } else if (show == "cameraready-locations") {
         dp.listTitle = "CameraReady Film Locations";
         dp.dataTitle = "Filming Locations";
@@ -486,7 +486,7 @@ function loadMap1(calledBy, show, dp_incoming) {
         dp.showKeys = "hours_saturday";
         dp.showLabels = "Saturday";
         dp.search = {"In Location Name": "name", "In Address": "address", "In County Name": "county", "In Website URL": "website", "Type": "tag"};
-        dp.datastates = "GA";
+        dp.datastates = ["GA"];
       } else if (show == "cameraready") {
         dp.listTitle = "CameraReady County Liaisons";
         dp.dataTitle = "CameraReady Liaisons";
@@ -496,7 +496,7 @@ function loadMap1(calledBy, show, dp_incoming) {
         dp.markerType = "google";
         dp.filters = {tag:"Liaisons"}; // Supports comma separated values
         dp.search = {"In Location Name": "name", "In Address": "address", "In County Name": "county", "In Website URL": "website", "Type": "tag"};
-        dp.datastates = "GA";
+        dp.datastates = ["GA"];
       } else if (show == "aerospace") {
         dp.listTitle = "Georgia Aerospace Directory";
         dp.dataTitle = "Aerospace Directory";
@@ -531,10 +531,10 @@ function loadMap1(calledBy, show, dp_incoming) {
 
         dp.filters = {type:"aerospace"}; // Supports comma separated values
         dp.search = {"In Main Category": "Category", "In Location Name": "Organization Name", "In Address": "address", "In County Name": "county", "In Website URL": "website"};
-        dp.datastates = "GA";
+        dp.datastates = ["GA"];
       } else if (1==2 && (show == "recycling" || show == "transfer" || show == "recyclers" || show == "inert" || show == "landfillsX")) { // recycling-processors
         // NOT USED - LOOK ABOVE
-        if (hash.state == "GA") {
+        if (theState == "GA") {
           dp.editLink = "https://docs.google.com/spreadsheets/d/1YmfBPEFpfmaKmxcnxijPU8-esVkhaVBE1wLZqPNOKtY/edit?usp=sharing";
           //dp.googleDocID = "1YmfBPEFpfmaKmxcnxijPU8-esVkhaVBE1wLZqPNOKtY";
           dp.googleCSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRBRXb005Plt3mmmJunBMk6IejMu-VAJOPdlHWXUpyecTAF-SK4OpfSjPHNMN_KAePShbNsiOo2hZzt/pub?gid=1924677788&single=true&output=csv";
@@ -574,7 +574,8 @@ function loadMap1(calledBy, show, dp_incoming) {
           //dp.lonColumn = "longitude";
           dp.search = {"In Location Name": "name", "In Address": "address", "In County Name": "county", "In Website URL": "website"};
         }
-      } else if (show == "vehicles" || show == "ev") {
+      } else if ((show == "vehicles" || show == "ev") && (theState == "GA" || modelsite == "model.georgia" || location.host.indexOf('georgia.org') >= 0)) {
+        // Google Sheet contains only Georgia, so only load for state GA
         //dp.listTitle = "Motor Vehicle and Motor Vehicle Equipment Manufacturing";
         dp.listTitle = "Parts and Vehicle Manufacturing";
         dp.shortTitle = "EV Parts and Vehicle Manufacturing";
@@ -600,7 +601,7 @@ function loadMap1(calledBy, show, dp_incoming) {
         dp.showWhenStatus = "null"
         // Temp, prior to change from Google API 2 to 3
         //dp.dataset = "https://model.earth/georgia-data/automotive/automotive.csv";
-        dp.datastates = "GA";
+        dp.datastates = ["GA"];
         // Dark green map points indicate electric vehicle parts manufacturing.<br>
         dp.mapInfo = "From 2020 to 2022 Georgia added more than 20 EV-related projects. <a href='https://www.georgiatrend.com/2022/07/29/electric-revolution/'>Learn&nbsp;more</a>";
         // <br>Dark Green: Electric Vehicle (EV) Industry<br>Lite Green: Potential EV Parts Manufacturer<br>Dark Blue: Internal Combustion Engine (ICE)
@@ -700,14 +701,8 @@ function loadMap1(calledBy, show, dp_incoming) {
         dp.listLocation = true;
 
       } else {
-        console.log("no show text match for listing map: " + show);
-        $(".displayMapForLoad").hide();
-        $("#list_main").hide();
-        $("#mapInfo").hide();
-        $("#listInfo").hide();
+        showDirectory = false;
       }
-
-  // } // end state GA
 
   if (theState == "CA") {
     //alert("theState " + theState)
@@ -741,33 +736,43 @@ function loadMap1(calledBy, show, dp_incoming) {
   }
 
   if(dp.dataset) {
-    if (hash.state) {
-      dp.dataset = dp.dataset.replace("[jurisdiction]","US-" + hash.state.split(",")[0].toUpperCase());
+    if (theState) {
+      dp.dataset = dp.dataset.replace("[jurisdiction]","US-" + theState);
     } else {
       dp.dataset = dp.dataset.replace("[jurisdiction]","US");
     }
   }
-  // Load the map using settings above
 
-  // INIT - geo fetches the county for filtering.
-  hash = $.extend(true, {}, getHash()); // Clone/copy object without entanglement
-  if (!hash.state && hash.geo) { // Wait for geo load when no state to center.
-    loadGeos(hash.geo,0,function(results) {
-      loadDataset('map1','map2', dp, basemaps1, basemaps2, 1, function(results) {
-        initialHighlight(hash);
+  // theState may be null - then the map could use the dp.datastates value
+  // However, let's default to US or world when the state is null
+
+  if (Array.isArray(dp.datastates) && theState && !dp.datastates.includes(theState)) {
+    showDirectory = false;
+  }
+  if (showDirectory) { // Load the map using settings above
+    // INIT - geo fetches the county for filtering.
+    hash = $.extend(true, {}, getHash()); // Clone/copy object without entanglement
+    if (!hash.state && hash.geo) { // Wait for geo load when no state to center.
+      loadGeos(hash.geo,0,function(results) {
+        loadDataset('map1','map2', dp, basemaps1, basemaps2, 1, function(results) {
+          initialHighlight(hash);
+        });
       });
-    });
-  } else {
-    if (!hash.state) {
-      $(".locationTabText").text("Locations");
     } else {
-      $("#state_select").val(hash.state.split(",")[0].toUpperCase());
-      $(".locationTabText").text($("#state_select").find(":selected").text());
-      $(".locationTabText").attr("title",$("#state_select").find(":selected").text());
+      if (!hash.state) {
+        $(".locationTabText").text("Locations");
+      } else {
+        $("#state_select").val(theState);
+        $(".locationTabText").text($("#state_select").find(":selected").text());
+        $(".locationTabText").attr("title",$("#state_select").find(":selected").text());
+      }
+      loadDataset('map1','map2', dp, basemaps1, basemaps2, 1, function(results) {
+        // Doesn't always reach here, even though above is reached.
+        initialHighlight(hash);  
+      });
     }
-    loadDataset('map1','map2', dp, basemaps1, basemaps2, 1, function(results) {
-      initialHighlight(hash);  
-    });
+  } else {
+    hideDirectoryDivs(show);
   }
   // Return to top for mobile users on search.
   if (document.body.clientWidth <= 500) {
@@ -790,11 +795,17 @@ function loadMap1(calledBy, show, dp_incoming) {
   // Was getting called here on display/exporters/
   //loadIframe("mainframe","https://earth.nullschool.net/#current/wind/surface/level/orthographic=" +  dp.longitude + "," + dp.latitude + ",1381");
 
-
   console.log("End loadMap1. Cat: " + hash.cat);
 
 } // loadMap1
 
+function hideDirectoryDivs(show) {
+  console.log("no show text match for listing map: " + show);
+  $(".displayMapForLoad").hide();
+  $("#list_main").hide();
+  $("#mapInfo").hide();
+  $("#listInfo").hide();
+}
 function initialHighlight(hash) {
   // When is this called - not for list highlight
   if (hash.name) {
@@ -812,12 +823,6 @@ function initialHighlight(hash) {
     //$("#detaillist").scrollTop(200);
 
     $("#detaillist").scrollTo("#detaillist > [name=\""+locname+"\"]");
-
-  } else {
-    if (!(param["show"] == "suppliers" || param["show"] == "ppe")) {
-        // console.log("Auto select the first location in list")
-        //$("#detaillist > div:first-of-type" ).trigger("click");
-    }
   }
 }
 function showSubcatList() {
@@ -857,7 +862,7 @@ function centerMap(lat,lon,name,map,whichmap) {
     
     // Hide all listings, show clicked listing
     //$("#detaillist .detail").hide();
-    //$("#dataList").hide();
+    //$("#mainList").hide();
     //$("#detaillist .detail[name='" + locname +"']").show();
 
     var listingsVisible = $('#detaillist .detail:visible').length;
@@ -936,10 +941,21 @@ $(document).on("click", ".showLocMenu", function(event) {
   $(".locMenu").show();
   //event.stopPropagation();
 });
-$('#hideSideMap').click(function () {
+$(document).on("click", "#hideSideMap", function(event) {
   $("#sidemapCard").hide(); // map2
+  $("#hublist").addClass("hublistWide");
+  $(".showSideMap").show();
 });
-
+$(document).on("click", ".viewonmap", function(event) {
+  //alert("viewonmap click");
+  $("#sidemapCard").show();
+  $("#hublist").removeClass("hublistWide")
+});
+$(document).on("click", ".showSideMap", function(event) {
+  //alert("showSideMap")
+  $("#sidemapCard").show();
+  $("#hublist").removeClass("hublistWide")
+});
 function shortenMapframe(mapframeLong) {
   let mapframeUrl = "";
   if (mapframeLong && mapframeLong.length) {
@@ -1068,6 +1084,11 @@ function showList(dp,map) {
     $(document).on("click", ".filterBubble", function(event) {
         console.log('filterBubble click (stopPropagation so other boxes can be checked)')
         event.stopPropagation(); // To keep location filter open when clicking .selected_col checkboxes
+    });
+    $(document).on("click", ".viewonmap", function(event) {
+        //alert(".viewOnMap click");
+        $("#sidemapCard").show();
+        $("#hublist").removeClass("hublistWide")
     });
   }
 
@@ -1230,6 +1251,11 @@ function showList(dp,map) {
     }
   }
 
+  if (hash.name) {
+    // WORK IN PROGRESS
+    //alert("detailLink hide")
+    $(".detailLink").hide();
+  }
   if (dp.valueColumn) { // Avoids showing "Category" twice since catergory is already in default details.
     avoidRepeating.push(dp.valueColumn);
   }
@@ -1734,7 +1760,8 @@ function showList(dp,map) {
         //console.log("dp.valueColumn 1 " + element[dp.valueColumn]); // Works, but many recyclers have blank Category value.
         //console.log("dp.valueColumn 3 " + element["category"]); // Lowercase required (basing on recyclers)
 
-        output += "<div style='padding-bottom:4px;float:left'><div class='detailBullet' style='background:" + bulletColor + "'></div></div>";
+        let nameLetter = name ? name[0] : "";
+        output += "<div style='padding-bottom:4px;float:left'><div class='detailBullet' style='background:" + bulletColor + "'>" + nameLetter + "</div></div>";
 
         //output += "<div style='position:relative'><div style='float:left;min-width:28px;margin-top:2px'><input name='contact' type='checkbox' value='" + name + "'></div><div style='overflow:auto'><div>" + name + "</div>";
         
@@ -1755,6 +1782,9 @@ function showList(dp,map) {
           if (element.items) {
             output += "<b>Items:</b> " + element.items + "<br>";
           }
+          if (element.tags) { // Farmfresh
+            output += element.tags.replace(/;/g,', ') + "<br><br>";
+          }
           var outaddress = "";
           if (element[dp.addressColumn]) { 
               outaddress +=  element[dp.addressColumn] + "<br>"; 
@@ -1766,7 +1796,7 @@ function showList(dp,map) {
             }
 
             // Assumes that if sheet also has these columns, they are not in the address row. (Farmfresh)
-            if (element.city) {
+            if (element.city && name != element.city) {
               outaddress += element.city;
             }
             if (element.state || element.zip) {
@@ -1779,7 +1809,9 @@ function showList(dp,map) {
               outaddress += element.zip;
             }
             if (element.city || element.state || element.zip) {
-              outaddress += "<br>";
+              if (outaddress) {
+                outaddress += "<br>";
+              }
             }
             
           }
@@ -1884,6 +1916,11 @@ function showList(dp,map) {
           }
 
           output += "<div style='height:10px'></div>";
+
+          // Reactivate after distance columns removed from FarmFresh
+          if (1==2 && element.distance) {
+            output += "<b>Distance:</b> " + element.distance + " miles<br>";    
+          }
           output += "<div class='detailLinks'>";
             if (element.mapframe) {
                 output += "<a href='#show=360&name=" + name.replace(/'/g,'&#39;') + "&m=" + encodeURIComponent(element.mapframe) + "'>Birdseye View<br>";
@@ -1903,7 +1940,7 @@ function showList(dp,map) {
                 googleMapLink += ', ' + element.county + ' County';
               }
               if (hash.state) {
-                googleMapLink += ', ' + hash.state;
+                googleMapLink += ', ' + hash.state.split(",")[0].toUpperCase();
               }
             }
             if (googleMapLink) {
@@ -1912,14 +1949,14 @@ function showList(dp,map) {
             if (googleMapLink) {
                 output += '<a href="' + googleMapLink + '" target="_blank">Google Map</a>';
             }
-            
-            if (hash.details != "true") {
-              if (hash.name) {
-                output += " | <a href='" + window.location + "&details=true'>Details</a>";
-              } else {
-                output += " | <a href='" + window.location + "&name=" + name.replace(/ & /g,' AND ').replace(/ /g,"+") + "&details=true'>Details</a>";
-              }
+
+            let pathJoiner = window.location.href.includes("#") ? "&" : "#";
+            if (hash.name) {
+              output += " | <a class='detailLink' href='" + window.location + pathJoiner + "details=true'>Details</a>";
+            } else {
+              output += " | <a class='detailLink' href='" + window.location + pathJoiner + "name=" + name.replace(/ & /g,' AND ').replace(/ /g,"+") + "&details=true'>Details</a>";
             }
+            
             if (dp.editLink) {
               if (googleMapLink) {
                 output += " | "
@@ -1968,12 +2005,6 @@ function showList(dp,map) {
               //output += element.county + " County<br>";
             }
 
-            
-            if (element.distance) {
-                output += "<b>Distance:</b> " + element.distance + " miles<br>"; 
-              
-            }
-
             if (dp.skips) {
               dp.skips = "," + dp.skips + ",";
               for (i in element) {
@@ -1992,7 +2023,7 @@ function showList(dp,map) {
   });
 
   waitForElm('#detaillistHolder').then((elm) => {
-    $("#detaillistHolder").append("<div id='detaillist'>" + output + "</div>");
+    $("#detaillistHolder").append("<div id='detaillist' state='" + hash.state + "'>" + output + "</div>");
     $("#detaillist").append("<div style='height:60px'></div>"); // For space behind absolute buttons at bottom.
 
     if (subcatObject["null"].count > 0) {
@@ -2001,11 +2032,11 @@ function showList(dp,map) {
     // At this point we don't yet know if any are null. So "no subcategory" link is appended later.
     if (subcatArray.length > 1) {
       if (!hash.name) { // Omit when looking at listing detail
-        $("#dataList").prepend("<a href='#' onClick='showSubcatList(); return false;' id='viewAllCategories'>View All Categories</a>");
-        $("#dataList").prepend("<ul id='subcatListUL' style='margin:0px;display:none'>" + subcatList + "</ul><br>");
+        $("#mainList").prepend("<a href='#' onClick='showSubcatList(); return false;' id='viewAllCategories'>View All Categories</a>");
+        $("#mainList").prepend("<ul id='subcatListUL' style='margin:0px;display:none'>" + subcatList + "</ul><br>");
         if(hash.cat){
           //Already appears above
-          //$("#dataList").prepend("<h3>" + hash.cat.replace(/_/g,' ') + "</h3>");
+          //$("#mainList").prepend("<h3>" + hash.cat.replace(/_/g,' ') + "</h3>");
         }
       }
     }
@@ -2019,9 +2050,9 @@ function showList(dp,map) {
           spreadsheetLink = " <a href='" + dp.editLink + "'>Google Sheet</a>";
         }
       }
-      $("#dataList").append("<b>Volunteer Project</b><br>" + subcatObject["null"].count + " " + hash.cat.toLowerCase() + " listings need a subcategory.<br><a href='/localsite/info/input/'>Contact us</a> to help update the " + spreadsheetLink + ".<br>");
+      $("#mainList").append("<b>Volunteer Project</b><br>" + subcatObject["null"].count + " " + hash.cat.toLowerCase() + " listings need a subcategory.<br><a href='/localsite/info/input/'>Contact us</a> to help update the " + spreadsheetLink + ".<br>");
       //  Volunteer
-      $("#dataList").append("<br>");
+      $("#mainList").append("<br>");
     }
     console.log("Total " + dp.dataTitle + " " + countDisplay + " of " + count);
 
@@ -2058,7 +2089,7 @@ function showList(dp,map) {
     if (!$("#listcolumn").is(":visible")) { // #listcolumn may already be visible if icon clicked while page is loading.
         $("#showListInBar").show();
     }
-    //$("#showSideInBar").show(); // Added 2024 May 28
+    //$("#showSideFromBar").show(); // Added 2024 May 28
     $(".sidelistHolder").show();
 
     $('.detail').mouseenter(function(event){
@@ -2078,7 +2109,7 @@ function showList(dp,map) {
 
     var imenu = "<div style='display:none'>";
     imenu += "<div id='listingMenu' class='popMenu filterBubble'>";
-    imenu += "<div>View On Map</div>";
+    imenu += "<div class'viewOnMap'>View On Map</div>";
     imenu += "<div class='localonly mock-up' style='display:none'>Supplier Impact</div>";
     imenu += "<div class='localonly mock-up' style='display:none'>Production Impact</div>";
     imenu += "<div class='localonly mock-up' style='display:none'>Add to Collections</div>";
@@ -2169,15 +2200,15 @@ function showList(dp,map) {
     let showAllLink = " <span class='viewAllLink' style='display:none;'><a onclick='goHash({},[\"name\",\"loc\",\"cat\",\"subcat\"]); return false;' href='#show=" + param["show"] + "'>Show All</a></span>";
     //$(".sidelistText").html(searchFor + viewListLink);
 
-    //$("#dataList").append(showAllLink); // Maybe move elsewhere, not needed with View All button lower down.
+    //$("#mainList").append(showAllLink); // Maybe move elsewhere, not needed with View All button lower down.
     $("#resultsPanel").show();
-    $("#dataList").show();
+    $("#mainList").show();
 
     if (dataMatchCount > 0) {
       $("#hublist .listTitle").show();
     } else {
       $("#hublist .listTitle").hide();
-      $("#dataList").append("No match found in " + count + " records. <a href='' onclick='return clearButtonClick();'>Clear Filters</a><br>");
+      $("#mainList").append("No match found in " + count + " records. <a href='' onclick='return clearButtonClick();'>Clear Filters</a><br>");
         
       // Remove use of dataSet? No available   " + (dataSet.length - 1) + " 
       let noMatch = "<div>No match found in records. <a href='' onclick='return clearButtonClick();'>Clear filters</a>.</div>"
@@ -2198,22 +2229,22 @@ function showList(dp,map) {
 
 $(document).on("click", ".showList", function(event) {
   $("#listcolumn").show();
-  if ($("#navcolumn").is(":hidden")) {
+  if ($("#main-nav").is(":hidden")) {
     // Display showNavColumn in bar
     $("#showNavColumn").hide();
-    $("#showSideInBar").show();
+    $("#showSideFromBar").show();
   }
   showListBodyMargin();
   $(".showList").hide();
   event.stopPropagation();
-  event.preventDefault(); // Prevents #navcolumn from being hidden.
+  event.preventDefault(); // Prevents #main-nav from being hidden.
 });
 function showListBodyMargin() {
-  if ($("#fullcolumn > .datascape").is(":visible")) { // When NOT embedded
+  if ($("#main-container > .datascape").is(":visible")) { // When NOT embedded
     $('body').addClass('bodyLeftMarginList');
-    if ($("#navcolumn").is(":visible") && $("#listcolumn").is(":visible")) {
+    if ($("#main-nav").is(":visible") && $("#listcolumn").is(":visible")) {
       $('#listcolumn').removeClass('listcolumnOnly');
-      $('body').addClass('bodyLeftMarginFull'); // Creates margin on left for both fixed sidetabs.
+      $('body').addClass('bodyLeftMarginFull'); // Creates margin on left for both fixed rightSideTabs.
     } else if ($("#listcolumn").is(":visible")) {
       $('#listcolumn').addClass('listcolumnOnly');
       $('body').addClass('bodyLeftMarginList');
@@ -2293,6 +2324,8 @@ function renderCatList(catList,cat) {
             }
           }
           catNavSide += "<div title='" + key + "'><div style='background:" + catList[key].color + ";' class='legendDot'></div><div style='overflow:hidden'>" + catTitle;
+          
+          // Add the count beside each category.
           if (catList[key].count || dp.categories) {
             // The number of occurances of the category
             if (show == "solidwaste" || show == "wastewater") {
@@ -2302,6 +2335,7 @@ function renderCatList(catList,cat) {
               catNavSide += "<span class='local'>&nbsp;(" + catList[key].count + ")</span>";
             }
           }
+
           catNavSide += "</div></div>"
         }
       }
@@ -2315,7 +2349,7 @@ function renderCatList(catList,cat) {
     if (maxCatTitleChars <= 32) {
       $("#mainCatList").addClass("catListAddMargin");
     }
-    let fullcolumnWidth = $('#fullcolumn').width();
+    let fullcolumnWidth = $('#main-container').width();
     if (fullcolumnWidth > 500) {
       showNavColumn();
     }
@@ -2590,26 +2624,6 @@ function isNumeric(str) {
   return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
          !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
 }
-/*
-function makeRowValuesNumeric(_data, columnsNum, valueCol) {
-  console.log("makeRowValuesNumeric");
-  console.log(_data);
-  
-  // 'for of' loop is more efficient than forEach. 
-  // Also works on objects. You can call it like this 'for let d of Object.entries(data){ }'
-
-  // Might not need this, try removing
-  if (typeof columnsNum !== "undefined") {
-    _data.forEach( function (row) {
-      //row = removeWhiteSpaces(row);
-      convertToNumber(row, columnsNum);
-    });
-  }
-
-  //console.log(_data); // Careful, this can overwhelm browser
-  return _data;
-}
-*/
 function convertToNumber(d, _columnsNum) {
   for (var perm in d) {
     if (_columnsNum.indexOf(perm) > -1)
@@ -2625,54 +2639,7 @@ function removeWhiteSpaces (str) {
 }
 
 
-var revealHeader = true;
-$('.sidecolumnLeft a').click(function(event) {
-  revealHeader = false;
-  /*
-  setTimeout(function(){ 
-    var y = $(window).scrollTop();  //your current y position on the page
-    //$(window).scrollTop(y-50); // Adjust for fixed header.
 
-  }, 10);
-  */
-});
-
-
-// FIXED MAP POSITION ON SCROLL
-function elementScrolled(elem) { // scrolled into view
-  var docViewTop = $(window).scrollTop();
-  var docViewBottom = docViewTop + $(window).height();
-  var elemTop = $(elem).offset().top;
-  return ((elemTop <= docViewBottom) && (elemTop >= docViewTop));
-}
-function bottomReached(elem) { // bottom scrolled into view
-  if(!$(elem).length) {
-    console.log("Element for bottomReached does not exist: " + elem);
-    return 0;
-  }
-  var docViewTop = $(window).scrollTop();
-  var docViewBottom = docViewTop + $(window).height();
-  var hangover = -10; // Extend into the next section, so map remains visible. // Was 10
-  //var elemTop = $(elem).offset().top;
-  var elemBottom = $(elem).offset().top + $(elem).height() + hangover - docViewBottom;
-  //console.log('offset: ' + $(elem).offset().top + ' height:' + $(elem).height() + ' docViewBottom:' + docViewBottom + ' elemBottom: ' + elemBottom);
-  //console.log('bottomReached elemBottom: ' + elemBottom);
-  return (elemBottom < 0);
-}
-function topReached(elem) { // top scrolled out view
-  if(!$(elem).length) {
-    //console.log("Element for topReached does not exist: " + elem);
-    return 0;
-  }
-  var docViewTop = $(window).scrollTop();
-  //var docViewBottom = docViewTop + $(window).height();
-  var pretop = 80; // Extend into the next section, so map remains visible.
-  //var elemTop = $(elem).offset().top;
-  var elemTop = $(elem).offset().top - docViewTop - pretop;
-  //console.log('offset: ' + $(elem).offset().top + ' height:' + $(elem).height() + ' docViewBottom:' + docViewBottom + ' elemBottom: ' + elemBottom);
-  //console.log('topReached elemTop: ' + elemTop);
-  return (elemTop < 0);
-}
 
 
  // Anchors corresponding to menu items
@@ -2685,154 +2652,7 @@ var scrollItems = menuItems.map(function(){
 var topMenuHeight = 150;
 */
 
-var mapFixed = false;
-var previousScrollTop = $(window).scrollTop();
-$(window).scroll(function() {
-  if (revealHeader == false) {
-    $("#headerLarge").addClass("headerLargeHide"); $('.bothSideIcons').removeClass('sideIconsLower');$(".pagecolumn").removeClass("pagecolumnLower"); $('.headerbar').hide(); $('.headerOffset').hide(); $('#logoholderbar').show(); $('#logoholderside').show();
-    $("#filterFieldsHolder").addClass("filterFieldsHolderFixed");
-    $("body").addClass("filterFieldsBodyTop");
-    if (param.showheader != "false") {
-      $('.showMenuSmNav').show(); 
-    }
-    $('#filterFieldsHolder').hide();
-    $('.headerOffset').hide();
-    $('.bothSideIcons').removeClass('sideIconsLower');$(".pagecolumn").removeClass("pagecolumnLower");
-    $('#headerbar').hide();
-    if (sideTopOffsetEnabled) {
-      //$('.sidecolumnLeft').css("top","54px");
-    }
-    //$('#showNavColumn').css("top","7px");
-
-    if (!$("#filterFieldsHolder").is(':visible')) { // Retain search filters space at top, unless they are already hidden
-      $('#headerLarge').hide();
-    }
-    
-    revealHeader = true; // For next manual scroll
-  } else if ($(window).scrollTop() > previousScrollTop) { // Scrolling Up
-    if ($('#headerbar').is(':visible')) {
-      if ($(window).scrollTop() > previousScrollTop + 20) { // Scrolling Up fast
-        // Switch to smaller header
-
-        $("#headerLarge").addClass("headerLargeHide");
-        $('.bothSideIcons').removeClass('sideIconsLower');$(".pagecolumn").removeClass("pagecolumnLower");
-        //alert("headerbar hide");
-        if (!$("#filterFieldsHolder").is(':visible')) { // Move to top if no small top bar
-          $(".pagecolumn").addClass("pagecolumnToTop");
-        }
-
-        $('.headerbar').hide();
-        $('.headerOffset').hide();
-        $('#logoholderbar').show();
-
-        // BUGBUG - occuring on initial reload when page is a little from top.
-        //$('#logoholderside').show();
-
-        if (!$("#filterFieldsHolder").hasClass("filterFieldsHidden")) {
-          $("#filterFieldsHolder").addClass("filterFieldsHolderFixed");
-          $("body").addClass("filterFieldsBodyTop");
-
-          //if (param.showheader != "false") {
-          if (param.showfilters == "true") {
-            $('.showMenuSmNav').show(); 
-          }
-          $('.headerOffset').hide();
-          $('.bothSideIcons').removeClass('sideIconsLower');$(".pagecolumn").removeClass("pagecolumnLower");
-          $('#headerbar').hide(); // Not working
-          $('#headerbar').addClass("headerbarhide");
-        }
-        if (sideTopOffsetEnabled) {
-          //$('.sidecolumnLeft').css("top","54px");
-        }
-        //alert("#headerbar hide")
-        //$('#showNavColumn').css("top","7px");
-        if (!$("#filterFieldsHolder").is(':visible')) { // Retain search filters space at top, unless they are already hidden
-          $('#headerLarge').hide();
-        }
-      }
-    }
-  } else { // Scrolling Down
-    if ($(window).scrollTop() < (previousScrollTop - 20)) { // Reveal #headerLarge if scrolling down fast
-      $("#headerLarge").removeClass("headerLargeHide"); $('.bothSideIcons').addClass('sideIconsLower');
-      $(".pagecolumn").addClass("pagecolumnLower");$(".pagecolumn").removeClass("pagecolumnToTop");$('.headerbar').show(); $('#logoholderbar').hide(); $('#logoholderside').hide();
-      //$('#filterFieldsHolder').show();
-      $("#filterFieldsHolder").removeClass("filterFieldsHolderFixed");
-      $("body").removeClass("filterFieldsBodyTop");
-      if ($("#headerbar").length) {
-        if (param.showheader != "false") {
-          $('.headerOffset').show();
-          $('.bothSideIcons').addClass('sideIconsLower');$(".pagecolumn").addClass("pagecolumnLower");$(".pagecolumn").removeClass("pagecolumnToTop");
-          $('#headerbar').show();
-          $('#headerbar').removeClass("headerbarhide");
-          $('#local-header').show();
-          $('.showMenuSmNav').hide();
-        }
-        if (sideTopOffsetEnabledBig) {
-          let headerFixedHeight = $("#headerbar").height(); // #headerLarge was too big at 150px
-          //$('.sidecolumnLeft').css("top",headerFixedHeight + "px");
-        } else {
-          //$('.sidecolumnLeft').css("top","0px");
-        }
-      }
-      $('#headerLarge').show();
-    } else if ($(window).scrollTop() == 0) { // At top
-      $("#headerLarge").removeClass("headerLargeHide"); $('.headerbar').show(); $('#logoholderbar').hide(); $('#logoholderside').hide();
-      // We avoid hiding #filterFieldsHolder here since we retain it if already open.
-      $("#filterFieldsHolder").removeClass("filterFieldsHolderFixed");
-      $("body").removeClass("filterFieldsBodyTop");
-      if ($("#headerbar").length) {
-        if (param.showheader != "false") {
-          $('.headerOffset').show();
-          $('.bothSideIcons').addClass('sideIconsLower');$(".pagecolumn").addClass("pagecolumnLower");$(".pagecolumn").removeClass("pagecolumnToTop");
-          $('#headerbar').show();
-          $('#headerbar').removeClass("headerbarhide");
-          $('#local-header').show();
-          $('.showMenuSmNav').hide();
-        }
-        if (sideTopOffsetEnabledBig) {
-          let headerFixedHeight = $("#headerbar").height(); // #headerLarge was too big at 150px
-          //$('.sidecolumnLeft').css("top",headerFixedHeight + "px");
-        } else {
-          //$('.sidecolumnLeft').css("top","0px");
-        }
-      }
-      $('#headerLarge').show();
-    }
-  }
-  previousScrollTop = $(window).scrollTop();
-
-  lockSidemap(mapFixed);
-  
-});
-function lockSidemap() {
-  // Detect when #hublist is scrolled into view and add class mapHolderFixed.
-  // Include mapHolderBottom when at bottom.
-  if (bottomReached('#hublist')) {
-    if (mapFixed==true) { // Only unstick when crossing thresehold to minimize interaction with DOM.
-      console.log('bottomReached unfix');
-      $('#mapHolderInner').removeClass('mapHolderFixed');
-      $("#mapHolderInner").css("max-width","none");
-      $('#mapHolderInner').addClass('mapHolderBottom');
-      // Needs to be at bottom of dev
-      mapFixed = false;
-    }
-  } else if (topReached('#hublist')) {
-    if (mapFixed==false) {
-      let mapHolderInner = $('#mapHolderInner').width();
-      //alert(mapHolderInner)
-      console.log('topReached - fixed side map position');
-      $('#mapHolderInner').addClass('mapHolderFixed');
-      $("#mapHolderInner").css("max-width",mapHolderInner);
-      $('#mapHolderInner').removeClass('mapHolderBottom');
-      //alert("fixed position")
-      mapFixed = true;
-    }
-  } else if(!topReached('#hublist') && mapFixed == true) { // Not top reached (scrolling down)
-    console.log('Scrolling down unfix');
-    $('#mapHolderInner').removeClass('mapHolderFixed');
-    mapFixed = false;
-  }
-}
+// hubList etc. moved to navigation.js
 
 $(document).on("click", "#iZoomButton", function(event) {
   $( "#iZoom" ).prop("checked", !$( "#iZoom" ).prop("checked")); // Toggle on/off
@@ -2907,6 +2727,7 @@ var overlays2 = {};
 let map1 = {};
 let map2 = {};
 let priorLayer;
+
 function loadDataset(whichmap,whichmap2,dp,basemaps1,basemaps2,attempts,callback) {
   let hash = getHash();
   loadScript(theroot + 'js/d3.v5.min.js', function(results) { // Used by customD3loaded below
@@ -2929,17 +2750,26 @@ function loadDataset(whichmap,whichmap2,dp,basemaps1,basemaps2,attempts,callback
   console.log("TO DO - place prior dataset in object within processOutput() to avoid reloading")
 
   let stateAllowed = true;
+
   if (dp.datastates && hash.state) {
-    if (dp.datastates.split(",").indexOf(hash.state.split(",")[0].toUpperCase()) == -1) {
+
+    let theState = hash.state.split(",")[0].toUpperCase();
+    if (Array.isArray(dp.datastates) && !dp.datastates.includes(theState)) {
+
       stateAllowed = false;
-      console.log("State of " + hash.state + " not in dp.datastates indicated for " + hash.show);
+      console.log("State of " + theState + " not in dp.datastates indicated for " + hash.show);
       // Avoiding so user can retain show and switch to another state.
       //updateHash({'show':''}); // Remove from URL hash without invoking hashChanged event.
       // TO DO: Show message: "State does not have data for " + hash.show;
+
+      hideDirectoryDivs(hash.show);
+
+      // Might not need these now that hideDirectoryDivs() added
       $("#list_main").hide();
       $("#navcolumnTitle").hide();
       $("#listLeft").hide();
       $("#map1").hide();
+
       return;
     }
   }
@@ -3062,14 +2892,14 @@ function loadDataset(whichmap,whichmap2,dp,basemaps1,basemaps2,attempts,callback
 
 // Move after processOutput once done creating
 function renderMap(dp,map,whichmap,parentDiv,basemaps,zoom,markerType,callback) {
-  console.log("renderMap " + whichmap);
+  //alert("renderMap " + whichmap);
   waitForElm('#' + parentDiv + ' #' + whichmap).then((elm) => { // Didn't help with map refresh.
   let hash = $.extend(true, {}, getHash());
   if (whichmap == "map1") {
     if (hash.name) { // Viewing a listing so top map becomes a header.
-      $('#' + whichmap).height("250px");
+      //$('#' + whichmap).height("250px");
     } else {
-      $('#' + whichmap).height("85vh");
+      //$('#' + whichmap).height("88vh");
     }
   }
   $('#' + whichmap).show();
@@ -3107,7 +2937,6 @@ function renderMap(dp,map,whichmap,parentDiv,basemaps,zoom,markerType,callback) 
       
     }
   }
-  // TODO - Adjust to allow for map1 also
 
   //overlays[dataTitle] = dp.group2; Added a dup checkbox
   //console.log(whichmap + " length: " + $(mapDiv).length);
@@ -3127,7 +2956,10 @@ function renderMap(dp,map,whichmap,parentDiv,basemaps,zoom,markerType,callback) 
     map.setView(mapCenter,zoom);
 
     let layerGroup = L.layerGroup();
-    addIcons(dp,map,whichmap,layerGroup,zoom,markerType); // Adds to both map1 and map2
+    
+    //alert("addIcons")
+    // Wasn't working
+    //addIcons(dp,map,whichmap,layerGroup,zoom,markerType); // Adds to both map1 and map2
 
   } else {
     consoleLog("Initiate map " + mapDiv + " ");
@@ -3217,8 +3049,12 @@ function renderMap(dp,map,whichmap,parentDiv,basemaps,zoom,markerType,callback) 
       // Partially works! - Unchecked on second map.
       //map.removeLayer(overlays[priorLayer]); // Remove overlay but not checkbox. 
 
-      // Only map1 is getting updated.
-      map1.removeLayer(overlays1[priorLayer]);
+      // Ooriginally only map1 was getting updated.
+
+      console.log("BUGBUG - No icons show with, multiple states show without.")
+      // BUGBUG - No icons show with, multiple states show without.
+      //map1.removeLayer(overlays1[priorLayer]);
+
       map2.removeLayer(overlays2[priorLayer]);
     }
     //alert("addOverlay - typeof overlays[dataTitle] " + typeof overlays[dataTitle])
@@ -3235,15 +3071,24 @@ function renderMap(dp,map,whichmap,parentDiv,basemaps,zoom,markerType,callback) 
       //console.log("layerGroup");
       //console.log(layerGroup); // Object contains HTML, including leaflet-popup-text.
       
-      if (typeof overlays[dataTitle] != "object") { // Prevent adding duplicate checkbox
+      //if (typeof overlays[dataTitle] != "object") { // Prevent adding duplicate checkbox
+      if (1==1) { // Works for map2, but map1 is still not populated (and prior now gets deleted)
         layerControls[whichmap].addOverlay(layerGroup, dataTitle); // Add layer checkbox - works
-        addIcons(dp,map,whichmap,layerGroup,zoom,markerType); // Adds to both map1 and map2
+        //if (whichmap == "map1") { // Temp
+          addIcons(dp,map,whichmap,layerGroup,zoom,markerType); // Adds for both map1 and map2
+        //}
         overlays[dataTitle] = layerGroup; // Available to both map1 and map2
       } else {
-        //alert("TODO: highlight mappoint here for existing maps")
+
+        // DELETE, not used
+
+        alert("TODO: highlight mappoint here for existing maps")
+
+        addIcons(dp,map,whichmap,layerGroup,zoom,markerType); // Adds for both map1 and map2
 
         console.log("TO DO: Use the name to fetch the lat and lon from div.")
         //centerMap(element[dp.latColumn], element[dp.lonColumn], name, map, whichmap);
+
       }
       if (overlays) {
         // Checks the box, which displays the layer. (Basically boxes and icons are ready at this point.)
@@ -3283,7 +3128,7 @@ function renderMap(dp,map,whichmap,parentDiv,basemaps,zoom,markerType,callback) 
 
 function processOutput(dp,map1,map2,whichmap,whichmap2,basemaps1,basemaps2,callback) {
   consoleLog("processOutput");
-
+      
   if (typeof map1 === 'undefined' || !map1.length) {
     console.log("processOutput: map1 not yet defined or populated. We'll render with renderMap()"); // Ok, so let's define it with renderMap below.
   }
@@ -3359,8 +3204,6 @@ function processOutput(dp,map1,map2,whichmap,whichmap2,basemaps1,basemaps2,callb
     });
   } // showmap = true
 }
-
-
 
 
 /////////////////////////////////////////
@@ -3460,6 +3303,7 @@ function addIcons(dp,map,whichmap,layerGroup,zoom,markerType) {  // layerGroup r
   console.log(whichmap + " addIcons dp.color " + dp.color);
   loadScript(theroot + 'js/leaflet.icon-material.js', function(results) { // Might not get used (in time?) for L.IconMaterial. Previously, had to wrap map.js load in localsite.js instead.
   waitForVariable('leafletIconLoaded', function() {
+    //alert("Got leafletIconLoaded in addIcons")
     dp.data.forEach(function(element) {
       uniqueID++;
       // Add a lowercase instance of each column name
@@ -3497,7 +3341,7 @@ function addIcons(dp,map,whichmap,layerGroup,zoom,markerType) {  // layerGroup r
         iconColor = "#548d1a"; // Green. Was "blue"
       }
       
-      console.log("element[dp.valueColumn] " + element[dp.valueColumn] + " iconColor: " + iconColor + " dp.valueColumn: " + dp.valueColumn + " " + name);
+      //console.log("element[dp.valueColumn] " + element[dp.valueColumn] + " iconColor: " + iconColor + " dp.valueColumn: " + dp.valueColumn + " " + name);
       
       if (typeof dp.latColumn == "undefined") {
         dp.latColumn = "latitude";
@@ -3545,6 +3389,8 @@ function addIcons(dp,map,whichmap,layerGroup,zoom,markerType) {  // layerGroup r
 
         // Attach the icon to the marker and add to the map
         // If this line returns an error, try setting dp1.latColumn and dp1.latColumn to the names of your latitude and longitude columns.
+        console.log("markerType: google layerGroup: ")
+        //console.log(layerGroup)
         circle = L.marker([element[dp.latColumn], element[dp.lonColumn]], {icon: busIcon}).addTo(layerGroup); // Works, but not in Drupal site.
       } else {
         circle = L.circle([element[dp.latColumn], element[dp.lonColumn]], {
@@ -3575,8 +3421,14 @@ function addIcons(dp,map,whichmap,layerGroup,zoom,markerType) {  // layerGroup r
         if (element.address) {
           output += element.address + "<br>";
         } else {
-          if (element.city) {
+          if (element.city && name != element.city) {
             output += element.city;
+          }
+          if (element.county) {
+            if (element.city && name != element.city) {
+              output += ", ";
+            }
+            output += element.county + " County";
           }
           if (element.state || element.zip) {
             output += ", ";
@@ -3658,7 +3510,7 @@ function addIcons(dp,map,whichmap,layerGroup,zoom,markerType) {  // layerGroup r
         entityName = encodeURIComponent(entityName);
         // Needs to remove m,q,search
         // onclick='goHash({\"show\":\"" + hash.show + "\",\"name\":\"" + entityName + "\"}); return false;' 
-        output += "<a class='btn btn-success' style='margin-top:10px' href=\"#show=" + hash.show + "&name=" + entityName + "\">View Details</a><br>";
+        output += "<a class='btn btn-success' style='margin-top:10px' href=\"#show=" + hash.show + "&name=" + entityName + "&details=true\">View Details</a><br>";
       }
       // ADD POPUP BUBBLES TO MAP POINTS
       if (circle) {
@@ -3739,7 +3591,6 @@ function addIcons(dp,map,whichmap,layerGroup,zoom,markerType) {  // layerGroup r
 
 function markerRadius(mapZoom,map) {
   let radiusValue = 1;
-  //alert("mapZoom " + mapZoom);
   let radiusOut = 12;
   if (map.length > 0) {
     mapZoom = map.getZoom();
@@ -3795,6 +3646,7 @@ function hashChangedMap() {
   //alert("priorHash.cat: " + priorHash.cat + " " + hash.cat);
   //alert("hash.name " + hash.name + " priorHash.name " + priorHash.name)
 
+  $("#sidemapCard").show();
   if (hash.name !== priorHash.name) {
     if (!hash.name) { // Reveal list
       $("#detaillist .detail").show(); // Show all
@@ -3837,6 +3689,7 @@ function hashChangedMap() {
 
     loadScript(theroot + 'js/map-filters.js', function(results) { // map.js depends on map-filters.js
       waitForElm('#state_select').then((elm) => {
+        // Async, so this occurs while the rest proceeds.
         let dp = {};
         // Copied from map-filters.js
         $("#state_select").val(hash.state.split(",")[0].toUpperCase());
@@ -3859,11 +3712,10 @@ function hashChangedMap() {
             }
         } else {
           console.log("ERROR #state_select not available in hashChangedMap()2");
-        }    
-        whatChanged = "hashChangedMap() in map.js new state(s) " + hash.state;
+        }
       });
     });
-
+    whatChanged = "hashChangedMap() in map.js new state(s) " + hash.state;
   } else if (hash.cat !== priorHash.cat) {
     whatChanged = "hashChangedMap() in map.js new cat " + hash.cat;
   } else if (hash.subcat !== priorHash.subcat) {

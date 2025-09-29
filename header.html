@@ -16,30 +16,6 @@ Could use these state shapes: https://github.com/coryetzkorn/state-svg-defs
 
 <div class="navcolumnBar">
     <div class='hideSide close-X-sm' style='position:absolute;right:0;top:0;z-index:1;margin-top:0px'>✕</div>
-
-    <!-- URL occurs starting with ../https. Inserted twice. Not needed in other model sites. -->
-    <!-- src="../https://model.earth/localsite/img/logo/states/GA-notext.png" -->
-    <!--
-    <div id="logoholderbar" class="updatedFile-DeleteThisClass" style="float: left;"><a href="https://georgia.org"><img src="/localsite/img/logo/states/GA-notext.png" style="width:50px;padding-top:0px;margin-top:-1px"></a></div>
-    -->
-
-    <!--
-    <div class="hideEmbed">
-      <div class="showSections rightTopItem active" style="padding-top:14px; padding-right:10px">
-          <i class="material-icons menuTopIcon">&#xE5C3;</i>
-          <span>Topics</span>
-      </div>
-    </div>
-
-    <div class="dreamstudio" style="display:none">
-    <div class="hideEmbed">
-        <div class="showSeasons rightTopItem" style="padding-top:14px; padding-right:10px">
-            <i class="material-icons menuTopIcon">&#xE666;</i>
-            <span>Episodes</span>
-        </div>
-    </div>
-    </div>
-    -->
 </div>
 <div style="clear:both"></div>
 
@@ -60,33 +36,81 @@ Could use these state shapes: https://github.com/coryetzkorn/state-svg-defs
     background-color:#555;
 }
 </style>
-<div class="earth menuset" style="display:none">
-    <div class="dev toggle-container" style="display:none">
-    <b><a href="/data-commons/" onclick="toggleDiv('.goalsSub');return false;">GOALS</a></b>
-    <div class="goalsSub" style="display:none">
-        <a href="/data-commons/">Data Commons</a>
-        <a href="/data-commons/dist/jobs">1. Great Jobs</a>
-        <a href="/data-commons/dist/food">2. Healthy Food</a>
-        <a href="/data-commons/dist/health">3. Excellent Health</a>
-        <a href="/data-commons/dist/education">4. Quality Education</a>
-        <a href="/data-commons/dist/women">5. Gender Equality</a>
-        <a href="/data-commons/dist/water">6. Clean Water</a>
-        <a href="/data-commons/dist/energy">7. Clean Energy</a>
-        <a href="/data-commons/dist/economy">8. Vibrant Economy</a>
-        <a href="/data-commons/dist/innovation">9. Local Innovation</a>
-        <a href="/data-commons/dist/inclusion">10. Inclusion</a>
-        <a href="/data-commons/dist/biodiversity">11. Biodiversity</a>
-        <a href="/data-commons/dist/conservation">12. Conservation</a>
-        <a href="/data-commons/dist/air">13. Air and Climate</a>
-        <a href="/data-commons/dist/aquatic">14. Thriving Aquatic Life</a>
-        <a href="/data-commons/dist/wildlife">15. Abundant Wildlife</a>
-        <a href="/data-commons/dist/peace">16. Peace and Justice</a>
-        <a href="/data-commons/dist/partners">17. Partnerships</a>
-        <a href="/data-commons/dist/balanced">18. Balanced Budgets</a>
-        <a href="/data-commons/dist/transit">19. Fast Reliable Transit</a>
-        <a href="/data-commons/dist/internet">20. High Speed Internet</a>
-        <a href="/data-commons/dist/space">21. More Livable Zones</a>
+
+<div class="membercommons" style="display:none">
+    <b><a href="/profile/crm/">COMMONS SETUP</a></b>
+    <a href="/profile/crm/">SuiteCRM Installer</a>
+    <a href="/profile/azure/">Azure Admin Script</a>
+    <a href="/localsite/start/steps/">Localsite Setup</a>
+    <br>
+</div>
+
+<div class="dreamstudio" style="display:none">
+
+    <b><a href="/dreamstudio/home/">ABOUT</a></b>
+    <a href="/dreamstudio/home/">DreamStudio</a>
+    <a href="/dreamstudio/earth/">Earth Generation</a>
+    <a href="/dreamstudio/seasons/">Story Seasons</a>
+    <br>
+
+    <b><a href="/projects">PROJECTS</a></b>
+    <a href="/data-commons/docs/data">Goal Timelines</a>
+    <a href="/realitystream/models">RealityStream ML</a>
+    <a href="/dreamstudio/feed">Feed Player</a>
+    <a href="/dreamstudio/requests">Storyboard</a>
+    <a href="/dreamstudio/community">Model.Earth</a>
+    <a href="https://www.democracylab.org/projects/834">DemocracyLab</a>
+    <a href="/dreamstudio/education/">Education Resources</a>
+    <a href="/inspire/">Partner Tools</a>
+    <br>
+
+    <b><a href="/dreamstudio/projects">DATA SCIENCE</a></b>
+    <a href="/projects/about/">About Our Projects</a>
+    <a href="/projects/">Active Projects</a>
+    <a href="/io/coders/">Coding Meetups</a>
+</div>
+
+<div class="planetlive menuset" style="display:none">
+    <hr class="planetlive-hide" style="margin-top:20px;margin-bottom:10px;">
+    <div>
+    <b><a href="/seasons/">DEVELOPMENT</a></b>
+    <a href="/projects/">Active Projects</a>
+    <a href="/seasons/">Story Seasons</a>
+    <a href="/seasons/team/">Characters</a>
+    <a href="/seasons/storylines/">Entry Points</a>
     </div>
+    <hr class="dreamstudioX" style="displayX:none;margin-top:20px;margin-bottom:10px;">
+</div>
+
+<div class="earth planetlive menuset" style="display:none">
+    <div class="dev toggle-container" style="display:none">
+        <!--Developer Links-->
+        <b><a href="/team/" style="margin-bottom:8px;">TEAM</a></b>
+        <b><a href="/home/" style="margin-bottom:8px;">VISUALIZE</a></b>
+        <b><a href="/data-commons/" onclick="toggleDiv('.goalsSub');return false;">GOALS</a></b>
+        <div class="goalsSub" id="goalsSub" style="display:none">
+            <a href="/data-commons/docs/jobs">1. Great Jobs</a>
+            <a href="/data-commons/dist/food">2. Healthy Food</a>
+            <a href="/data-commons/dist/health">3. Excellent Health</a>
+            <a href="/data-commons/dist/education">4. Quality Education</a>
+            <a href="/data-commons/dist/opportunities">5. More Opportunities</a>
+            <a href="/data-commons/dist/water">6. Clean Water</a>
+            <a href="/data-commons/dist/energy">7. Clean Energy</a>
+            <a href="/data-commons/dist/economy">8. Vibrant Economies</a>
+            <a href="/data-commons/dist/innovation">9. Local Innovation</a>
+            <a href="/data-commons/dist/open">10. Inclusive and Open</a>
+            <a href="/data-commons/dist/biodiversity">11. Biodiverse Habitats</a>
+            <a href="/data-commons/dist/conservation">12. Restoring Treecover</a>
+            <a href="/data-commons/docs/data">13. Air and Climate</a>
+            <a href="/data-commons/dist/aquatic">14. Thriving Aquatic Life</a>
+            <a href="/data-commons/dist/wildlife">15. Abundant Wildlife</a>
+            <a href="/data-commons/dist/peace">16. Peace and Justice</a>
+            <a href="/data-commons/dist/partners">17. Partnerships</a>
+            <a href="/data-commons/dist/balanced">18. Balanced Budgets</a>
+            <a href="/data-commons/dist/transit">19. Fast Reliable Transit</a>
+            <a href="/data-commons/dist/internet">20. High Speed Internet</a>
+            <a href="/data-commons/dist/space">21. More Livable Zones</a>
+        </div>
     </div>
 
     <div class="dev toggle-container" style="display:none;margin-bottom:12px;">
@@ -136,149 +160,87 @@ Could use these state shapes: https://github.com/coryetzkorn/state-svg-defs
         </div>
 
         </div>
+        <hr style="margin-top:20px;">
     </div>
 
-    <b><a href="/community">MODEL</a></b>
-    <a href="/apps/">Location Models</a>
+    <b><a href="/community">MODELS</a></b>
+    <a href="/profile/footprint/#state=all">State Models</a>
+    <a href="https://model.earth/apps/">Location Models</a>
     <a href="/localsite/info/">Industry Comparisons</a>
-    <a href="/community/tools/">Lifecycle Tools Overview</a>
+    <a href="/community/tools/">Lifecycle Tools Info</a>
     <a href="/io/charts">Input-Output Widgets</a>
     <a href="/localsite/start/">Starter Samples</a>
     <br>
 
-    <b><a href="/community/projects/">PROJECTS</a></b>
+    <b><a href="https://model.earth/community/projects/">PROJECTS</a></b>
     <a href="/projects/">Active Projects</a>
-    <a href="/localsite/">Localsite Framework</a>
-    <a href="/data-commons/">Google Data Commons</a>
-    <a href="/data-pipeline/">Data Pipeline</a>
-    <a href="/io/charts/">Input-Output Widgets</a>
-    <a href="/RealityStream/">RealityStream ML</a>
-    <a href="/data-pipeline/research/stream/">Generated Images</a>
-    <a href="/OpenFootprint/">Open Footprint</a>
-    <a href="/community/projects/">Moonshot Challenges</a>
+    
+    <a href="https://model.earth/localsite/timeline/">1. Goal Timelines (JS)</a>
+    <a href="https://model.earth/codechat/">2. CodeChat (AI)</a>
+    <a href="/realitystream/">3. RealityStream (ML)</a>
+    <a href="/profile/trade/">4. Trade Flow (IO)</a>
+    <a href="/io/template/">5. Geo Profiles (GP)</a>
+    <a href="/feed/">6. FeedPlayer (React)</a>
+    <a href="https://model.earth/community/projects/">7. Moonshots (Mars)</a>
     
     <!--
-    <a href="/community/projects/#profile-editor">Profile Editor</a>
+    <a href="/localsite/">Localsite Framework</a>
+    <a href="/profile/footprint/">USEEIO Javascript</a>
+    <a href="/io/about/">State Models for Google</a>
+    <a href="/data-pipeline/">Python Data Pipeline</a>
+    <a href="/data-pipeline/research/stream/">Generated Images</a>
     -->
     <br>
 
+</div>
+<div class="earth menuset" style="display:none">
+    <b><a href="https://model.earth/community/carbon-capture/" hashid="carbon-capture">TECH</a></b>
+    <a href="https://model.earth/evaporation-kits/" hashid="kits">Evaporation</a>
+    <a href="https://model.earth/community/carbon-capture/" hashid="locally">Carbon Cycling</a>
+    <a href="https://model.earth/community/carbon-capture/#forestry">Fast Forestry</a>
+    <a href="https://model.earth/community/carbon-capture/#superwood">Superwood</a>
+    <a href="https://model.earth/community/carbon-capture/#flight" hashid="flight">Transforming Flight</a>
+    <a href="https://model.earth/community/projects/rail" hashid="rail">Net Positive Rail</a>
+    <a href="https://model.earth/community/carbon-capture/#hydrogen">Hydrogen Fuel</a>
+    <a href="https://model.earth/community/biotech/" hashid="biotech">Bioeconomy</a><!-- Biotech Products -->
+    <a href="https://model.earth/community/projects/wood/" hashid="wood">Mass Timber</a>
 
-    <!--
-        <a href="../community/tools/#projects">Web Projects</a>
-    <a href="../community/interns/">Internships</a>
-    -->
-
-    <!--
-    <b>About</b><br>
-
-    <a href="../community/tools/#">Overview</a>
-    -->
-    <!-- tools/# tells page not to reload, and avoids jumping down to section. -->
-    <!--a href="../community/tools/#objectives">Objectives</a-->
-
-    <!--
-    <a href="../community/tools/#data">Data Driven</a>
-    <a href="../community/tools/#modeling">IO Modeling</a>
-    <a href="../community/tools/#charts">Material Flow</a>
-    <a href="../community/tools/#regional">Multi-County</a>
-    <a href="../community/tools/#local">Recycling Maps</a>
-    <a href="../community/tools/#partners">Partners</a>
-    -->
-
-
-
-    <b><a href="/community/carbon-capture/" hashid="carbon-capture">TECH</a></b>
-    <a href="/evaporation-kits/" hashid="kits">Evaporation</a>
-    <a href="/community/carbon-capture/" hashid="locally">Carbon Cycling</a>
-    <a href="/community/carbon-capture/#forestry">Fast Forestry</a>
-    <a href="/community/carbon-capture/#superwood">Superwood</a>
-    <a href="/community/carbon-capture/#flight" hashid="flight">Transforming Flight</a>
-    <a href="/community/projects/rail" hashid="rail">Net Positive Rail</a>
-    <a href="/community/carbon-capture/#hydrogen">Hydrogen Fuel</a>
-    <a href="/community/biotech/" hashid="biotech">Bioeconomy</a><!-- Biotech Products -->
-    <a href="/community/projects/wood/" hashid="wood">Mass Timber</a>
-
-    <a href="/community/projects/nuclear" hashid="nuclear">Nuclear Power</a>
-    <a href="/community/projects/mobility" hashid="mobility">Electric Vehicles</a>
-    <a href="/community/architecture/" hashid="new-countryside">New&nbsp;Countryside</a>
+    <a href="https://model.earth/community/projects/nuclear" hashid="nuclear">Nuclear Power</a>
+    <a href="https://model.earth/community/projects/mobility" hashid="mobility">Electric Vehicles</a>
+    <a href="https://model.earth/community/architecture/" hashid="new-countryside">New&nbsp;Countryside</a>
     <!-- <a href="/open-tech">Open Sustainable Tech</a> -->
     <br>
 </div>
 
 <div class="georgia" style="display:none">
-<div class="use-5" style="display:none">
-    <b><a href="https://gdecd.sharepoint.com/">INTRANET</a></b>
-    <a href="https://gdecd.sharepoint.com/SitePages/Intranet.aspx">Intranet</a>
-    <a href="https://gdecd.sharepoint.com/SitePages/Resources.aspx">Resources</a>
-    <a href="/display/team/" class="local-block use-8" style="display:none;">Staff News</a>
-    <a href="https://teams.microsoft.com/">Teams (chat)</a>
-    <a href="/resources/floorplans/">Floorplans</a>
-    <a href="/resources/">What's New</a>
-    <a href="/resources/admin/">Site Admin</a>
-    <br>
-</div>
-</div>
-
-<div class="georgia" style="display:none">
-    <b><a href="/localsite/map/">MAPS</a></b>
-    <!--a href="/localsite/map/#show=farmfresh">Farm Fresh</a-->
-    <a href="https://exploregeorgia.org">Tourism</a>
+    <b><a href="/localsite/map/">LOCATIONS</a></b>
+    <a href="https://exploregeorgia.org">Travel Destinations</a>
     <a href="https://cameraready.georgia.org">Camera Ready</a>
-    <a href="/recycling/georgia/">Recycling</a>
+    <a href="/localsite/map/#show=farmfresh&state=GA">Farmers Markets</a>
+    <a href="/recycling/georgia/">B2B Recycling</a>
     <a href="/localsite/map/#show=wastewater">Wastewater Facilities</a>
     <a href="/localsite/map/#show=landfills">Landfill Locations</a>
     <a href="/localsite/map/#show=solidwaste">Solid Waste</a>
-    
-    
     <!--
     <br>
     <b><a href="https://epd.georgia.gov">More Georgia EPD</a></b>
     -->
     <a href="https://epd.georgia.gov/about-us/land-protection-branch/recovered-materials-and-abatement/tire-management"  target="_blank">Tire Management</a>
     <!-- Removed: Tires | Scrap tires -->
-
+    <a href="https://georgia.org/EV">EV Manufacturing</a>
+    <!--
     <a href="/localsite/info/#show=vehicles">EV Parts Manufacturing</a>
+    -->
     <a href="https://info.resimplifi.com/georgia-economic-development-partnership">Building Site Selector</a>
-    
     <br>
 </div>
 
-<div class="dreamstudio" style="display:none">
-
-    <a href="https://dreamstudio.ai/generate" class="navlink-generate btn btn-magenta navcolumnIndent" style="max-width:180px; text-align:center">Generate Images</a><br>
-
-    <b><a href="/dreamstudio/about/">ABOUT</a></b>
-    <a href="/dreamstudio/about/">DreamStudio</a>
-    <a href="https://clipdrop.co/">Clipdrop Visuals</a>
-    <!--<a href="/dreamstudio/studio/">StableStudio</a>-->
-    <a href="/swarm/">Stable Swarm UI</a>
-    <!--
-    <a href="https://stablediffusionweb.com/Visual-ChatGPT">Visual ChatGPT</a>
-    -->
-    <a href="https://stability.ai/stable-video">Stable Video</a>
-    <a href="https://stability.ai/stable-image">SDXL Turbo</a>
-    <a href="/dreamstudio/animation/">Animation SDK</a>
-    <br>
-    <!--
-    <b><a href="/dreamstudio/seasons/">STORIES</a></b>
-    <a href="/dreamstudio/seasons/">Story Seasons</a>
-    <a href="/dreamstudio/seasons/mentors/">Core Characters</a>
-    -->
-    <!--a href="/dreamstudio/localsite/">Localsite Framework</a-->
-
-    <b><a href="/dreamstudio/api/">API PLATFORM</a></b>
-    <a href="/dreamstudio/api/start/">Get Started</a>
-    <a href="/dreamstudio/api/features/">API Features</a>
-    <a href="/dreamstudio/api/status/">API Status</a>
-    <br>
-
-    <b><a href="https://stability.ai">NEWS</a></b>
-    <a href="https://stability.ai/about">Stability.ai</a>
-    <a href="https://stability.ai/blog">Announcements</a>
-    <a href="https://stability.ai/blog">Press Articles</a>
-    <a href="https://dreamstudio.ai/support">Contact Us</a>
-    <br>
+<div style="display:none;" class="local">
+    <b><a href="/projects/#sidetab=settings">LOCALSITE</a></b>
+    <a href="#sidetab=settings" onclick="location.hash='sidetab=settings'; return false;">Change Site</a>
+    <br><br>
 </div>
+<br><br>
 
 </div>
 

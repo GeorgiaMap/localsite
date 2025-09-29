@@ -1,4 +1,10 @@
-{
+import json
+import csv
+
+# Adds 2-char abbreviation and save us-states.csv
+
+# JSON state data from us-states.json
+data = {
   "Alabama": {
     "juristiction": "Alabama",
     "clean_energy_commitment": "No",
@@ -918,3 +924,49 @@
     "CO2_per_1000_miles": 20.5
   }
 }
+
+# Dictionary of state abbreviations and state names in mixed case including US territories
+stateDict = {
+    "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas", "CA": "California", "CO": "Colorado",
+    "CT": "Connecticut", "DE": "Delaware", "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho",
+    "IL": "Illinois", "IN": "Indiana", "IA": "Iowa", "KS": "Kansas", "KY": "Kentucky", "LA": "Louisiana",
+    "ME": "Maine", "MD": "Maryland", "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota", "MS": "Mississippi",
+    "MO": "Missouri", "MT": "Montana", "NE": "Nebraska", "NV": "Nevada", "NH": "New Hampshire", "NJ": "New Jersey",
+    "NM": "New Mexico", "NY": "New York", "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma",
+    "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina", "SD": "South Dakota",
+    "TN": "Tennessee", "TX": "Texas", "UT": "Utah", "VT": "Vermont", "VA": "Virginia", "WA": "Washington",
+    "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming",
+    "DC": "District of Columbia",
+    # US Territories
+    "AS": "American Samoa", "GU": "Guam", "MP": "Northern Mariana Islands", "PR": "Puerto Rico", "VI": "U.S. Virgin Islands"
+}
+
+# Create a list of all unique keys from the JSON data
+all_keys = set()
+for state, attributes in data.items():
+    all_keys.update(attributes.keys())
+
+# Convert the data to the desired CSV format
+csv_data = []
+
+# Add the headers
+headers = ["State", "StateName"] + list(all_keys - {"juristiction", "jurisdiction"})
+csv_data.append(headers)
+
+# Add the rows
+for state, attributes in data.items():
+    # Convert state name to mixed case for matching
+    state_mixed_case = state.title()
+    # Find the 2-char abbreviation
+    abbreviation = next((abbr for abbr, name in stateDict.items() if name == state_mixed_case), "")
+    row = [abbreviation, state]  # Abbreviation and StateName
+    for key in headers[2:]:
+        row.append(attributes.get(key, ""))
+    csv_data.append(row)
+
+# Write to a CSV file
+with open("states.csv", "w", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerows(csv_data)
+
+print("CSV file 'states.csv' created successfully.")

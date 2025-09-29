@@ -2,9 +2,11 @@
 
 # Google Data Commons (GDC)
 
-We're using [Observable Data Loaders](/data-pipeline/timelines/observable/) to pull from the [Google Data Commons](https://datacommons.org) API. [About API](https://docs.datacommons.org/api/).
+To pull from the [Google Data Commons](https://datacommons.org) API, we use [frontend javascript for timelines](/localsite/timeline/) and a [python colab](https://colab.research.google.com/drive/1CsIjLujiiBoGJlIHCBvDZit3QSVg07zR?usp=sharing) to pre-generate location filter data. We've also occasionally experimented with [Observable Data Loaders](/data-pipeline/timelines/observable/).  Learn about the [GDC API](https://docs.datacommons.org/api/).
 
 ## Install DataCommons.org website locally
+
+TO DO: Reproduce how side navigation is loaded, reduce to timeline datasets for UN Goals.
 
 Google uses an LLM to convert text input into data visualization requests.
 

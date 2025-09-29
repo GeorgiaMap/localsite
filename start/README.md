@@ -1,58 +1,62 @@
-# Single Page Embed
-
-1. Place your content within a README.md file in a local folder inside your webroot. 
-2. Copy the current index.html page using View Page Source, or just copy the localsite.js include tag.
-3. [Add Localsite parameters](../) for locations (state and counties) and impact sets (air, water, land, energy, health, prosperity) to embed maps and visualizations [for local communities](/io/communities/) and [international goals](/data-commons/dist).
-
-____
-
-<br>
-# Website Setup and Dev
-
-View our [Active Projects](../../projects) and [Moonshots](../../community/projects)
-
 <div class="showGit">
 <a href="https://model.earth/community/start/">View current GitHub page as a web page</a>
 </div>
 
-## <span class="num">1</span><span class="txt">Start a Local Website</span>
+<h1 style="font-size:32px">Starter Samples</h1>
 
-<a href="../../localsite/start/steps/">Site Install</a> - For our coding team, states, communities and [International Timelines](../../data-commons/).
+### Localsite Setup and Development
+
+[How to add a new localsite page](template).  View our [Active Projects](../../projects) and [Moonshots](../../community/projects).
+
+Helpful tips for [Node, Python, pyenv, Conda and Docker](../../io/coders/python/).
+
+
+## <span class="num">1</span><span class="txt">Site Install - Code globally, run locally</span>
+
+<a href="../../localsite/start/steps/">Site Install</a> - Contribute to apps for local industry comparisons and government optimization.
 <!--
 &bullet; <a href="/apps/">Our Apps Folder</a> - Customize JQuery pages
 &bullet; <a href="../challenge/">Sustainable Communities Web Challenge</a><br>
 &bullet; <a href="../challenge/how/">How to Create a Local Site Page</a><br>
 --> 
 
-<a href="../../localsite/start/steps/" class="btn btn-success">Start Site Install</a>
+We recommond using the Webroot install with Claude Code CLI<br>
 
-## <span class="num">2</span><span class="txt">Integrate Datasets</span>
-Model.earth [Data Pipeline](../../localsite/info/data) and our <a href="/data-commons/dist/">Observable Data Commons</a>
-[Industry Data Prep](../../data-pipeline/timelines/training/naics/) for our machine learning [RealityStream](../../RealityStream/)
+<a href="https://model.earth/webroot/" class="btn btn-success" style="float:left;margin:0px;margin-right:6px">Webroot Install</a><a href="../../localsite/start/steps/" class="btn btn-success" style="margin:0px">Repo Install</a>
 
-## <span class="num">3</span><span class="txt">Input-Output Widgets</span>
-<a href="../../io/charts/">Impact Widgets</a> - Displayed based on [localsite parameters](../) 
-Data from the US Environmental Protection Agency (EPA) and Google Data Commons
+## <span class="num">2</span><span class="txt">Input-Output Widgets</span>
+<a href="../../io/charts/">Contribute to Impact Widgets</a> - Display based on [localsite parameters](../) 
+Data from the US EPA and NAICS, Exiobase, Google Data Commons - [Data Pipelines](/data-pipeline/)
+
+## <span class="num">3</span><span class="txt">Integrate Machine Learning</span>
+Contribute to our machine learning [RealityStream](../../realitystream/)
+Contribute to UN goal data visualizations in our <a href="/localsite/timeline/">Google Data Commons Timelines</a>
 
 ## <span class="num">4</span><span class="txt">Chart Starter Ideas</span>
 [Chart Starters](../../community/start/charts) - Chord, Sankey, USEEIO Heatmap Mosaic and Input-Output Flow
 
+
 ## <span class="num">5</span><span class="txt">Map Samples</span>
-[Leaflet Map Layers](../../community/start/maps)
+[Leaflet Map Layers](../../community/start/maps#geoview=state&state=CA) with Tabulator grid data views
 
-## <span class="num">6</span><span class="txt">State EEIO Models</span>
+## <span class="num">6</span><span class="txt">Country and State IO Models</span>
 
-US State Environmentally Extended Input-Output
+Environmentally Extended Input-Output (EEIO)
 
-[USEEIO React Widgets](../../io/charts)
-[USEEIO Javascript](../../../useeio.js/footprint/)
-[USEEIO Model Components](https://github.com/USEPA/useeior/blob/master/format_specs/Model.md) - RStudio builds the API
+[World Trade Profiles](../../profile/trade/)
+[US State Reports](../../profile/footprint/)
+[Inflow-Outflow Widgets](../../io/charts)
+
+<!--
+[USEEIO Model Components](https://github.com/USEPA/useeior/blob/master/format_specs/Model.md) - RStudio
+
+
 [USEEIO API](https://github.com/usepa/useeio_api/)
 [USEEIO Python and R Examples](../../community/resources/useeio)
 
 The API is NOT used directly for websites.
-Instead, a static .json version of the API is loaded from files in [model.earth/io/build/api](https://github.com/ModelEarth/io/tree/main/build/api) and our [OpenFootprint](http://model.earth/OpenFootprint) repo.
-
+Instead, a static .json version of the API is loaded from files in [model.earth/io/build/api](https://github.com/ModelEarth/io/tree/main/build/api) and our [profile](http://model.earth/profile) repo.
+-->
 
 ## <span class="num">7</span><span class="txt">JAM Stack Resources</span>
 
@@ -88,23 +92,23 @@ There is growing trend across industry to trace the entire supply chain.
 Responsible sourcing allows manufacturers to...
 -->
 
-[Sustainable Materials Management](https://www.epa.gov/smm) - US EPA  
-[EXIOBASE database](https://www.exiobase.eu/) - Registration is free for downloading files  
+[EXIOBASE](https://www.exiobase.eu/) - Environmentally Extended World Trade Data
+[Sustainable Materials Management](https://www.epa.gov/smm) - US EPA
+[Challenge.gov](https://www.challenge.gov) - Web Challenges created by US Government Agencies
 [OpenLCA](https://www.openlca.org/) - Downloadable app for Life Cycle Assessment
 [OECD - Organization for Economic Co-Operation and Development](https://www.oecd.org/sti/ind/measuring-trade-in-value-added.htm) - France
 [Leyla Acaroglu on Life Cycle Assessment](https://medium.com/disruptive-design/a-guide-to-life-cycle-thinking-b762ab49bce3)
 [Knoema Infographics](https://knoema.com/infographics) - [Data Coverage Matrix](https://knoema.com/atlas/matrix) - Global models which could be reproduced locally.  
 [World Input-Output Database (WOID)](http://www.wiod.org/otherdb)  
-[IMPLAN Impact Analysis](https://implanhelp.zendesk.com/hc/en-us/articles/360039284273-Environmental-Data) - 8 broad categories using USEEIO model data  
-[Challenge.gov/toolkit](https://www.challenge.gov/toolkit/) - Web Challenges created by US Government Agencies
+[IMPLAN Impact Analysis](https://implanhelp.zendesk.com/hc/en-us/articles/360039284273-Environmental-Data) - 8 broad categories using USEEIO model data
 
 ## <span class="num">9</span><span class="txt">Collaboration and Teaching</span>
 
-[Join our Model.earth Meetups](/io/coders/)
-Thursdays at noon ET. &nbsp;And 10pm ET on Monday, Wednesday and Sunday. (NY/Atlanta Time)
+[Join in our weekly coding meetups](/io/coders/)
+
 
 [Use our Lifecycle Tools for Research and Teaching](/io/learn/)
-Explore [the matrix](/io/about/matrix/) and tinker using [Open Footprint Javascript](/useeio.js/footprint/)
+Explore [the matrix](/io/about/matrix/) and tinker with our [Footprint Javascript](/profile/footprint/)
 
 <!-- 
 Expensive European Exiobase

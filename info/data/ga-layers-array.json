@@ -77,7 +77,7 @@
 		"sectionTitle": "leftNav",
 		"topnavaccess": "10",
 		"menuaccess": "0",
-		"directlink": "/io/communities/#state=GA&show=smart",
+		"directlink": "/io/#state=GA&show=smart",
 		"states": "GA"
 	},
 	{
@@ -156,7 +156,7 @@
 		"headericoncolor": "#999",
 		"icon": "<i class='material-icons'>&#xE87A;</i>",
 		"menuaccess": "0",
-		"directlink": "/recycling/georgia/",
+		"directlink": "https://model.georgia.org/recycling/georgia/",
 		"footerlogos": "",
 		"caption": "",
 		"states": "GA"

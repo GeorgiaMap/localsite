@@ -1,15 +1,36 @@
-<section id="steps"></section>
 [Starter Samples](../)
 # Site Install
 
-You can use [Localsite Pages](../) to create websites and [storyboards](/requests) with free GitHub hosting.  
-If you get stuck at any point, feel free to DM Loren at [x.com/LorenHeyns](https://x.com/LorenHeyns). Converse with us on [BlueSky](https://bsky.app/profile/modelearth.bsky.social).
-Our notes on [Node, Python, Docker and Conda](/io/coders/python/).  
-To open local .ipynb files, run `jupyter notebook` after choosing "New Terminal at Folder".
+Our helpful tips for [Yarn, Node, Python, Docker and Conda](../../../io/coders/python/).  
 
-## Start your local webroot
 
-Run in a folder called "webroot" (or any name) to start your local websites on Mac and Linux:
+## ModelEarth webroot with Claude Code CLI
+
+<a href="https://model.earth/webroot/" class="btn btn-success">Webroot Setup</a><br>
+
+**Getting Started** [Activate your webroot](https://model.earth/webroot) using Claude Code CLI or your favorite AI CLI
+
+**CodeChat:** [Overview of our webroot and RAG process](../../../codechat/) 
+
+**Contribute Locally:** The webroot [runs on port 8887](http://localhost:8887)
+<br>
+
+## Alternative: Manual webroot setup
+
+[Fork and clone the webroot repo](https://github.com/modelearth/webroot/) - You can pull down with Github Desktop
+
+Or you can fork and clone individual repos (submodules) to start your own custom webroot.
+
+Run the following in a local "webroot" folder to start an http server on port 8887.
+
+	python -m http.server 8887
+
+To fork the repos you'll be editing, go to [github.com/modelearth](https://github.com/ModelEarth?tab=repositories), choose a repo and click the "Fork" button.  
+
+Then in your fork, click "Code > Open with Github Desktop".  For repos you won't be editing, you can run the script below to clone.
+
+<!--
+Or run within a virtual environment. On Macs:
 
 	python3 -m venv env
 	source env/bin/activate
@@ -20,84 +41,149 @@ On Windows:
 	python -m venv env
 	env\Scripts\activate
 	python -m http.server 8887
+-->
 
+The localsite repo should now be visible at [http://localhost:8887/localsite](http://localhost:8887/localsite)  
+([Other http server options](../http-server) and [VS Code issue to resolve](../http-server).)  
 
-The terminal is now dedicated to being your webroot for [http://localhost:8887](http://localhost:8887)
-To run further commands, open a new terminal window.
+You can add an index.html file with the following redirect in your [webroot](http://localhost:8887/). Point at the repo you're working in the most.
 
-Or you can use npx http-server, which [requires installing a local cert](../http-server).&nbsp; (Not recommended until we document.)
+	<script language="JavaScript">window.location="localsite/"</script>
 
-## Pull down repos to contribute.
+## If you're making edits, pull down 1 or 2 additional repos 
 
-If you're not planning to edit, you can simply view the following at [model.earth](http://model.earth).
+You'll typicaly only need a couple of the repos locally when making edits.  
+All the repos below are viewable at [model.earth](https://model.earth). Each repo is a subfolder. Example: [model.earth/projects](https://model.earth/projects)
 
-**Step 1.** Fork our <a href="https://github.com/ModelEarth/localsite">localsite</a> and <a href="https://github.com/ModelEarth/io">io</a> repos to preview your contributions using [Github Pages](https://docs.github.com/en/pages/quickstart). How to [Fork Repos](https://medium.com/@6unpnp/fork-a-github-repository-and-deploy-its-github-pages-site-d55dc53988d) 
-
-Fork other repos you plan to edit.   
-Fork <a href="https://github.com/ModelEarth/projects">Active Projects</a> if you're contributing to the [Open WebUI interface](/projects/src/) and related Python and Vite additions.
-Fork <a href="https://github.com/ModelEarth/requests">Requests</a> if you're adding to our image and video [Storyboard Generation](/data-pipeline/research/stream).
-Fork <a href="https://github.com/ModelEarth/realitystream">RealityStream</a> if you're contributing to our Machine Learning visualizations.
-Fork <a href="https://github.com/ModelEarth/feed">Feed Player</a> if you're adding to our Feed Player and Visual Project Manager.
-Fork <a href="https://github.com/ModelEarth/useeio.js">USEEIO.js</a> if you're contributing to our DuckDB and Supabase [Open Footprint](/useeio.js/footprint/) SQL visualizations.  
-Fork <a href="https://github.com/ModelEarth/data-commons">Data-Commons</a> if you're adding Observable Framework D3 data visualizations with the Google Data Commons API.  
-Fork <a href="https://github.com/ModelEarth/data-pipeline">Data-Pipeline</a> if you're contributing python to data prep and machine learning projects.  
-Fork <a href="https://github.com/ModelEarth/earthscape">Earthscape</a> if you're contributing to the [Chatbot UI](/earthscape/app/) and related NextJS React and Supabase for Membership Admin.
+We generally avoid creating branches. Make your edits in a fork, then send a Pull Request (PR). We love when you edit README.md files to help keep our TO DOs current. Add your first name where you're working and send a PR. Also send Loren an email whenever you submit a Pull Request.
 
 
 
-**Step 2.** Enter your GitHub account to include in the install and update cmds below.
+ 
+Turn on GitHub Pages for any repo you fork by clicking the Settings icon, then Pages.
+
+### Fork one or two repos you plan to edit
+
+How to [Fork Repos](https://medium.com/@6unpnp/fork-a-github-repository-and-deploy-its-github-pages-site-d55dc53988d).  
+Always fork <a href="https://github.com/ModelEarth/localsite">localsite</a> so we can review your contributions using [Github Pages](https://docs.github.com/en/pages/quickstart).  
+Fork the [home repo](https://github.com/ModelEarth/home) if you're working on our ["Everybody's Homepage" frontend](../../../home/).  
+Fork the [profile repo](https://github.com/ModelEarth/home) if you're working with [Exiobase Trade Flow](/profile/trade), [SuiteCRM](/profile/crm) or [Project Preference Ratings](/profile/preferences/). 
+Fork <a href="https://github.com/ModelEarth/data-commons">data-commons</a> if you're adding [data visualizations](/localsite/timeline/) using the Google Data Commons javascript API.  
+Fork <a href="https://github.com/ModelEarth/feed">feed player</a> if you're adding to our React Vite visual [Feed viewer](https://model.earth/feed/) and memberSense for Discord.  
+Fork [useeio.js](https://github.com/ModelEarth/useeio.js) if you're contributing to our <a href="../../../profile/footprint/">US State Reports</a> and [Trade Flow](../../../profile/trade/) visualizations.  
+Fork <a href="https://github.com/ModelEarth/realitystream">realitystream</a> if you're contributing python to our Machine Learning visualizations.  
+Fork <a href="https://github.com/ModelEarth/requests">requests</a> if you're adding python to our image and video [Storyboard Generation](https://model.earth/data-pipeline/research/stream).  
+Fork <a href="https://github.com/datascape/open-webui/actions">openwebui (Datascape fork)</a> to contribute within our [Open WebUI location projects](/projects/location/) using Python and Vite.  
+Fork <a href="https://github.com/ModelEarth/earthscape">earthscape</a> if you're contributing to the our fork of [Chatbot UI](https://model.earth/earthscape/app/) using NextJS React and Supabase for team tools.  
+Fork <a href="https://github.com/ModelEarth/data-pipeline">data-pipeline</a> if you're contributing Python to data prep.  
+
+We've omitted the Community repo since it's only used for model.earth hosting. It's not needed for shared component dev.  
+
+Newest: These reside in the localsite github account:
+Fork <a href="https://github.com/localsite/membercommons">membercommons</a> if you're contributing to Gemini+Rust+AzurePostgreSQL.  
+Fork <a href="https://github.com/localsite/membermap">membermap</a> if you're contributing to javascript listing UI tools. 
+
+<!--
+It's designed to serve infinite content based on parameters.  
+Fork the home repo and start creating your own custom home page.  
+We manage the home config setting in [Google Sheets](../../../localsite/timeline/) (and soon local config files).  
+-->
+
+<!-- Activate GitHub Pages so we can preview your contributions. -->
+
+### Now you can view and edit pages locally at links like:
+
+[localhost:8887/localsite](http://localhost:8887/localsite/)  
+[localhost:8887/data-commons](http://localhost:8887/data-commons/)  
+[localhost:8887/projects](http://localhost:8887/projects/)  
+[localhost:8887/data-pipeline](http://localhost:8887/data-pipeline/)  
+[localhost:8887/realitystream](http://localhost:8887/realitystream/)  
+[localhost:8887/feed](http://localhost:8887/feed/)  
+
+If you encounter a broken link locally, view the page at [model.earth](https://model.earth/) or clone one of the [additional modelearth repos](https://github.com/ModelEarth?tab=repositories).
+
+That's it, you're done with local setup!
+
+
+## Alternative local setup using CMDs
+
+Open a new terminal window in your webroot.
+(The first terminal above is dedicated to hosting your webroot.)
+
+**Step 1.** Fork the [localsite repo](https://github.com/modelearth/localsite/) regardless of whether you'll be editing it.  
+This will allow us to use GitHub Pages to review edits you make to other repos.
+
+
+**Step 2.**  If you are NOT planning to edit the localsite repo, clone it using Github Desktop, or by running this cmd in your webroot.
+
+	git clone https://github.com/modelearth/localsite localsite
+
+**Step 3.** 
+
+You can use GitHub Desktop to clone additional repos you plan to edit.
+
+Or enter your GitHub account to insert in the cmds below.
 
 <input type="text" id="gitAccount" class="textInput" style="width:210px" placeholder="YOUR ACCOUNT"  autofocus onfocus="this.select()" oninput="updateGitCmds()"><br>
 
-**Step 3.** Indicate the repos you're planning to edit and have forked.
-(You can avoid checking localsite and io, unless you're editing those core repos directly.)
+Indicate the repos you're planning to edit and have already forked.
+
 <!-- Also add to checkboxIds array -->
 
 <div style="float:left;font-size:18px;padding-right:20px">
 <input id="localsiteForked" type="checkbox" onclick="updateGitCmds()">Localsite<br>
-<input id="ioForked" type="checkbox" onclick="updateGitCmds()">IO<br>
+<input id="homeForked" type="checkbox" onclick="updateGitCmds()">Home<br>
+<input id="profileForked" type="checkbox" onclick="updateGitCmds()">Profile<br>
+<input id="data-commonsForked" type="checkbox" onclick="updateGitCmds()">Data-Commons<br>
 <input id="projectsForked" type="checkbox" onclick="updateGitCmds()">Projects<br>
-<input id="requestsForked" type="checkbox" onclick="updateGitCmds()">Requests<br>
-<input id="realitystreamForked" type="checkbox" onclick="updateGitCmds()">RealityStream<br>
+<input id="requestsForked" type="checkbox" onclick="updateGitCmds()">Requests Storyboard<br>
+<input id="realitystreamForked" type="checkbox" onclick="updateGitCmds()">RealityStream ML<br>
+<input id="marioForked" type="checkbox" onclick="updateGitCmds()">Mario Trade Flow<br>
 </div>
 <div style="float:left;font-size:18px">
-<input id="feedForked" type="checkbox" onclick="updateGitCmds()">Feed<br>
-<input id="useeio.jsForked" type="checkbox" onclick="updateGitCmds()">USEEIO.js<br>
-<input id="data-commonsForked" type="checkbox" onclick="updateGitCmds()">Data-Commons<br> 
-<input id="data-pipelineForked" type="checkbox" onclick="updateGitCmds()">Data-Pipeline<br>
-<input id="earthscapeForked" type="checkbox" onclick="updateGitCmds()">Earthscape<br>
+<input id="feedForked" type="checkbox" onclick="updateGitCmds()">FeedPlayer (React)<br>
+<input id="ioForked" type="checkbox" onclick="updateGitCmds()">IO Widgets (React)<br>
+<input id="useeio.jsForked" type="checkbox" onclick="updateGitCmds()">USEEIO.js (State Models)<br>
+<input id="planetForked" type="checkbox" onclick="updateGitCmds()">Planet (Javascript AI)<br>
+<input id="earthscapeForked" type="checkbox" onclick="updateGitCmds()">Earthscape (React AI)<br>
+<input id="openWebUIForked" type="checkbox" onclick="updateGitCmds()">Open WebUI (Python AI)<br>
+<input id="data-pipelineForked" type="checkbox" onclick="updateGitCmds()">Data-Pipeline (Python)<br>
+<input id="community-dataForked" type="checkbox" onclick="updateGitCmds()">Community-Data<br>
 </div>
 <div style="clear:both"></div><br>
 
-**Step 4.** Run in your local webroot folder, or pull down from the links above using [GitHub Desktop](https://desktop.github.com/):
+**Step 4.** We recommend using [GitHub Desktop](https://desktop.github.com/) to clone your forks.  
+You don't need to pull all the repos - typically just 2 or 3 (including localsite).
 
-<textarea id="cloneCmd" class="codetext" rows="10">
+As an alternative to GitHub Desktop, you can run some of the following in your local webroot to pull down repos.
+
+<textarea id="cloneCmd" class="codetext" rows="16">
 git clone https://github.com/ModelEarth/localsite localsite
-git clone https://github.com/ModelEarth/io io
+git clone https://github.com/ModelEarth/home home
+git clone https://github.com/ModelEarth/data-commons data-commons
+git clone https://github.com/ModelEarth/profile profile
 git clone https://github.com/ModelEarth/projects projects
 git clone https://github.com/ModelEarth/requests requests
 git clone https://github.com/ModelEarth/realitystream realitystream
+git clone https://github.com/ModelEarth/mario mario
 git clone https://github.com/ModelEarth/feed feed
+git clone https://github.com/ModelEarth/io io
 git clone https://github.com/ModelEarth/useeio.js useeio.js
-git clone https://github.com/ModelEarth/data-commons data-commons
+git clone https://github.com/ModelEarth/planet planet
+git clone https://github.com/ModelEarth/earthscape earthscape
+git clone https://github.com/datascape/open-webui open-webui
 git clone https://github.com/ModelEarth/data-pipeline data-pipeline
-git clone https://github.com/ModelEarth/earthscape earthscape</textarea>
+git clone https://github.com/ModelEarth/community-data community-data</textarea>
 
-<!-- Activate GitHub Pages so we can preview your contributions. -->
-
-Now you can view and edit pages locally at:
-[localhost:8887/projects](http://localhost:8887/projects/)
-[localhost:8887/data-commons](http://localhost:8887/data-commons/)
-[localhost:8887/data-pipeline](http://localhost:8887/data-pipeline/)
-[localhost:8887/realitystream](http://localhost:8887/realitystream/)
-[localhost:8887/feed](http://localhost:8887/feed/)
-
-If you encounter a broken link locally, view the page at [model.earth](https://model.earth/) or clone one of the [additional modelearth repos](https://github.com/ModelEarth?tab=repositories).
 
 ## Occasionally refresh your local files
 
-Before you edit, run the following in your local webroot to fetch changes from others.
-Or you can pull down recent updates within Github Desktop.
+<!-- TO DO: Update this link with account entered in textbox on the current page. -->
+Before you edit, sync your forks at [GitHub.com](https://github.com),  
+then pull down recent updates within Github Desktop.   
+
+Or you can run the following in your local webroot to fetch changes from the parent repos. You'll still also need to sync your fork within GitHub.com to avoid conflicts when checking in your local update. (Sync before you edit, and sync often, to avoid merge issues.)
+
 
 <!--
 cd localsite && git pull https://github.com/ModelEarth/localsite main && cd ../
@@ -107,48 +193,19 @@ cd data-pipeline && git pull https://github.com/ModelEarth/data-pipeline main &&
 cd projects && git pull https://github.com/ModelEarth/projects main && cd ../
 cd requests && git pull https://github.com/ModelEarth/requests main && cd ../
 -->
-<textarea id="refreshCmd" class="codetext" rows="10"></textarea>
+<textarea id="refreshCmd" class="codetext" rows="16"></textarea>
 
-That's it! &nbsp;You can stop the steps here. Your updated local site is now visible at: [localhost:8887/io](http://localhost:8887/io/)
+That's it! &nbsp;You can stop the steps here. Your updated local site should be visible at: [localhost:8887/localsite](http://localhost:8887/localsite/)
 
 
 ## Refresh you local repos
 
-To avoid merge conflicts, click "Sync Fork" on the forks in your [Github Account](https://github.com/), then pull locally using GitHub Desktop or the cmds above. Or you can use the Alternative Sync commands below.
+To avoid merge conflicts, click "Sync Fork" on the forks in your [Github Account](https://github.com/), then pull locally using GitHub Desktop or the cmds above. Or you can use the Alternative Sync commands below. 
 
 
 ## Create a "localsite" shortcut command to start your local web server
 
-Create a "localsite" command. Run it automatically when your machine starts.
-
-### On a Mac
-
-Add the following to your .bash_profile file.
-Your .bash_profile file resides in /Users/[username]. 
-
-	alias localsite="python3 -m venv env && source env/bin/activate && python3 -m http.server 8887 --directory ~/Documents/webroot"
-
-In the command above, the tilde ~ invokes /Users/[username]  
-Create a folder for your webroot if it does not already exist.  
-Change /Documents/webroot to your webroot path within /Users/[username]  
-
-<!--
-Initially when no -m, clicked deny when immediatley receive the dialogue: Do you want the application “Python.app” to accept incoming network connections? 
-To do: Create "webroot" folder if it does not exist yet.
--->
-
-To run the above automatically when your Mac restarts, save a file called start_localsite.sh with the following:
-
-	#!/bin/bash
-	source ~/.bash_profile
-	localsite
-
-Run once to make the Script Executable:
-
-	chmod +x ~/start_localsite.sh
-
-Add the script to "Login Items":  
-System Settings > Login Items > "+" button and add the \~/start\_localsite.sh.
+Optional: Create a "localsite" command so you can quickly start your local web server.
 
 ### On a PC
 
@@ -168,6 +225,38 @@ To start automatically, save a file called start_localsite.bat in the startup fo
 	call env\Scripts\activate
 	python -m http.server 8887 --directory %USERPROFILE%\Documents\webroot
 
+### On a Mac
+
+Add the following to your .bash_profile file.
+Your .bash_profile file resides in /Users/[username]. 
+
+	alias localsite="python3 -m venv env && source env/bin/activate && python3 -m http.server 8887 --directory ~/Documents/webroot"
+
+In the command above, the tilde ~ invokes /Users/[username]  
+Create a folder for your webroot if it does not already exist.  
+Change /Documents/webroot to your webroot path within /Users/[username]  
+
+<!--
+Initially when no -m, clicked deny when immediatley receive the dialogue: Do you want the application “Python.app” to accept incoming network connections? 
+To do: Create "webroot" folder if it does not exist yet.
+-->
+
+#### To run "localsite" when starting a mac
+
+This is not working yet. It's opeing XCode. Please share a fix by submitting a Pull Request (PR)<!-- deleted start_localsite.sh-->
+
+To run the above automatically when your Mac restarts, save a file called start_localsite.sh with the following:
+
+	#!/bin/bash
+	source ~/.bash_profile
+	localsite
+
+Run once to make the Script Executable:
+
+	chmod +x ~/start_localsite.sh
+
+Add the script to "Login Items":  
+System Settings > Login Items > "+" button and add the \~/start\_localsite.sh.
 
 
 ## Deployment: How to Send a Pull Request
@@ -358,8 +447,12 @@ You can point a domain at all the repos in your Github account with the steps be
 - Important: If you are using the same domain for Google email accounts, avoid adding the 4 Google A records (these prevent adding the CNAME record). You'll only need to add the 5 MX records provided by Google.  
 - Create a repo in your primary account matching the name of the account: [github username].github.io  
 - Click settings and activate GitHub Pages for your [github username].github.io and each repo that will be an additional subfolder in your site. (This requires also doing the Special Trick below.)  
-- Add your custom domain name to the root repo called [github username].github.io.  
-- Special Trick: When you add a CNAME record for your domain in CloudFlare use @ to indicate the root, and point a different secondary account in Github as [secondary github username].github.io. By using a secondary GitHub username, more than one adjacent repo folder will be accessible through your primary domain. (The "localsite" repo can then be forked and shared locally with your primary site.) 
+- Add your custom domain name in a file called CNAME witin the [github username].github.io repo.  In porkbun, use "ALIAS" which is a flattend CNAME record. 
+- Add an index.html file with a redirect. Change "localsite" in the follow to your home page folder.
+
+		<script language="JavaScript">window.location="localsite/";</script>
+
+- Special Trick: When you add a CNAME record for your domain in CloudFlare use @ to indicate the root, and point a different secondary account in Github as [secondary github username].github.io. By using a secondary GitHub username, more than one adjacent repo folder will be accessible through your primary domain. (The "localsite" repo can then be forked and shared locally within your primary site similar to using [youracct].github.io.)
 
 - Wait 2 to 10 minutes for new GitHub Pages site to become available.
 - Activate GitHub Pages for each additional repo residing within the primary account. These can be forks from other accounts.  
@@ -368,6 +461,16 @@ You can point a domain at all the repos in your Github account with the steps be
 
 We sometimes [use Github .submodules](../submodules/) to deploy multiple repos into a single [Cloudflare site](../cloudflare/). A super high traffic site can use Cloudflare's free CDN to avoid exceeding limits in Github.
 
+## Ignore a newly added blank .env file
+
+If you push a new blank .env for keys, add .env to the .gitignore.  
+The use the following to remove future pushes as you add keys.  
+
+	git update-index --assume-unchanged .env
+
+Show it again for deploying changes:
+
+	git update-index --no-assume-unchanged .env
 
 ## Additional Resources
 
@@ -382,6 +485,5 @@ Edit online using [stackedit.io](https://stackedit.io/) and [Dillinger Markdown 
 [AWS Amplify, and site hosting info](https://model.earth/aws/amplify/) - Azure, Firebase, GitHub Pages, Netlify and more.
 
 ---
-<br>
 
-[Edit the page above in Github](https://github.com/modelearth/localsite/blob/master/start/README.md) - [Edit in StackEdit](https://stackedit.io/app#providerId=githubWorkspace&owner=localsite&repo=localsite&branch=) - Click folder icon in upper right within StackEdit. ([Direct links are not yet available in StackEdit](https://community.stackedit.io/t/open-file-from-github-using-a-link/495))
+[Edit the page above in Github](https://github.com/ModelEarth/localsite/tree/main/start/steps)
