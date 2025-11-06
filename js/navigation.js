@@ -8,6 +8,12 @@
 // showTabulatorList() renders country and state lists
 // updateMapColors() uses values in sorted column to place color scale on map shapes
 
+// Map click → goHash() → hash change → updateSelectedTableRows() → geotable.selectRow() → rowSelected event WITHOUT goHash() again.
+
+// We disable the rowSelected event handler during the updateSelectedTableRows function so it doesn't re-fire the goHash().
+
+
+
 // TO DO: Unselecting county on map is not unchecking tabulator checkbox
 
 if(typeof local_app == 'undefined') { var local_app = {}; console.log("BUG: Move navigation.js after localsite.js"); } // In case navigation.js included before localsite.js
@@ -19,6 +25,14 @@ if(typeof localObject.geo == 'undefined') { localObject.geo = []; } // Holds cou
 localObject.us_stateIDs = {AL:1,AK:2,AZ:4,AR:5,CA:6,CO:8,CT:9,DE:10,FL:12,GA:13,HI:15,ID:16,IL:17,IN:18,IA:19,KS:20,KY:21,LA:22,ME:23,MD:24,MA:25,MI:26,MN:27,MS:28,MO:29,MT:30,NE:31,NV:32,NH:33,NJ:34,NM:35,NY:36,NC:37,ND:38,OH:39,OK:40,OR:41,PA:42,RI:44,SC:45,SD:46,TN:47,TX:48,UT:49,VT:50,VA:51,WA:53,WV:54,WI:55,WY:56,AS:60,GU:66,MP:69,PR:72,VI:78};
 // Later: localObject.stateZipsLoaded
 
+/* Allows map to remove selected shapes when backing up. */
+document.addEventListener('hashChangeEvent', function (elem) {
+    console.log("navigation.js detects URL hashChangeEvent");
+    hashChanged();
+}, false);
+if(typeof hiddenhash == 'undefined') {
+    var hiddenhash = {};
+}
 function hashChanged() {
 
     let loadGeomap = false;
@@ -308,10 +322,10 @@ function hashChanged() {
             element.scope = "country-us"
 
             //element.key = "State";
-            //element.datasource = local_app.modelearth_root() + "/localsite/info/data/map-filters/us-states.json";
-            //element.datasource = local_app.modelearth_root() + "/localsite/info/data/map-filters/us-states-edited.csv";
+            //element.datasource = local_app.web_root() + "/localsite/info/data/map-filters/us-states.json";
+            //element.datasource = local_app.web_root() + "/localsite/info/data/map-filters/us-states-edited.csv";
             // https://github.com/ModelEarth/localsite/blob/main/info/data/map-filters/us-states.csv
-            element.datasource = local_app.modelearth_root() + "/localsite/info/data/map-filters/us-states-full.csv";
+            element.datasource = local_app.web_root() + "/localsite/info/data/map-filters/us-states-full.csv";
             let formatType = "simple";
 
             
@@ -375,7 +389,7 @@ function hashChanged() {
         } else if (hash.geoview == "countries") {
             // COUNTRIES
             // TO DO: Remove countries.csv and other non-full.csv files from python file generation.
-            const csvFilePath = local_app.modelearth_root() + "/localsite/info/data/map-filters/countries-full.csv"; // Or use the full version
+            const csvFilePath = local_app.web_root() + "/localsite/info/data/map-filters/countries-full.csv"; // Or use the full version
             
             const element = {};
             element.scope = "countries";
@@ -439,6 +453,10 @@ function hashChanged() {
 
                     showTabulatorList(element, 0);
                 });
+            } else {
+                // Data already exists, but still need to show the tabulator on reload
+                console.log("localObject[element.scope] already exists, showing tabulator with existing data");
+                showTabulatorList(element, 0);
             }
         } else { // For backing up within apps
         
@@ -810,7 +828,9 @@ function hashChanged() {
             $("#nullschoolHeader").hide();
         }
         if (!hash.geoview && priorHash.geoview) {
-            $("#nullschoolHeader").show();
+            if ($('#globalMapHolder #mainframe').attr('src')) { // Checking so we don't show a close-X when there is no content in the iframe.
+                $("#nullschoolHeader").show();
+            }
         }
         waitForElm('#state_select').then((elm) => {
             if (!hash.geoview || hash.geoview == "none") {
@@ -858,7 +878,7 @@ function hashChanged() {
         //if($("#geomap").is(':visible')){
         waitForElm('#geomap').then((elm) => {
             console.log("call renderGeomapShapes from navigation.js hashChanged()");
-            renderGeomapShapes("geomap", hash, "county", 1); // County select map
+            renderGeomapShapes("geomap", hash, hash.geoview || "county", 1); // Use the actual geoview from hash
         });
         //}
     }
@@ -988,6 +1008,8 @@ class StandaloneNavigation {
         this.startPeriodicFaviconUpdate();
     }
     
+    // TO DO - Try using variable set in localsite.js instead 
+
     // Auto-detect webroot container from script path
     detectWebrootFromScriptPath() {
         // Get the current script path
@@ -1387,16 +1409,20 @@ class StandaloneNavigation {
                                             <span>Location Visits Map</span>
                                         </a>
                                         </div>
+
+                                        <!-- Not all have images
                                         <div style="display:none" class="geo">
-                                        <a href="${teamPath}projects/#list=geo" class="subnav-link">
+                                        <a href="${teamPath}projects/#list=cameraready" class="subnav-link">
                                             <i class="subnav-icon" data-feather="heart"></i>
-                                            <span>Location Insights</span>
+                                            <span>Film Location Insights</span>
                                         </a>
                                         </div>
+                                        -->
+
                                         <div style="display:none" class="geo">
-                                        <a href="${teamPath}projects/#list=film-scouting" class="subnav-link">
+                                        <a href="${teamPath}projects/#list=film-liaisons" class="subnav-link">
                                             <i class="subnav-icon" data-feather="film"></i>
-                                            <span>Film Scout Insights</span>
+                                            <span>Film Community Insights</span>
                                         </a>
                                         </div>
                                         <div style="display:none" class="geo">
@@ -1472,6 +1498,19 @@ class StandaloneNavigation {
         waitForElm('#main-container').then((elm) => {
             $("body").addClass("sidebar-hidden");
             $("#main-container").prepend(navHTML);
+            waitForElm('#legend-content').then((elm) => { // On timeline page
+                 setTimeout(() => { // Temp until Leaflet load timing is resolved.
+                    toggleShowNavColumn();
+                    $("#listLeft").prepend($('#legend-content'));
+                    $("#listLeft").prepend('<b><a href="#geoview=countries">LOCATIONS</a></b>');
+                    $('#legend-content').css('padding', '10px');
+                    $('#legend-content').css('padding-top', '0px');
+                    $('#legend-content').css('font-size', '12px');
+                    $('#legend-content').css('line-height', '1em');
+                    $('#floating-legend').hide(); // No effect since display: is on #floating-legend
+                    $('#floating-legend').css('opacity', '0'); // Works, but might block clicks
+                }, 1000);
+            });
         });
 
         // Create app container if it doesn't exist
@@ -1787,6 +1826,7 @@ class StandaloneNavigation {
                 sideNav.classList.remove('expanded');
                 sideNav.classList.add('collapsed');
                 this.hideSidebar();
+                if (window.updateOverlayLegendVisibility) window.updateOverlayLegendVisibility();
                 return;
             }
             
@@ -1808,6 +1848,14 @@ class StandaloneNavigation {
                         sideNav.classList.remove('collapsed');
                         sideNav.classList.add('expanded');
                     }
+                }
+                // Ensure overlay legends refresh visibility now that main-nav is closed.
+                // Run immediately and once after a short delay to handle any DOM transitions.
+                if (window.updateOverlayLegendVisibility) {
+                    try { window.updateOverlayLegendVisibility(); } catch (err) { console.warn('updateOverlayLegendVisibility error', err); }
+                    setTimeout(() => {
+                        try { if (window.updateOverlayLegendVisibility) window.updateOverlayLegendVisibility(); } catch (e) { /* ignore */ }
+                    }, 60);
                 }
             }
         });
@@ -2006,6 +2054,8 @@ class StandaloneNavigation {
             // Store state in localStorage
             localStorage.setItem('standaloneNavCollapsed', this.isCollapsed);
             localStorage.setItem('standaloneNavLocked', this.isLocked);
+            // Update overlay legend visibility (timeline listens for this function)
+            if (window.updateOverlayLegendVisibility) window.updateOverlayLegendVisibility();
         }
     }
     
@@ -2108,6 +2158,8 @@ class StandaloneNavigation {
             // Clear hidden state
             localStorage.removeItem('standaloneNavHidden');
             this.isHidden = false;
+            // Update overlay legend visibility after showing the sidebar
+            if (window.updateOverlayLegendVisibility) window.updateOverlayLegendVisibility();
         }
     }
     
@@ -2142,6 +2194,8 @@ class StandaloneNavigation {
             }
             
             console.log('🔍 DEBUG: Body classes after adding:', body.className);
+            // Recompute overlay visibility after hiding
+            if (window.updateOverlayLegendVisibility) window.updateOverlayLegendVisibility();
             return; // Exit early - no additional navigation changes
         }
         
@@ -2168,6 +2222,8 @@ class StandaloneNavigation {
             }
             
             this.isHidden = false;
+            // update overlay visibility after showing
+            if (window.updateOverlayLegendVisibility) window.updateOverlayLegendVisibility();
         } else {
             // Wide screen behavior - show sidebar in collapsed state
             this.showSidebar();
@@ -2177,6 +2233,8 @@ class StandaloneNavigation {
                 this.isCollapsed = true;
                 this.isLocked = true;
             }
+            // update overlay visibility after showing
+            if (window.updateOverlayLegendVisibility) window.updateOverlayLegendVisibility();
         }
     }
     
@@ -2504,6 +2562,7 @@ let standaloneNav;
 
 // Initialize navigation function
 function initializeStandaloneNav() {
+
     //alert("initializeStandaloneNav")
     //let hash = getHash();
     const defaultToGeo = (navParam.list == "geo" || window.location.hostname.includes('geo') || window.location.hostname.includes('location'));
@@ -2533,28 +2592,6 @@ function initializeStandaloneNav() {
     // Look for typical repo files to identify the repository folder
     const knownRepoFiles = ['Cargo.toml', 'package.json', 'README.md', 'CLAUDE.md'];
     let detectedRepoName = null;
-    
-    /*
-    // Try to detect repo folder from current path
-    for (const segment of pathSegments) {
-        // Skip common non-repo segments
-        if (!['admin', 'js', 'css', 'img', 'preferences'].includes(segment)) {
-            detectedRepoName = segment;
-            break;
-        }
-    }
-    
-    // Fallback detection logic
-    if (!detectedRepoName) {
-        // Check if we have any path segments that could be a repo
-        const possibleRepoSegment = pathSegments.find(segment => 
-            !['admin', 'js', 'css', 'img', 'preferences', 'src', 'target'].includes(segment)
-        );
-        if (possibleRepoSegment) {
-            detectedRepoName = possibleRepoSegment;
-        }
-    }
-    */
     
     // Check if we're being called from an external site or within a webroot container
     if (detectedRepoName && pathSegments.includes(detectedRepoName)) {
@@ -2613,7 +2650,7 @@ function initializeStandaloneNav() {
     
     // Restore state after initialization
     setTimeout(() => {
-        standaloneNav.restoreState();
+        //standaloneNav.restoreState();
     }, 100);
 }
 
@@ -2860,8 +2897,8 @@ catArray = [];
     
     // This can be reactivated for international harmonized system.
     /*
-    alert(local_app.modelearth_root() + '/localsite/js/d3.v5.min.js'); // Is model.earth used to avoid CORS error? Better to avoid and move harmonized-system.txt in localsite repo.
-    loadScript(local_app.modelearth_root() + '/localsite/js/d3.v5.min.js', function(results) {
+    alert(local_app.localsite_root() + 'js/d3.v5.min.js'); // Using localsite_root() for proper path resolution
+    loadScript(local_app.localsite_root() + 'js/d3.v5.min.js', function(results) {
 
         // This avoids cross domain CORS error      
         
@@ -3453,7 +3490,7 @@ function productList(startRange, endRange, text) {
 function renderGeomapShapes(whichmap, hash, geoview, attempts) {
   console.log("renderGeomapShapes() state: " + hash.state + " attempts: " + attempts);
   // local_app.topojson_root() + 
-  loadScript('/localsite/js/topojson-client.min.js', function(results) {
+  loadScript(local_app.localsite_root() + 'js/topojson-client.min.js', function(results) {
     renderMapShapeAfterPromise(whichmap, hash, attempts);
   });
 }
@@ -3485,6 +3522,7 @@ function renderMapShapeAfterPromise(whichmap, hash, geoview, attempts) {
 
  includeCSS3(theroot + 'css/leaflet.css',theroot);
   loadScript(theroot + 'js/leaflet.js', function(results) {
+
     waitForVariable('L', function() { // Wait for Leaflet
 
     // Occurs twice in page
@@ -3518,7 +3556,7 @@ function renderMapShapeAfterPromise(whichmap, hash, geoview, attempts) {
     $("#state_select").val(stateAbbr); // Used for lat lon fetch
 
     // local_app.topojson_root() + 
-    loadScript('/localsite/js/topojson-client.min.js', function(results) {
+    loadScript(local_app.localsite_root() + 'js/topojson-client.min.js', function(results) {
     console.log("topoJsonReady loaded from " + local_app.topojson_root());
     //waitForVariable('topoJsonReady', function () {
     //console.log("topoJsonReady " + topoJsonReady);
@@ -3579,14 +3617,14 @@ function renderMapShapeAfterPromise(whichmap, hash, geoview, attempts) {
         if (hash.geoview == "zip") {
           layerName = "Zipcodes";
           if (stateAbbr) {
-            url = local_app.modelearth_root() + "/community-forecasting/map/zcta/states/" + getState(stateAbbr) + ".topo.json";
+            url = local_app.web_root() + "/community-forecasting/map/zcta/states/" + getState(stateAbbr) + ".topo.json";
           } else {
-            url = local_app.modelearth_root() + "/community-forecasting/map/zip/topo/zips_us_topo.json";
+            url = local_app.web_root() + "/community-forecasting/map/zip/topo/zips_us_topo.json";
           }
           topoObjName = "topoob.objects.data";
         }  else if (hash.geoview == "country") { // USA  && stateAbbr.length != 2
           layerName = "States";
-          url = local_app.modelearth_root() + "/localsite/map/topo/states-10m.json"; // name parameter is full state name
+          url = local_app.web_root() + "/localsite/map/topo/states-10m.json"; // name parameter is full state name
           topoObjName = "topoob.objects.states";
         } else if (stateAbbr && stateAbbr.length <= 2) { // COUNTIES
           layerName = stateAbbr + " Counties";
@@ -3616,7 +3654,9 @@ function renderMapShapeAfterPromise(whichmap, hash, geoview, attempts) {
           url = local_app.topojson_root() + "/topojson/world-countries-sans-antarctica.json";
           topoObjName = "topoob.objects.countries1";
         }
-        //console.log("topojson url " + url); // TEMP
+        console.log("Loading topojson url: " + url);
+        console.log("State parameter: " + (hash.state || 'undefined'));
+        console.log("geoview parameter: " + (hash.geoview || 'undefined'));
 
         req.open('GET', url, true);
         req.onreadystatechange = handler;
@@ -3630,8 +3670,105 @@ function renderMapShapeAfterPromise(whichmap, hash, geoview, attempts) {
         if(req.readyState === XMLHttpRequest.DONE) {
 
             topoob = JSON.parse(req.responseText)
+            
+            // Check if topojson library is loaded
+            if (typeof topojson === 'undefined') {
+                console.log('topojson library not loaded. Loading it now...');
+                
+                // Check if we're already in the process of loading topojson
+                if (window.topojsonLoading) {
+                    console.log('topojson already loading, waiting...');
+                    setTimeout(function() {
+                        handler(); // Retry the entire handler
+                    }, 200);
+                    return;
+                }
+                
+                window.topojsonLoading = true;
+                
+                // Instead of fighting the existing script loading system, 
+                // work with it by forcing a reload of the global object
+                console.log('Forcing topojson global creation...');
+                
+                // Check if the script content is already loaded but global not created
+                const existingScript = document.querySelector('script[src*="topojson"]');
+                if (existingScript) {
+                    
+                    // Try to manually execute the UMD pattern
+                    try {
+                        // Create a new script element that forces global execution
+                        const forceScript = document.createElement('script');
+                        forceScript.textContent = `
+                            // Force topojson global creation
+                            if (typeof window.topojson === 'undefined') {
+                                // Load and execute the topojson script content directly
+                                var script = document.createElement('script');
+                                script.src = local_app.localsite_root() + 'js/topojson-client310.min.js';
+                                script.onload = function() {
+                                    setTimeout(function() {
+                                        if (typeof topojson !== 'undefined' && topojson.feature) {
+                                            console.log('topojson global successfully created');
+                                            window.topojsonLoading = false;
+                                            // Trigger the continuation
+                                            window.dispatchEvent(new CustomEvent('topojsonReady'));
+                                        }
+                                    }, 50);
+                                };
+                                document.head.appendChild(script);
+                            }
+                        `;
+                        document.head.appendChild(forceScript);
+                        
+                        // Listen for the ready event
+                        window.addEventListener('topojsonReady', function() {
+                            if (typeof topojson !== 'undefined' && topojson.feature) {
+                                topodata = topojson.feature(topoob, eval(topoObjName));
+                                continueHandler();
+                            }
+                        }, { once: true });
+                        
+                        // Also set a timeout fallback
+                        setTimeout(function() {
+                            if (typeof topojson !== 'undefined' && topojson.feature) {
+                                console.log('topojson available via timeout fallback');
+                                window.topojsonLoading = false;
+                                topodata = topojson.feature(topoob, eval(topoObjName));
+                                continueHandler();
+                            } else {
+                                console.error('topojson still not available after force loading');
+                                window.topojsonLoading = false;
+                            }
+                        }, 300);
+                        
+                    } catch (e) {
+                        console.error('Failed to force topojson loading:', e);
+                        window.topojsonLoading = false;
+                    }
+                } else {
+                    // No existing script, load it fresh
+                    const script = document.createElement('script');
+                    script.src = local_app.localsite_root() + 'js/topojson-client310.min.js';
+                    script.onload = function() {
+                        setTimeout(function() {
+                            if (typeof topojson !== 'undefined' && topojson.feature) {
+                                console.log('topojson library loaded successfully');
+                                window.topojsonLoading = false;
+                                topodata = topojson.feature(topoob, eval(topoObjName));
+                                continueHandler();
+                            }
+                        }, 100);
+                    };
+                    document.head.appendChild(script);
+                }
+                return;
+            }
+            
             topodata = topojson.feature(topoob, eval(topoObjName));
-
+            continueHandler();
+        }
+        }
+        
+        function continueHandler() {
             //console.log("topodata")
             //console.log(topodata)
               
@@ -4182,13 +4319,12 @@ function renderMapShapeAfterPromise(whichmap, hash, geoview, attempts) {
               info.addTo(map);
             }
           }
-        }
-  }); // waitforElm # whichmap
-  //}); // waitforVar
+        }); // end continueHandler
+    }); // waitforElm # whichmap
+    //}); // waitforVar
+    });
   });
-  });
-  });
-}
+} 
 
 function getValueByIdAndColumn(array, idColumn, id, column) {
     const row = array.find(obj => obj[idColumn] === id);
@@ -4703,10 +4839,12 @@ function loadObjectData(element, attempts) {
 
 var statetable = {};
 var geotable = {};
+var currentRowIDs = [];
+var currentCountryIDs = [];
+var programmaticSelection = false; // Flag to prevent goHash() during programmatic selections
 
 function showTabulatorList(element, attempts) {
-    let currentRowIDs = [];
-    let currentCountryIDs = [];
+    // currentRowIDs and currentCountryIDs are now global variables
     console.log("showTabulatorList scope: " + element.scope + ". Length: " + Object.keys(element).length + ". Attempt: " + attempts);
     let hash = getHash();
     let theState = "";
@@ -4812,34 +4950,36 @@ function showTabulatorList(element, attempts) {
 
                         statetable.on("tableBuilt", function() {
                             //alert("currentStateIDs " + currentStateIDs)
+                            programmaticSelection = true;
                             statetable.selectRow(currentStateIDs);
+                            programmaticSelection = false;
                             statetable.on("rowSelected", function(row) {
                                 // Handle row selection here
                             });
                         });
                     }
 
-                    let rowSelectedTime = 0;
-                    const selectionDelay = 500;  // Wait so rowSelected is only invoked once.
-
                     // Called for every box check when loading tabulator.
                     statetable.on("rowSelected", function(row) {
-                        let now = Date.now();
-                        if (now - rowSelectedTime > selectionDelay) {
+                        console.log("statetable rowSelected " + row._row.data.id + " (programmatic: " + programmaticSelection + ")");
 
-                            //alert("statetable rowSelected " + row._row.data.id);
-                            // Important: The incoming 2-char state is a column called "id"
-                            if (!currentRowIDs.includes(row._row.data.id)) {
-                                currentRowIDs.push(row._row.data.id);
-                            }
-                            //if(hash.geo) {
-                                //hash.geo = hash.geo + "," + currentRowIDs.toString();
-                            //  hash.geo = hash.geo + "," + row._row.data.id;
-                            //} else {
+                        //alert("statetable rowSelected " + row._row.data.id);
+                        // Important: The incoming 2-char state is a column called "id"
+                        if (!currentRowIDs.includes(row._row.data.id)) {
+                            currentRowIDs.push(row._row.data.id);
+                        }
+                        //if(hash.geo) {
+                            //hash.geo = hash.geo + "," + currentRowIDs.toString();
+                        //  hash.geo = hash.geo + "," + row._row.data.id;
+                        //} else {
+                        
+                        // Only trigger goHash if this is a user-initiated selection, not programmatic
+                        if (!programmaticSelection) {
                             if (!hash.geoview || hash.geoview == "state") { // Clicking on counties for a state
                                 if (hash.geo != currentRowIDs.toString()) {
                                     hash.geo = currentRowIDs.toString();
                                     console.log("Got hash.geo " + hash.geo);
+                                    goHash({'geo':hash.geo}); // Update URL hash with selected counties
                                 }
                             } else if (hash.geoview == "countries") {
                                 //alert("row._row.data.id " + row._row.data["Country Code"])
@@ -4851,6 +4991,10 @@ function showTabulatorList(element, attempts) {
                                 }
                                 goHash({'country':currentCountryIDs.toString()});
                             }
+                        }
+                        
+                        // Only trigger these goHash calls if user-initiated
+                        if (!programmaticSelection) {
                             if (row._row.data["CountryName"] == "United States") {
                                 goHash({'geoview':'country'});
                             } else if(row._row.data.id) {
@@ -4895,22 +5039,26 @@ function showTabulatorList(element, attempts) {
                                 goHash({'state':filteredArray.toString()});
                                 return;
                             }
-                            rowSelectedTime = now;  // Update the timestamp after processing
                         }
                     })
                     statetable.on("rowDeselected", function(row) {
-                        let countryCode = row._row.data["Country"];
-                        let filteredCountryArray = currentCountryIDs.filter(item => item !== countryCode);
-                        if (hash.geoview == "countries") {
-                            goHash({'country':filteredCountryArray.toString()});
-                            return;
-                        }
+                        console.log("statetable rowDeselected " + row._row.data.id + " (programmatic: " + programmaticSelection + ")");
+                        
+                        // Only trigger goHash if this is a user-initiated deselection, not programmatic
+                        if (!programmaticSelection) {
+                            let countryCode = row._row.data["Country"];
+                            let filteredCountryArray = currentCountryIDs.filter(item => item !== countryCode);
+                            if (hash.geoview == "countries") {
+                                goHash({'country':filteredCountryArray.toString()});
+                                return;
+                            }
 
-                        let filteredArray = currentRowIDs.filter(item => item !== row._row.data.id);
-                        if (hash.state != filteredArray.toString()) {
-                            //hash.geo = filteredArray.toString();
-                            goHash({'state':filteredArray.toString()});
-                            return;
+                            let filteredArray = currentRowIDs.filter(item => item !== row._row.data.id);
+                            if (hash.state != filteredArray.toString()) {
+                                //hash.geo = filteredArray.toString();
+                                goHash({'state':filteredArray.toString()});
+                                return;
+                            }
                         }
                     })
                     statetable.on("dataSorted", function(sorters, rows){
@@ -4924,7 +5072,9 @@ function showTabulatorList(element, attempts) {
                             let currentStates = hash.state.split(',');
                             statetable.on("tableBuilt", function() {
                                 //alert("try it")
+                                programmaticSelection = true;
                                 statetable.selectRow(currentStates); // Uses "id" incoming rowData
+                                programmaticSelection = false;
                             });
                         }
                     }
@@ -5131,14 +5281,15 @@ function showTabulatorList(element, attempts) {
 
                 // Row selection handler
                 geotable.on("rowSelected", function(row){
-                    console.log("geotable rowSelected " + row._row.data.id);
+                    console.log("geotable rowSelected " + row._row.data.id + " (programmatic: " + programmaticSelection + ")");
                     if (!currentRowIDs.includes(row._row.data.id)) {
                         //alert("Add to geo in url hash: " + row._row.data.id)
                         // Updates geo in url hash
                         currentRowIDs.push(row._row.data.id);
                     }
                     
-                    if (hash.geo != currentRowIDs.toString()) {
+                    // Only trigger goHash if this is a user-initiated selection, not programmatic
+                    if (!programmaticSelection && hash.geo != currentRowIDs.toString()) {
                         hash.geo = currentRowIDs.toString();
                         //alert("goHash rowSelected " + hash.geo);
                         //alert("rowSelected currentRowIDs call goHash " + currentRowIDs.toString());
@@ -5149,8 +5300,10 @@ function showTabulatorList(element, attempts) {
                 // Row deselection handler
                 geotable.on("rowDeselected", function(row){
                     currentRowIDs = currentRowIDs.filter(item => item !== row._row.data.id);
-                    console.log("rowDeselected. Remaining currentRowIDs: " + currentRowIDs.toString());
-                    if (hash.geo != currentRowIDs.toString()) {
+                    console.log("rowDeselected. Remaining currentRowIDs: " + currentRowIDs.toString() + " (programmatic: " + programmaticSelection + ")");
+                    
+                    // Only trigger goHash if this is a user-initiated deselection, not programmatic
+                    if (!programmaticSelection && hash.geo != currentRowIDs.toString()) {
                         // Why is currentRowIDs incorrect? (blank)
                         hash.geo = currentRowIDs.toString();
                         goHash({'geo':hash.geo}); // Reapplies selections to map (otherwise map reverts to chlorpleth)
@@ -5181,13 +5334,14 @@ function showTabulatorList(element, attempts) {
     } else {
       attempts = attempts + 1;
       loadTabulator();
-      if (attempts < 4000) {
-        // To do: Add a loading image after a coouple seconds. 2000 waits about 300 seconds.
+      if (attempts < 25) {
+        // To do: Add a loading image after a couple seconds. 5 attempts waits about 2 seconds.
         setTimeout( function() {
           showTabulatorList(element, attempts);
-        }, 100 );
+        }, 10 );
       } else {
-        alert("Tabulator JS not available for displaying " + element.scope + ". (4000 attempts by navigation.js)")
+        console.log("INFINITE LOOP PREVENTION: Exiting showTabulatorList after " + attempts + " attempts (limit: 25)");
+        // alert("Tabulator JS not available for displaying " + element.scope + ". (25 attempts by navigation.js)")
       }
     }
 }
@@ -5207,6 +5361,10 @@ function updateSelectedTableRows(geo, geoDeselect, attempts) {
             //alert("geotable.getRows === function")
             // #tabulator-geotable
             //geotable.selectRow(geotable.getRows().filter(row => row.getData().name.includes('Ba')));
+            
+            // Set flag to indicate programmatic selection (don't trigger goHash)
+            programmaticSelection = true;
+            
             if (geo) {
                 $.each(geo.split(','), function(index, value) {
                     console.log("geo value: " + value);
@@ -5223,6 +5381,9 @@ function updateSelectedTableRows(geo, geoDeselect, attempts) {
                     geotable.deselectRow(value); // Pass the row ID directly
                 });
             }
+            
+            // Reset flag after programmatic selections are complete
+            programmaticSelection = false;
             // Row Display Test - scroll down to see which rows were not initially in DOM.
             //$('.tabulator-row input:checkbox').css('display', 'none');
 
@@ -5329,7 +5490,10 @@ function updateMapColors(whichmap) {
 
         // BUGBUG - When state included with geoview=country
         // http://localhost:8887/community/start/maps/#geoview=country&state=GA
-        geoOverlays[layerName].eachLayer(function (layer) {
+        
+        // Check if geoOverlays[layerName] exists before calling eachLayer
+        if (geoOverlays[layerName]) {
+            geoOverlays[layerName].eachLayer(function (layer) {
             const location = layer.feature.properties.COUNTYFP; // Match GeoJSON property
             const stateFP = layer.feature.properties.STATEFP;
             //alert("locationA: " + location)
@@ -5372,6 +5536,9 @@ function updateMapColors(whichmap) {
                 });
             }
         });
+        } else {
+            console.log("WARN: geoOverlays[" + layerName + "] is undefined, skipping eachLayer processing");
+        }
 
         // Add a legend
         addLegendToMap(minCO2, maxCO2, whichmap, legendTitle);
@@ -5835,15 +6002,6 @@ if(!param.show) {
 }
 */
 
-/* Allows map to remove selected shapes when backing up. */
-document.addEventListener('hashChangeEvent', function (elem) {
-    console.log("navigation.js detects URL hashChangeEvent");
-    hashChanged();
-}, false);
-
-if(typeof hiddenhash == 'undefined') {
-    var hiddenhash = {};
-}
 function updateRegionService(section) {
 
     //alert("updateRegionService");
@@ -6003,14 +6161,14 @@ if (modelpath == "./") {
 
 // 2024 June - Override everything above to allow for other localsite ports not having local files.
 // If navigation.js is loaded first, this will be...
-if (typeof local_app.modelearth_root === 'function') {
-    modelpath = local_app.modelearth_root();
+if (typeof local_app.web_root === 'function') {
+    modelpath = local_app.web_root();
 }
 //alert("modelpath " + modelpath)
 
 if(location.host.indexOf('localhost') < 0 && location.host.indexOf('model.') < 0 && location.host.indexOf('neighborhood.org') < 0) { // When not localhost or other site that has a fork of io and community.
     // To do: allow "Input-Output Map" link in footer to remain relative.
-    //modelpath = "https://model.earth/" + modelpath; // Avoid - use local_app.modelearth_root() instead - Check if/why used for #headerSiteTitle and hamburger menu
+    //modelpath = "https://model.earth/" + modelpath; // Avoid - use local_app.web_root() instead - Check if/why used for #headerSiteTitle and hamburger menu
     ////modelroot = "https://model.earth"; // For embeds
 }
 consoleLog("theroot NOT APPENDED: " + theroot + modelpath); // Not correct since modelpath starts with https://locasite etc
@@ -6240,10 +6398,21 @@ function iNav(set) {
     let hashString = decodeURIComponent($.param(hash)); // decode to display commas in URL
     if (location.href.indexOf('/info') == -1) {
         //updateHash({"geoview":""}); // Close location filter before redirect.
-        location.href = local_app.modelearth_root() + "/localsite/info/#" + hashString;
+        location.href = local_app.web_root() + "/localsite/info/#" + hashString;
     } else {
         goHash({"set":set,"indicators":hash.indicators});
     }
+}
+function toggleShowNavColumn() {
+    // Original showNavColumn behavior
+    if ($("body").hasClass("sidebar-hidden")) {
+        //alert("showNavColumn")
+        showNavColumn();
+    } else {
+        hideNavColumn();
+    }
+    let headerFixedHeight = $("#headerLarge").height();
+    $('#cloneLeft').css("top",headerFixedHeight + "px");
 }
 let localsiteTitle = "";
 function applyNavigation() { // Waits for localsite.js 'localStart' variable so local_app path is available.
@@ -6312,10 +6481,10 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
         showLeftIcon = true;
         $(".siteTitleShort").text("Civic Tech Atlanta");
         param.titleArray = ["civic tech","atlanta"]
-        param.headerLogo = "<a href='https://codeforatlanta.org'><img src='" + local_app.modelearth_root() + "/community/img/logo/orgs/civic-tech-atlanta-text.png' style='width:186px;padding-top:8px'></a>";
+        param.headerLogo = "<a href='https://codeforatlanta.org'><img src='" + local_app.web_root() + "/community/img/logo/orgs/civic-tech-atlanta-text.png' style='width:186px;padding-top:8px'></a>";
         
         localsiteTitle = "Civic Tech Atlanta";
-        changeFavicon(local_app.modelearth_root() + "/localsite/img/logo/neighborhood/favicon.png")
+        changeFavicon(local_app.web_root() + "/localsite/img/logo/neighborhood/favicon.png")
         showClassInline(".neighborhood");
         earthFooter = true;
         showClassInline(".georgia"); // Temp side nav
@@ -6337,16 +6506,22 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
         $(".siteTitleShort").text("Model Georgia");
         param.titleArray = [];
         console.log("local_app.localsite_root() " + local_app.localsite_root()); // https://model.earth was in here: https://map.georgia.org/localsite/map/#show=recyclers
-        param.headerLogo = "<a href='https://georgia.org'><img src='" + local_app.modelearth_root() + "/localsite/img/logo/states/GA.png' style='width:160px;margin-top:0px'></a>";
-        param.headerLogoNoText = "<a href='https://georgia.org' style='margin-top:-1px'><img src='" + local_app.modelearth_root() + "/localsite/img/logo/states/GA-icon.png' style='width:52px;padding:0px;margin:0px'></a>";
+        param.headerLogo = "<a href='https://georgia.org'><img src='" + local_app.web_root() + "/localsite/img/logo/states/GA.png' style='width:160px;margin-top:0px'></a>";
+        param.headerLogoNoText = "<a href='https://georgia.org'><img src='" + local_app.web_root() + "/localsite/img/logo/states/GA-icon.png' style='width:52px;padding:0px;margin-top:-2px'></a>";
         localsiteTitle = "Georgia.org";
-        changeFavicon(local_app.modelearth_root() + "/localsite/img/logo/states/GA-favicon.png");
-        if (location.host.indexOf('localhost') >= 0 || location.host.indexOf("locations.pages.dev") >= 0 || location.host.indexOf("locations.georgia.org") >= 0) {
+        changeFavicon(local_app.web_root() + "/localsite/img/logo/states/GA-favicon.png");
+        if (location.host.indexOf('localhost') >= 0) {
             showClassInline(".acct");
             showClassInline(".garesource");
+            showClassInline(".georgia");
+        } else if (location.host.indexOf("locations.pages.dev") >= 0 || location.host.indexOf("locations.georgia.org") >= 0) {
+            showClassInline(".acct");
+            showClassInline(".garesource");
+        } else {
+            showClassInline(".georgia");
         }
         showClassInline(".geo");
-        showClassInline(".georgia");
+        
         if (location.host.indexOf("locations.pages.dev") >= 0 || location.host.indexOf("locations.georgia.org") >= 0) {
             // To activate when filter are ready
             //showClassInline(".earth");
@@ -6359,9 +6534,9 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
     } else if ((modelsite=="neighborhood.org" || param.startTitle == "Neighborhood.org" || location.host.indexOf('neighborhood.org') >= 0)) {
         showLeftIcon = true;
         param.titleArray = ["neighbor","hood"]
-        param.headerLogoSmall = "<img src='" + local_app.modelearth_root() + "/localsite/img/logo/neighborhood/favicon.png' style='width:40px;opacity:0.7'>"
+        param.headerLogoSmall = "<img src='" + local_app.web_root() + "/localsite/img/logo/neighborhood/favicon.png' style='width:40px;opacity:0.7'>"
         localsiteTitle = "Neighborhood.org";
-        changeFavicon(local_app.modelearth_root() + "/localsite/img/logo/neighborhood/favicon.png")
+        changeFavicon(local_app.web_root() + "/localsite/img/logo/neighborhood/favicon.png")
         showClassInline(".neighborhood");
         showClassInline(".earth");
         earthFooter = true;
@@ -6374,13 +6549,13 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
         }
         param.showLeftIcon = false;
         localsiteTitle = "DemocracyLab 2.0";
-        changeFavicon(local_app.modelearth_root() + "/localsite/img/logo/democracylab/favicon.png")
+        changeFavicon(local_app.web_root() + "/localsite/img/logo/democracylab/favicon.png")
         $(".siteTitleShort").text("Democracy Lab");
         param.titleArray = ["democracy","lab"]
-        //param.headerLogo = "<img src='" + local_app.modelearth_root() + "/localsite/img/logo/partners/democracylab/democracy-lab-2.png' style='width:190px;margin-top:15px'>";
+        //param.headerLogo = "<img src='" + local_app.web_root() + "/localsite/img/logo/partners/democracylab/democracy-lab-2.png' style='width:190px;margin-top:15px'>";
         param.headerLogo = "<a href='/'><img src='https://neighborhood.org/community/img/logo/orgs/democracy-lab-2.png' style='width:170px;margin-top:10px'></a>";
         
-        //param.headerLogoSmall = "<img src='" + local_app.modelearth_root() + "/localsite/img/logo/partners/democracylab/democracy-lab-icon.jpg' style='width:32px;margin:4px 8px 0 0'>";
+        //param.headerLogoSmall = "<img src='" + local_app.web_root() + "/localsite/img/logo/partners/democracylab/democracy-lab-icon.jpg' style='width:32px;margin:4px 8px 0 0'>";
         param.headerLogoSmall = "<img src='https://neighborhood.org/community/img/logo/orgs/democracy-lab-2.png' style='width:120px;margin:4px 8px 0 0'>";
         //param.headerLogoNoText = "<a href='https://democracylab2.org'><img src='https://neighborhood.org/community/img/logo/orgs/democracy-lab-2.png' style='width:50px;padding-top:0px;margin-top:-1px'></a>";
         showClassInline(".dlab");
@@ -6388,8 +6563,8 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
         localsiteTitle = "MemberCommons";
         $(".siteTitleShort").text("MemberCommons");
         param.titleArray = ["Member","Commons"];
-        param.headerLogoSmall = "<img src='" + local_app.modelearth_root() + "/localsite/img/logo/neighborhood/favicon.png' style='width:40px;opacity:0.7'>"
-        changeFavicon(local_app.modelearth_root() + "/localsite/img/logo/neighborhood/favicon.png")
+        param.headerLogoSmall = "<img src='" + local_app.web_root() + "/localsite/img/logo/neighborhood/favicon.png' style='width:40px;opacity:0.7'>"
+        changeFavicon(local_app.web_root() + "/localsite/img/logo/neighborhood/favicon.png")
         showClassInline(".membercommons");
     } else if (!Array.isArray(param.titleArray) && !param.headerLogo) {
     //} else if (location.host.indexOf('model.earth') >= 0) {
@@ -6397,11 +6572,11 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
         $(".siteTitleShort").text("Model Earth");
         param.titleArray = ["model","earth"];
         localsiteTitle = "Model Earth";
-        param.headerLogoSmall = "<img src='" + local_app.modelearth_root() + "/localsite/img/logo/modelearth/model-earth.png' style='width:34px; margin-right:2px'>";
+        param.headerLogoSmall = "<img src='" + local_app.web_root() + "/localsite/img/logo/modelearth/model-earth.png' style='width:34px; margin-right:2px' class='logoTopPadding'>";
         
         // Works correctly for model.earth sitemodel, but not reached by geo.
         //alert("changeFavicon")
-        changeFavicon(local_app.modelearth_root() + "/localsite/img/logo/modelearth/model-earth.png")
+        changeFavicon(local_app.web_root() + "/localsite/img/logo/modelearth/model-earth.png")
         showClassInline(".earth");
         console.log(".earth display");
         earthFooter = true;
@@ -6489,16 +6664,7 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
 
         $(document).on("click", ".showNavColumn", function(event) {
             console.log(".showNavColumn click");
-
-            // Original showNavColumn behavior
-            if ($("body").hasClass("sidebar-hidden")) {
-                //alert("showNavColumn")
-                showNavColumn();
-            } else {
-                hideNavColumn();
-            }
-            let headerFixedHeight = $("#headerLarge").height();
-            $('#cloneLeft').css("top",headerFixedHeight + "px");
+            toggleShowNavColumn();
         });
         $(document).on("click", ".hideSideList", function(event) {
             hideSide("list");
@@ -6560,12 +6726,12 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
                 */
 
                 if (param.header) {
-                    headerFile = local_app.modelearth_root() + param.header;
+                    headerFile = local_app.web_root() + param.header;
                 } else if (param.headerFile) {
                     modelpath = ""; // Use the current repo when custom headerFile provided. Allows for site to reside within repo.
                     headerFile = param.headerFile;
                 } else {
-                    headerFile = local_app.modelearth_root() + "/localsite/header.html";
+                    headerFile = local_app.web_root() + "/localsite/header.html";
                 }
 
                 //if (earthFooter && param.showSideTabs != "false") { // Sites including modelearth and neighborhood
@@ -6652,7 +6818,7 @@ function applyNavigation() { // Waits for localsite.js 'localStart' variable so 
                             $("#local-header img[src]").each(function() {
                                 if($(this).attr("src").toLowerCase().indexOf("http") < 0) {
                                     if($(this).attr("src").indexOf("/") == 0) { // Starts with slash
-                                        $(this).attr("src", local_app.modelearth_root() + $(this).attr('src'));
+                                        $(this).attr("src", local_app.web_root() + $(this).attr('src'));
                                     } else {
                                     $(this).attr("src", modelpath + $(this).attr('src'));
                                 }
@@ -7596,7 +7762,7 @@ function showClassInline(theclass) {
 function imagineLocation() {
     if (location.href.indexOf('/info') == -1) {
         updateHash({"geoview":""}); // Prevents location filter from remaining open after redirect.
-        location.href = local_app.modelearth_root() + "/localsite/info/" + location.hash;
+        location.href = local_app.web_root() + "/localsite/info/" + location.hash;
         return;
     }
     updateHash({"imgview":"state","geoview":"","appview":""}); // Should this reside in hideAdvanced()?
@@ -7709,6 +7875,7 @@ function activateSideColumn() {
     }
     var lastID;
     
+    /*
     $(window).scroll(function() {
         var id = currentSideID();
         if (location.host.indexOf('localhost') >= 0) {
@@ -7736,7 +7903,8 @@ function activateSideColumn() {
             }
           }
        }
-       
+    
+
       if (id == "intro") {
         console.log("headerbar show");
         $('.headerbar').show();
@@ -7746,6 +7914,7 @@ function activateSideColumn() {
         //$('html,body').scrollTop(0); 
       }
     });
+    */
 
     // Initial page load
     var currentSection = currentSideID();

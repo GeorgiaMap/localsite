@@ -6,9 +6,9 @@
 
 ### Localsite Setup and Development
 
-[How to add a new localsite page](template).  View our [Active Projects](../../projects) and [Moonshots](../../community/projects).
+[How to add a new readme page (index.html)](template).  View our [Active Projects](../../projects) and [Moonshots](../../community/projects).
 
-Helpful tips for [Node, Python, pyenv, Conda and Docker](../../io/coders/python/).
+Helpful tips for [NVM, Node, npm, pyenv, Python, pip, Conda and Docker](cmds/).
 
 
 ## <span class="num">1</span><span class="txt">Site Install - Code globally, run locally</span>
@@ -22,7 +22,7 @@ Helpful tips for [Node, Python, pyenv, Conda and Docker](../../io/coders/python/
 
 We recommond using the Webroot install with Claude Code CLI<br>
 
-<a href="https://model.earth/webroot/" class="btn btn-success" style="float:left;margin:0px;margin-right:6px">Webroot Install</a><a href="../../localsite/start/steps/" class="btn btn-success" style="margin:0px">Repo Install</a>
+<a href="https://model.earth/webroot/" class="btn btn-success" style="float:left;margin:0px;margin-right:6px">Webroot Install</a><a href="../../localsite/start/steps/" class="btn btn-primary" style="margin:0px">Repo Install</a>
 
 ## <span class="num">2</span><span class="txt">Input-Output Widgets</span>
 <a href="../../io/charts/">Contribute to Impact Widgets</a> - Display based on [localsite parameters](../) 
